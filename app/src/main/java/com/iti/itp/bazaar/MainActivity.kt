@@ -47,6 +47,7 @@ class MainActivity : AppCompatActivity() {
                 return false
             }
 
+
             override fun onQueryTextChange(newText: String?): Boolean {
 
                 return false
