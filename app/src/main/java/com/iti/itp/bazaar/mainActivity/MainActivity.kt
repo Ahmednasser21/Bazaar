@@ -74,6 +74,7 @@ class MainActivity : AppCompatActivity() {
                 true
             }
 
+
             R.id.nav_favourite -> {
 
                 true
