@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:iconifiedByDefault="false"
-        app:searchIcon="@drawable/baseline_search_24"
+        app:searchHintIcon="@drawable/baseline_search_24"
         android:queryHint="Search..." />
 
     <TextView

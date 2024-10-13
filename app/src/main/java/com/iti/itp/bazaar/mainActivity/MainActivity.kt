@@ -1,9 +1,13 @@
 package com.iti.itp.bazaar.mainActivity
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
@@ -45,7 +49,19 @@ class MainActivity : AppCompatActivity() {
             toolbarTitle.text = destination.label
         }
 
-        val searchView: SearchView = findViewById(R.id.search_view)
+        val searchView: SearchView = findViewById<SearchView?>(R.id.search_view).apply {
+
+            val searchIcon = findViewById<ImageView>(androidx.appcompat.R.id.search_button)
+            searchIcon.setColorFilter(Color.WHITE)
+
+            val searchEditText: EditText = this.findViewById(androidx.appcompat.R.id.search_src_text)
+            searchEditText.setTextColor(Color.WHITE)
+            searchEditText.textSize = 20f
+
+            val closeIcon = findViewById<ImageView>(androidx.appcompat.R.id.search_close_btn)
+            closeIcon.setColorFilter(Color.WHITE)
+        }
+
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
 
