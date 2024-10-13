@@ -1,4 +1,4 @@
-package com.iti.itp.bazaar.ui.shoppingCart
+package com.iti.itp.bazaar.mainActivity.ui.shoppingCart
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment

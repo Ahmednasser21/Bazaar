@@ -15,4 +15,5 @@
     <string name="proceed_to_checkout_text">PROCEED TO CHECKOUT</string>
     <string name="total_price">Total price:</string>
     <string name="icon_for_product">icon for product</string>
+    <string name="fragment_name">fragment_name</string>
 </resources>

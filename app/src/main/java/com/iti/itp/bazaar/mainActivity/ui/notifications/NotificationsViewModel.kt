@@ -1,4 +1,4 @@
-package com.iti.itp.bazaar.ui.notifications
+package com.iti.itp.bazaar.mainActivity.ui.notifications
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

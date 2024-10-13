@@ -1,4 +1,4 @@
-package com.iti.itp.bazaar.ui.home
+package com.iti.itp.bazaar.mainActivity.ui.home
 
 import android.os.Bundle
 import android.view.LayoutInflater

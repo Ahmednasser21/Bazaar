@@ -7,24 +7,24 @@
 
     <fragment
         android:id="@+id/nav_home"
-        android:name="com.iti.itp.bazaar.ui.home.HomeFragment"
+        android:name="com.iti.itp.bazaar.mainActivity.ui.home.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/nav_categories"
-        android:name="com.iti.itp.bazaar.ui.dashboard.DashboardFragment"
+        android:name="com.iti.itp.bazaar.mainActivity.ui.dashboard.DashboardFragment"
         android:label="Categories"
         tools:layout="@layout/fragment_dashboard" />
 
     <fragment
         android:id="@+id/nav_me"
-        android:name="com.iti.itp.bazaar.ui.notifications.NotificationsFragment"
+        android:name="com.iti.itp.bazaar.mainActivity.ui.notifications.NotificationsFragment"
         android:label="@string/me"
         tools:layout="@layout/fragment_notifications" />
     <fragment
         android:id="@+id/shoppingCart"
-        android:name="com.iti.itp.bazaar.ui.shoppingCart.ShoppingCart"
+        android:name="com.iti.itp.bazaar.mainActivity.ui.shoppingCart.ShoppingCart"
         android:label="Shopping Cart"
         tools:layout="@layout/fragment_shapping_cart" />
 </navigation>
