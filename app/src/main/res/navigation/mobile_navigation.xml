@@ -22,4 +22,9 @@
         android:name="com.iti.itp.bazaar.ui.notifications.NotificationsFragment"
         android:label="@string/me"
         tools:layout="@layout/fragment_notifications" />
+    <fragment
+        android:id="@+id/shoppingCart"
+        android:name="com.iti.itp.bazaar.ui.shoppingCart.ShoppingCart"
+        android:label="Shopping Cart"
+        tools:layout="@layout/fragment_shapping_cart" />
 </navigation>

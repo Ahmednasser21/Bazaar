@@ -11,6 +11,8 @@
     <string name="item_image">Item image</string>
     <string name="categories">Categories</string>
     <string name="me">Me</string>
-    <string name="search">Search</string>
-    <string name="fragment_name">Fragment Name</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="proceed_to_checkout_text">PROCEED TO CHECKOUT</string>
+    <string name="total_price">Total price:</string>
+    <string name="icon_for_product">icon for product</string>
 </resources>
