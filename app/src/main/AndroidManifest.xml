@@ -2,7 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
+        android:name=".network.MyApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -14,9 +17,6 @@
         tools:targetApi="31">
         <activity
             android:name=".settings.SettingsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".shoppingCartActivity.shoppingCartFragment.ShoppingCartFragment"
             android:exported="false" />
         <activity
             android:name=".shoppingCartActivity.ShoppingCartActivity"
