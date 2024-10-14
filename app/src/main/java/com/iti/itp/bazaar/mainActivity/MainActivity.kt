@@ -47,6 +47,7 @@ class MainActivity : AppCompatActivity() {
         navController.addOnDestinationChangedListener { _, destination, _ ->
             val toolbarTitle: TextView = findViewById(R.id.toolbar_title)
             toolbarTitle.text = destination.label
+            invalidateOptionsMenu()
         }
 
         val searchView: SearchView = findViewById<SearchView?>(R.id.search_view).apply {
@@ -76,8 +77,14 @@ class MainActivity : AppCompatActivity() {
 
         })
     }
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        val isNavMe = navController.currentDestination?.id == R.id.nav_me
+        menu.findItem(R.id.nav_settings)?.isVisible = isNavMe
+        menu.findItem(R.id.nav_favourite)?.isVisible = !isNavMe
+        return super.onPrepareOptionsMenu(menu)
+    }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.action_menu, menu)
         return true
     }
@@ -90,8 +97,11 @@ class MainActivity : AppCompatActivity() {
                 true
             }
 
-
             R.id.nav_favourite -> {
+
+                true
+            }
+            R.id.nav_settings->{
 
                 true
             }

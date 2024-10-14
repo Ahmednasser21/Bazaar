@@ -22,4 +22,5 @@
     <string name="welcome">Welcome:</string>
     <string name="orders">Orders</string>
     <string name="wishlist">Wishlist</string>
+    <string name="settings">Settings</string>
 </resources>
