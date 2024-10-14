@@ -5,12 +5,15 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.HORIZONTAL
+import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.R
 import com.iti.itp.bazaar.databinding.FragmentHomeBinding
 import com.iti.itp.bazaar.mainActivity.ui.DataState
@@ -29,6 +32,7 @@ class HomeFragment : Fragment() , OnBrandClickListener {
     private lateinit var homeViewModel: HomeViewModel
     private lateinit var brandsAdapter: BrandsAdapter
     private lateinit var brandsRecycler: RecyclerView
+    private lateinit var brandsProgressBar:ProgressBar
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,8 +56,9 @@ class HomeFragment : Fragment() , OnBrandClickListener {
 
         brandsRecycler = binding.recBrands.apply {
             adapter = brandsAdapter
-            layoutManager = GridLayoutManager(requireContext(),2)
+            layoutManager = GridLayoutManager(requireContext(),2, HORIZONTAL,false)
         }
+        brandsProgressBar = binding.progBrands
         homeViewModel.getProducts("vendor")
         getProductVendors()
 
@@ -65,10 +70,14 @@ class HomeFragment : Fragment() , OnBrandClickListener {
 
                 when (result) {
 
-                    is DataState.Loading -> {}
+                    is DataState.Loading -> {
+                        brandsProgressBar.visibility = View.VISIBLE
+                        brandsRecycler.visibility = View.INVISIBLE
+                    }
 
                     is DataState.OnSuccess<*> ->{
-
+                        brandsProgressBar.visibility = View.GONE
+                        brandsRecycler.visibility = View.VISIBLE
                         val productsResponse = result.data as ProductsResponse
                         val productsList = productsResponse.products
                         Log.i(TAG, "getProductVendors: $productsList ")
@@ -76,12 +85,8 @@ class HomeFragment : Fragment() , OnBrandClickListener {
 
                     }
                     is DataState.OnFailed->{
-                        Log.e(TAG, "getProductVendors: ${result.msg.message}" )
-                        Toast.makeText(
-                            requireContext(),
-                            "Failed to get data",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        brandsProgressBar.visibility = View.GONE
+                        Snackbar.make(requireView(),"Failed to get data",Snackbar.LENGTH_SHORT).show()
                     }
 
                 }
@@ -97,8 +102,8 @@ class HomeFragment : Fragment() , OnBrandClickListener {
             .filter { it != "Your Vendor Name" }
             .map { vendorName ->
                 BrandsDTO(
-                    img = getImageResourceForVendor(vendorName),
-                    vendorName = vendorName
+                    getImageResourceForVendor(vendorName),
+                    vendorName
                 )
             }
             .toList()
@@ -109,7 +114,7 @@ class HomeFragment : Fragment() , OnBrandClickListener {
         return when (vendorName) {
             "ADIDAS" -> R.drawable.adidas
             "ASICS TIGER" -> R.drawable.asics_tiger
-            "BURTON" -> R.drawable.burton
+            "Burton" -> R.drawable.burton
             "CONVERSE" -> R.drawable.converse
             "DR MARTENS" -> R.drawable.dr_martens
             "FLEX FIT" -> R.drawable.flexfit
