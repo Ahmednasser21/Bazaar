@@ -47,6 +47,7 @@ class MainActivity : AppCompatActivity() {
         navController.addOnDestinationChangedListener { _, destination, _ ->
             val toolbarTitle: TextView = findViewById(R.id.toolbar_title)
             toolbarTitle.text = destination.label
+
             invalidateOptionsMenu()
         }
 
@@ -76,6 +77,22 @@ class MainActivity : AppCompatActivity() {
             }
 
         })
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when(destination.id){
+                R.id.nav_me->{
+                    val toolbarTitle: TextView = findViewById(R.id.toolbar_title)
+                    toolbarTitle.text = destination.label
+                    searchView.visibility = View.INVISIBLE
+                    invalidateOptionsMenu()
+                }
+                R.id.nav_home->{
+                    searchView.visibility = View.VISIBLE
+                }
+                R.id.nav_categories->{
+                    searchView.visibility = View.VISIBLE
+                }
+            }
+        }
     }
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         val isNavMe = navController.currentDestination?.id == R.id.nav_me
