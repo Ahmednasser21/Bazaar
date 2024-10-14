@@ -1,4 +1,4 @@
-package com.iti.itp.bazaar.mainActivity.ui.shoppingCart
+package com.iti.itp.bazaar.shoppingCartActivity.shoppingCartFragment
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -8,7 +8,8 @@ import android.view.ViewGroup
 import com.iti.itp.bazaar.R
 
 
-class ShoppingCart : Fragment() {
+class ShoppingCartFragment : Fragment() {
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,7 +21,8 @@ class ShoppingCart : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_shapping_cart, container, false)
+        return inflater.inflate(R.layout.fragment_shopping_cart, container, false)
     }
+
 
 }

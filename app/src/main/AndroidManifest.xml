@@ -12,8 +12,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Bazaar"
         tools:targetApi="31">
-        <activity android:name=".shoppingCartActivity.ShoppingCartActivity"
-            android:exported="true"/>
+        <activity
+            android:name=".shoppingCartActivity.shoppingCartFragment.ShoppingCartFragment"
+            android:exported="false" />
+        <activity
+            android:name=".shoppingCartActivity.ShoppingCartActivity"
+            android:exported="true" />
         <activity
             android:name=".mainActivity.MainActivity"
             android:exported="true"
