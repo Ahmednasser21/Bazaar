@@ -16,4 +16,10 @@
     <string name="total_price">Total price:</string>
     <string name="icon_for_product">icon for product</string>
     <string name="fragment_name">fragment_name</string>
+    <string name="more">More</string>
+    <string name="price">Price:</string>
+    <string name="created_at">created at:</string>
+    <string name="welcome">Welcome:</string>
+    <string name="orders">Orders</string>
+    <string name="wishlist">Wishlist</string>
 </resources>
