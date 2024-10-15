@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "490858238369",
+    "project_id": "m-commerce-cc8b2",
+    "storage_bucket": "m-commerce-cc8b2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:490858238369:android:41e61fa7d6bd5eba61fbe0",
+        "android_client_info": {
+          "package_name": "com.iti.itp.bazaar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAzXPNMWKFK9D-x2By8up2cf9jWgzyM4Fo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
