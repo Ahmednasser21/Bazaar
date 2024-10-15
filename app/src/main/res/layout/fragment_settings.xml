@@ -5,12 +5,13 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="16dp"
-    tools:context=".settings.SettingsFragment.SettingsFragment">
+    tools:context=".settings.ui.settingsFragment.SettingsFragment">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         app:cardCornerRadius="30dp"
         android:backgroundTint="#EDE0DB"
+        android:id="@+id/cv_address"
         android:layout_height="90dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -21,13 +22,37 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
-                android:text="Address"
+                android:text="@string/address"
                 android:textColor="@color/black"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageButton
+                android:id="@+id/imageButton2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@drawable/arrow_forward_24"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+            <TextView
+                android:id="@+id/address"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="20dp"
+                android:text="dgdsgdgdsgdsgs"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@+id/imageButton2"
+                app:layout_constraintEnd_toStartOf="@+id/imageButton2"
+                app:layout_constraintTop_toTopOf="@+id/imageButton2" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

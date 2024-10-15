@@ -21,6 +21,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.iti.itp.bazaar.R
 import com.iti.itp.bazaar.shoppingCartActivity.ShoppingCartActivity
 import com.iti.itp.bazaar.databinding.ActivityMainBinding
+import com.iti.itp.bazaar.settings.SettingsActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -119,7 +120,8 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             R.id.nav_settings->{
-
+                val intent = Intent(this, SettingsActivity::class.java)
+                startActivity(intent)
                 true
             }
             else -> super.onOptionsItemSelected(item)

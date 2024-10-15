@@ -26,4 +26,12 @@
     <string name="continue_to_payment">Continue to payment</string>
     <string name="paypal">PayPal</string>
     <string name="proceed">Proceed</string>
+    <string name="address">Address</string>
+    <string name="country">Country:</string>
+    <string name="phone">Phone:</string>
+    <string name="address_text">Address:</string>
+    <string name="add_new_address">Add new address</string>
+    <string name="enter_your_country">Enter your country</string>
+    <string name="enter_your_phone_number">Enter your phone number</string>
+    <string name="enter_your_city">Enter your city</string>
 </resources>

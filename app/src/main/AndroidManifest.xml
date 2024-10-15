@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name=".network.MyApplication"
         android:allowBackup="true"
@@ -20,7 +21,18 @@
             android:exported="false" />
         <activity
             android:name=".shoppingCartActivity.ShoppingCartActivity"
-            android:exported="true" />
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="paypalpay"
+                    android:scheme="com.iti.itp.bazaar" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".mainActivity.MainActivity"
             android:exported="true"

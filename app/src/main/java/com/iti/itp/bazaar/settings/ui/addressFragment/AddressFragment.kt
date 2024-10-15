@@ -1,4 +1,4 @@
-package com.iti.itp.bazaar.shoppingCartActivity.shoppingCartFragment
+package com.iti.itp.bazaar.settings.ui.addressFragment
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -7,11 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.Navigation
 import com.iti.itp.bazaar.R
-import com.iti.itp.bazaar.databinding.FragmentShoppingCartBinding
+import com.iti.itp.bazaar.databinding.FragmentAddressBinding
 
 
-class ShoppingCartFragment : Fragment() {
-    private lateinit var binding:FragmentShoppingCartBinding
+class AddressFragment : Fragment() {
+    private lateinit var binding:FragmentAddressBinding
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,17 +24,17 @@ class ShoppingCartFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        binding = FragmentShoppingCartBinding.inflate(inflater,container,false)
+        binding = FragmentAddressBinding.inflate(inflater, container, false)
         return binding.root
     }
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.btnProceedToCheckout.setOnClickListener{
-            Navigation.findNavController(view).navigate(ShoppingCartFragmentDirections.actionShoppingCartFragmentToChooseAddressFragment())
+        binding.btnAddNewAddress.setOnClickListener {
+            val action = AddressFragmentDirections.actionAddressFragmentToNewAddressFragment()
+            Navigation.findNavController(view).navigate(action)
         }
-
     }
-
 
 }
