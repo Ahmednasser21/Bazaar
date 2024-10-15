@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -17,8 +16,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.R
 import com.iti.itp.bazaar.databinding.FragmentHomeBinding
 import com.iti.itp.bazaar.mainActivity.ui.DataState
-import com.iti.itp.bazaar.network.RemoteDataSource
-import com.iti.itp.bazaar.network.RetrofitObj
+import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
+import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
 import com.iti.itp.bazaar.network.dto.Product
 import com.iti.itp.bazaar.network.reponces.ProductsResponse
 import com.iti.itp.bazaar.repo.Repository
@@ -41,7 +40,7 @@ class HomeFragment : Fragment() , OnBrandClickListener {
     ): View {
         val factory = HomeViewModelFactory(
             Repository.getInstance(
-                RemoteDataSource(RetrofitObj.productService)
+                ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
             )
         )
         homeViewModel = ViewModelProvider(this, factory)[HomeViewModel::class.java]

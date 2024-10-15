@@ -1,6 +1,8 @@
-package com.iti.itp.bazaar.network
+package com.iti.itp.bazaar.network.shopify
 
 import android.util.Base64
+import com.iti.itp.bazaar.network.MyApplication
+import com.iti.itp.bazaar.network.NetworkUtil
 import okhttp3.Cache
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -8,7 +10,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
 
-object RetrofitObj {
+object ShopifyRetrofitObj {
     private const val BASE_URL = "https://itp-ism-and2.myshopify.com/"
     private const val CACHE_SIZE = 10 * 1024 * 1024 // 10 MB
 
@@ -37,7 +39,7 @@ object RetrofitObj {
         val original = chain.request()
         val request = original.newBuilder()
             .header("Authorization", "Basic " + Base64.encodeToString("11e78826cf84e3b78e84a8a635e8c91e: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".toByteArray(), Base64.NO_WRAP))
-            .method(original.method(), original.body())
+            .method(original.method, original.body)
             .build()
         chain.proceed(request)
     }

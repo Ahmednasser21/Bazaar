@@ -1,4 +1,4 @@
-package com.iti.itp.bazaar.network
+package com.iti.itp.bazaar.network.shopify
 
 import com.iti.itp.bazaar.network.reponces.ProductsResponse
 import retrofit2.http.GET
