@@ -48,6 +48,8 @@ class PayPalFragment : Fragment() {
     private val clientID = "AYF_7hasq1akGkaUz04HUmMoC-Iplw7jPfoLFuEFQzfqsB3rfGQCqUw5ZcWVGY5cO0LMGjFCooWunB5N"
     private val secretID = "EEiwJFW8iAefjIcgWYfq9hWtLHOg2OCn-YFy-TFhlaGD2qzIkz4Hu3hmFnJPGrSNLefrQwREeaaMI9c5"
 
+
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentPayPalBinding.inflate(inflater, container, false)
         return binding.root
