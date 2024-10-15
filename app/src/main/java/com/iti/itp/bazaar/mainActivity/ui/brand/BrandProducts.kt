@@ -119,6 +119,6 @@ class BrandProducts : Fragment(), OnBrandProductClickListener {
     }
 
         override fun onBrandProductClick(productID: Long) {
-
+// navigate to prouductDetails fragment using args with productID
     }
 }

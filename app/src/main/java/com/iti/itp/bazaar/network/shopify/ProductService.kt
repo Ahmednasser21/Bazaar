@@ -10,4 +10,7 @@ interface ProductService {
 
     @GET("admin/api/2022-01/products.json")
     suspend fun getVendorProducts(@Query("vendor") name: String): ProductResponse
+    ///
+    @GET("admin/api/2022-01/products.json")
+    suspend fun getProductDetails(@Query("ids") id: Long): ProductResponse
 }

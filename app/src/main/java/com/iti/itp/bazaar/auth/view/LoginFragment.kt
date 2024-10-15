@@ -1,6 +1,7 @@
 package com.iti.itp.bazaar.auth.view
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
@@ -20,6 +21,7 @@ import com.iti.itp.bazaar.auth.firebase.FirebaseReposatory
 import com.iti.itp.bazaar.auth.viewModel.AuthViewModel
 import com.iti.itp.bazaar.auth.viewModel.AuthViewModelFactory
 import com.iti.itp.bazaar.databinding.FragmentLoginBinding
+import com.iti.itp.bazaar.mainActivity.MainActivity
 
 
 class LoginFragment : Fragment() {
@@ -34,6 +36,7 @@ lateinit var binding : FragmentLoginBinding
         if(user!=null)
         {
             // here should be the navigation step to the home screen casue the user is aready logged in
+        startActivity(Intent(requireActivity(),MainActivity::class.java))
         }
     }
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -107,6 +110,7 @@ lateinit var binding : FragmentLoginBinding
         if (user != null) {
             if (user.isEmailVerified) {
                     // here also navigate to home screen
+                startActivity(Intent(requireActivity(),MainActivity::class.java))
                 Snackbar.make(requireView(), "Authentication success.", 2000).show()
             } else {
                 Snackbar.make(requireView(), "checkIfEmailVerified: Email is not verified", 2000).show()
