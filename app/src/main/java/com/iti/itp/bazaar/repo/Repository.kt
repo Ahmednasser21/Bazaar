@@ -1,7 +1,7 @@
 package com.iti.itp.bazaar.repo
 
 import com.iti.itp.bazaar.network.RemoteDataSource
-import com.iti.itp.bazaar.network.reponces.ProductsResponse
+import com.iti.itp.bazaar.network.responses.VendorResponse
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -20,7 +20,7 @@ class Repository (private val remoteDataSource: RemoteDataSource) {
             }
         }
     }
-    suspend fun getProducts(fields:String):Flow<ProductsResponse>{
+    suspend fun getProducts(fields:String):Flow<VendorResponse>{
         return flow{
             val vendorList = remoteDataSource.getProducts(fields)
             emit(vendorList)

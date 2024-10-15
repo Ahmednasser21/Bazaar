@@ -1,6 +1,6 @@
-package com.iti.itp.bazaar.network.reponces
+package com.iti.itp.bazaar.network.responses
 
 import com.iti.itp.bazaar.network.dto.Product
 
-data class ProductsResponse(
+data class VendorResponse(
     val products: List<Product>)
