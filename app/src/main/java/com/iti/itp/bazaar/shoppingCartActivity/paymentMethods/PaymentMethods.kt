@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.Navigation
 import com.iti.itp.bazaar.R
 import com.iti.itp.bazaar.databinding.FragmentPaymentMethodsBinding
 
@@ -29,6 +30,11 @@ class PaymentMethods : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        binding.continueToPayment.setOnClickListener {
+            if (binding.paypal.isChecked){
+                val action = PaymentMethodsDirections.actionPaymentMethodsToPayPalFragment()
+                Navigation.findNavController(view).navigate(action)
+            }
+        }
     }
 }
