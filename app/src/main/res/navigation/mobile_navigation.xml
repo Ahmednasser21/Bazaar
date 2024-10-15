@@ -9,7 +9,11 @@
         android:id="@+id/nav_home"
         android:name="com.iti.itp.bazaar.mainActivity.ui.home.HomeFragment"
         android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_nav_home_to_brandProducts"
+            app:destination="@id/nav_brand_products" />
+    </fragment>
 
     <fragment
         android:id="@+id/nav_categories"
@@ -22,4 +26,13 @@
         android:name="com.iti.itp.bazaar.mainActivity.ui.notifications.NotificationsFragment"
         android:label="@string/me"
         tools:layout="@layout/fragment_notifications" />
+    <fragment
+        android:id="@+id/nav_brand_products"
+        android:name="com.iti.itp.bazaar.mainActivity.ui.brand.BrandProducts"
+        android:label="Brands"
+        tools:layout="@layout/fragment_brand_products">
+        <argument
+            android:name="vendorName"
+            app:argType="string" />
+    </fragment>
 </navigation>

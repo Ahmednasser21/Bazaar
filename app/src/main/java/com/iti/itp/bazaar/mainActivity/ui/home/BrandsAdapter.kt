@@ -23,8 +23,8 @@ class BrandsAdapter (private val onBrandClickListener: OnBrandClickListener) :
     class BrandsViewHolder(private val binding: BrandItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(brandsDTO: BrandsDTO , onBrandClickListener: OnBrandClickListener) {
-            binding.imgBrand.setImageResource(brandsDTO.img)
-            binding.tvBrandName.text = brandsDTO.vendorName
+            binding.imgProduct.setImageResource(brandsDTO.img)
+            binding.tvProductName.text = brandsDTO.vendorName
             binding.brandItemContainer.setOnClickListener {
                 onBrandClickListener.onBrandClick(brandsDTO.vendorName)
             }

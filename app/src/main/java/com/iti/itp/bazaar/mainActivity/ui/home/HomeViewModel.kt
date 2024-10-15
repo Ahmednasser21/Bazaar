@@ -12,17 +12,17 @@ import kotlinx.coroutines.launch
 
 class HomeViewModel(private val repo: Repository) : ViewModel() {
 
-    private val _productStateFlow = MutableStateFlow<DataState>(DataState.Loading)
-    val productStateFlow = _productStateFlow.asStateFlow()
+    private val _brandStateFlow = MutableStateFlow<DataState>(DataState.Loading)
+    val brandStateFlow = _brandStateFlow.asStateFlow()
 
-    fun getProducts(fields: String) {
+    fun getVendors(fields: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            repo.getProducts(fields)
+            repo.getVendors(fields)
                 .catch {e->
-                    _productStateFlow.value = DataState.OnFailed(e)
+                    _brandStateFlow.value = DataState.OnFailed(e)
                 }
                 .collect{
-                    _productStateFlow.value = DataState.OnSuccess(it)
+                    _brandStateFlow.value = DataState.OnSuccess(it)
                 }
         }
     }
