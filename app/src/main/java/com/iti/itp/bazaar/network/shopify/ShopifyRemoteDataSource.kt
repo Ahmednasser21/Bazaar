@@ -1,10 +1,14 @@
 package com.iti.itp.bazaar.network.shopify
 
-import com.iti.itp.bazaar.network.reponces.ProductsResponse
+import com.iti.itp.bazaar.network.responses.ProductResponse
 
 class ShopifyRemoteDataSource(private val productService: ProductService) {
 
-    suspend fun getProducts(fields:String): ProductsResponse{
-       return productService.getProducts(fields)
+    suspend fun getVendors(fields:String): ProductResponse{
+       return productService.getVendors(fields)
+    }
+
+    suspend fun getVendorProducts(vendorName:String):ProductResponse{
+        return productService.getVendorProducts(vendorName)
     }
 }

@@ -9,6 +9,7 @@ import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.HORIZONTAL
@@ -18,8 +19,8 @@ import com.iti.itp.bazaar.databinding.FragmentHomeBinding
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
-import com.iti.itp.bazaar.network.dto.Product
-import com.iti.itp.bazaar.network.reponces.ProductsResponse
+import com.iti.itp.bazaar.network.dto.Products
+import com.iti.itp.bazaar.network.responses.ProductResponse
 import com.iti.itp.bazaar.repo.Repository
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -58,14 +59,14 @@ class HomeFragment : Fragment() , OnBrandClickListener {
             layoutManager = GridLayoutManager(requireContext(),2, HORIZONTAL,false)
         }
         brandsProgressBar = binding.progBrands
-        homeViewModel.getProducts("vendor")
+        homeViewModel.getVendors("vendor")
         getProductVendors()
 
     }
 
     private fun getProductVendors() {
         lifecycleScope.launch {
-            homeViewModel.productStateFlow.collectLatest { result ->
+            homeViewModel.brandStateFlow.collectLatest { result ->
 
                 when (result) {
 
@@ -77,8 +78,8 @@ class HomeFragment : Fragment() , OnBrandClickListener {
                     is DataState.OnSuccess<*> ->{
                         brandsProgressBar.visibility = View.GONE
                         brandsRecycler.visibility = View.VISIBLE
-                        val productsResponse = result.data as ProductsResponse
-                        val productsList = productsResponse.products
+                        val productResponse = result.data as ProductResponse
+                        val productsList = productResponse.products
                         Log.i(TAG, "getProductVendors: $productsList ")
                         brandsAdapter.submitList(createBrandsList(productsList))
 
@@ -93,7 +94,7 @@ class HomeFragment : Fragment() , OnBrandClickListener {
             }
         }
     }
-    private fun createBrandsList(productsList: List<Product>): List<BrandsDTO> {
+    private fun createBrandsList(productsList: List<Products>): List<BrandsDTO> {
         return productsList
             .asSequence()
             .map { it.vendor }
@@ -129,7 +130,8 @@ class HomeFragment : Fragment() , OnBrandClickListener {
     }
 
     override fun onBrandClick(brandTitle: String) {
-
+        val action = HomeFragmentDirections.actionNavHomeToBrandProducts(brandTitle)
+        Navigation.findNavController(requireView()).navigate(action)
     }
 
 }
