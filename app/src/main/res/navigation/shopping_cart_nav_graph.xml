@@ -27,5 +27,14 @@
         android:id="@+id/paymentMethods"
         android:name="com.iti.itp.bazaar.shoppingCartActivity.paymentMethods.PaymentMethods"
         android:label="fragment_payment_methods"
-        tools:layout="@layout/fragment_payment_methods" />
+        tools:layout="@layout/fragment_payment_methods" >
+        <action
+            android:id="@+id/action_paymentMethods_to_payPalFragment"
+            app:destination="@id/payPalFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/payPalFragment"
+        android:name="com.iti.itp.bazaar.shoppingCartActivity.paypalFragment.PayPalFragment"
+        android:label="fragment_pay_pal"
+        tools:layout="@layout/fragment_pay_pal" />
 </navigation>

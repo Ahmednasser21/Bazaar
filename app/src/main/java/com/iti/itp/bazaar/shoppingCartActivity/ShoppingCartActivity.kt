@@ -1,5 +1,6 @@
 package com.iti.itp.bazaar.shoppingCartActivity
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
@@ -24,5 +25,11 @@ class ShoppingCartActivity : AppCompatActivity() {
         navController = findNavController(R.id.nav_host_fragment_activity_shopping_cart)
 
 
+
+    }
+
+    override fun onNewIntent(newIntent: Intent?) {
+        super.onNewIntent(intent)
+        intent = newIntent
     }
 }
