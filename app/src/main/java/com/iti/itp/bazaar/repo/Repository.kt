@@ -1,6 +1,8 @@
 package com.iti.itp.bazaar.repo
 
 import com.iti.itp.bazaar.dto.CustomerAddress
+import com.iti.itp.bazaar.network.responses.CouponsCountResponse
+import com.iti.itp.bazaar.network.responses.DiscountCodesResponse
 import com.iti.itp.bazaar.network.responses.PriceRulesCountResponse
 import com.iti.itp.bazaar.network.responses.PriceRulesResponse
 import com.iti.itp.bazaar.network.responses.ProductResponse
@@ -66,6 +68,22 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
         return flow {
             val priceRulesCount = remoteDataSource.getPriceRulesCount()
             emit(priceRulesCount)
+            delay(100)
+        }
+    }
+
+    fun getCouponsCount():Flow<CouponsCountResponse>{
+        return flow {
+            val couponsCount = remoteDataSource.getCouponsCount()
+            emit(couponsCount)
+            delay(100)
+        }
+    }
+
+    fun getCoupons(priceRuleId:Long):Flow<DiscountCodesResponse>{
+        return flow {
+            val coupons = remoteDataSource.getCoupons(priceRuleId)
+            emit(coupons)
             delay(100)
         }
     }

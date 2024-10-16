@@ -26,6 +26,12 @@ class HomeViewModel(private val repo: Repository) : ViewModel() {
     private val _priceRulesCount = MutableStateFlow<DataState>(DataState.Loading)
     val priceRulesCount = _priceRulesCount.asStateFlow()
 
+    private val _couponsCount = MutableStateFlow<DataState>(DataState.Loading)
+    val couponsCount = _couponsCount.asStateFlow()
+
+    private val _coupons = MutableStateFlow<DataState>(DataState.Loading)
+    val coupons = _coupons.asStateFlow()
+
     fun getVendors(fields: String) {
         viewModelScope.launch(Dispatchers.IO) {
             repo.getVendors(fields)
@@ -62,6 +68,31 @@ class HomeViewModel(private val repo: Repository) : ViewModel() {
             }.collect{
                 _priceRulesCount.value = DataState.OnSuccess(it)
                 Log.i(TAG, "success to getPriceRulesCount: $it")
+            }
+        }
+    }
+
+    fun getCouponsCount(){
+        viewModelScope.launch (Dispatchers.IO){
+            repo.getCouponsCount().catch {
+                _couponsCount.value = DataState.OnFailed(it)
+                Log.e(TAG, "failed to coupons count: ${it.message}")
+            }.collect{
+                _couponsCount.value = DataState.OnSuccess(it)
+                Log.i(TAG, "success to getCouponsCount: $it")
+            }
+        }
+    }
+
+
+    fun getCoupons(priceRuleId:Long){
+        viewModelScope.launch(Dispatchers.IO){
+            repo.getCoupons(priceRuleId).catch {
+                _coupons.value = DataState.OnFailed(it)
+                Log.e(TAG, "failed to get coupons: ${it.message}", )
+            }.collect{
+                _coupons.value = DataState.OnSuccess(it)
+                Log.i(TAG, "success to getCoupons: ${it.discountCodes}")
             }
         }
     }

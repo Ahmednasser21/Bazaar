@@ -2,6 +2,8 @@ package com.iti.itp.bazaar.network.shopify
 
 import com.iti.itp.bazaar.dto.CustomerAddress
 import com.iti.itp.bazaar.dto.CustomerAddressResponse
+import com.iti.itp.bazaar.network.responses.CouponsCountResponse
+import com.iti.itp.bazaar.network.responses.DiscountCodesResponse
 import com.iti.itp.bazaar.network.responses.PriceRulesCountResponse
 import com.iti.itp.bazaar.network.responses.PriceRulesResponse
 import com.iti.itp.bazaar.network.responses.ProductResponse
@@ -27,5 +29,13 @@ class ShopifyRemoteDataSource(private val productService: ProductService) {
 
     suspend fun getPriceRulesCount(): PriceRulesCountResponse{
         return productService.getPriceRulesCount()
+    }
+
+    suspend fun getCouponsCount(): CouponsCountResponse{
+        return productService.getCouponsCounts()
+    }
+
+    suspend fun getCoupons(priceRuleId:Long):DiscountCodesResponse{
+        return productService.getDiscountCodes(priceRuleId)
     }
 }

@@ -2,6 +2,8 @@ package com.iti.itp.bazaar.network.shopify
 
 import com.iti.itp.bazaar.dto.CustomerAddress
 import com.iti.itp.bazaar.dto.CustomerAddressResponse
+import com.iti.itp.bazaar.network.responses.CouponsCountResponse
+import com.iti.itp.bazaar.network.responses.DiscountCodesResponse
 import com.iti.itp.bazaar.network.responses.PriceRulesCountResponse
 import com.iti.itp.bazaar.network.responses.PriceRulesResponse
 import com.iti.itp.bazaar.network.responses.ProductResponse
@@ -33,4 +35,10 @@ interface ProductService {
 
     @GET("/admin/api/2024-10/price_rules/count.json")
     suspend fun getPriceRulesCount(): PriceRulesCountResponse
+
+    @GET("/admin/api/2024-10/discount_codes/count.json")
+    suspend fun getCouponsCounts(): CouponsCountResponse
+
+    @GET("admin/api/2024-10/price_rules/{price_rule_id}/discount_codes.json")
+    suspend fun getDiscountCodes(@Path("price_rule_id") priceRuleId: Long): DiscountCodesResponse
 }
