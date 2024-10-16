@@ -17,9 +17,9 @@
 
     <fragment
         android:id="@+id/nav_categories"
-        android:name="com.iti.itp.bazaar.mainActivity.ui.dashboard.DashboardFragment"
+        android:name="com.iti.itp.bazaar.mainActivity.ui.categories.CategoriesFragment"
         android:label="Categories"
-        tools:layout="@layout/fragment_dashboard" />
+        tools:layout="@layout/fragment_categories" />
 
     <fragment
         android:id="@+id/nav_me"
