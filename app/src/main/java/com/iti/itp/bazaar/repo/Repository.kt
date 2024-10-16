@@ -1,6 +1,8 @@
 package com.iti.itp.bazaar.repo
 
 import com.iti.itp.bazaar.dto.CustomerAddress
+import com.iti.itp.bazaar.network.responses.PriceRulesCountResponse
+import com.iti.itp.bazaar.network.responses.PriceRulesResponse
 import com.iti.itp.bazaar.network.responses.ProductResponse
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import kotlinx.coroutines.delay
@@ -48,6 +50,23 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
             }
         } catch (e: Exception) {
             Result.failure(e)
+        }
+    }
+
+
+    fun getPriceRules():Flow<PriceRulesResponse>{
+        return flow {
+            val priceRulesResponse = remoteDataSource.getPriceRules()
+            emit(priceRulesResponse)
+            delay(100)
+        }
+    }
+
+    fun getPriceRulesCount():Flow<PriceRulesCountResponse>{
+        return flow {
+            val priceRulesCount = remoteDataSource.getPriceRulesCount()
+            emit(priceRulesCount)
+            delay(100)
         }
     }
 }

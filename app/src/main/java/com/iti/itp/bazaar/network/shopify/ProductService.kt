@@ -2,6 +2,8 @@ package com.iti.itp.bazaar.network.shopify
 
 import com.iti.itp.bazaar.dto.CustomerAddress
 import com.iti.itp.bazaar.dto.CustomerAddressResponse
+import com.iti.itp.bazaar.network.responses.PriceRulesCountResponse
+import com.iti.itp.bazaar.network.responses.PriceRulesResponse
 import com.iti.itp.bazaar.network.responses.ProductResponse
 import retrofit2.Response
 import retrofit2.http.Body
@@ -25,4 +27,10 @@ interface ProductService {
         @Path("customer_id") customerId: Long,
         @Body address: CustomerAddress
     ): Response<CustomerAddressResponse>
+
+    @GET("admin/api/2024-10/price_rules.json")
+    suspend fun getPriceRules(): PriceRulesResponse
+
+    @GET("/admin/api/2024-10/price_rules/count.json")
+    suspend fun getPriceRulesCount(): PriceRulesCountResponse
 }
