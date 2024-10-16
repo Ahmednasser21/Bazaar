@@ -39,4 +39,7 @@ class ShopifyRemoteDataSource(private val productService: ProductService) {
     suspend fun getCoupons(priceRuleId:Long):DiscountCodesResponse{
         return productService.getDiscountCodes(priceRuleId)
     }
+    suspend fun getCollectionProducts(id:Long):ProductResponse{
+        return productService.getCollectionProducts(id)
+    }
 }

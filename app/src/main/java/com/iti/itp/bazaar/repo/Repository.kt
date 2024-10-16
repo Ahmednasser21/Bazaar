@@ -88,4 +88,11 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
             delay(100)
         }
     }
+    fun getCollectionProducts(id:Long):Flow<ProductResponse>{
+        return flow{
+            val collectionProductList = remoteDataSource.getCollectionProducts(id)
+            emit(collectionProductList)
+            delay(100)
+        }
+    }
 }

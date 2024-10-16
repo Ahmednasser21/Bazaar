@@ -42,4 +42,8 @@ interface ProductService {
 
     @GET("admin/api/2024-10/price_rules/{price_rule_id}/discount_codes.json")
     suspend fun getDiscountCodes(@Path("price_rule_id") priceRuleId: Long): DiscountCodesResponse
+
+    @GET("admin/api/2022-01/collections/{id}/products.json")
+    suspend fun getCollectionProducts (@Path("id") id:Long ) : ProductResponse
+
 }
