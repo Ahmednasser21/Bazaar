@@ -12,9 +12,9 @@ import androidx.lifecycle.lifecycleScope
 import com.iti.itp.bazaar.databinding.FragmentNewAddressBinding
 import com.iti.itp.bazaar.dto.CustomerAddress
 import com.iti.itp.bazaar.mainActivity.ui.DataState
-import com.iti.itp.bazaar.network.addressApi.AddressRemoteDataSource
-import com.iti.itp.bazaar.network.addressApi.AddressRepo
-import com.iti.itp.bazaar.network.addressApi.AddressRetrofit
+import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
+import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
+import com.iti.itp.bazaar.repo.Repository
 import com.iti.itp.bazaar.settings.ui.newAddressFragment.viewModel.NewAddressViewModel
 import com.iti.itp.bazaar.settings.ui.newAddressFragment.viewModel.NewAddressViewModelFactory
 import kotlinx.coroutines.launch
@@ -27,7 +27,7 @@ class NewAddressFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val factory = NewAddressViewModelFactory(AddressRepo(AddressRemoteDataSource(AddressRetrofit.service)))
+        val factory = NewAddressViewModelFactory(Repository.getInstance(ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)))
         newAddressViewModel = ViewModelProvider(this, factory).get(NewAddressViewModel::class.java)
         binding = FragmentNewAddressBinding.inflate(inflater, container, false)
         return binding.root

@@ -1,5 +1,6 @@
 package com.iti.itp.bazaar.repo
 
+import com.iti.itp.bazaar.dto.CustomerAddress
 import com.iti.itp.bazaar.network.responses.ProductResponse
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import kotlinx.coroutines.delay
@@ -33,6 +34,20 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
             val vendorProducts = remoteDataSource.getVendorProducts(vendorName)
             emit(vendorProducts)
             delay(100)
+        }
+    }
+
+
+    suspend fun createCustomerAddress(customerId: Long, address: CustomerAddress): Result<CustomerAddress> {
+        return try {
+            val response = remoteDataSource.addAddress(customerId, address)
+            if (response.isSuccessful) {
+                Result.success(response.body()?.customer_address!!)
+            } else {
+                Result.failure(Exception("API call failed with code ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 }

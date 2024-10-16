@@ -6,13 +6,13 @@ import androidx.lifecycle.viewModelScope
 import com.iti.itp.bazaar.dto.CustomerAddress
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 
-import com.iti.itp.bazaar.network.addressApi.AddressRepo
+import com.iti.itp.bazaar.repo.Repository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 
-class NewAddressViewModel(private val addressRepo: AddressRepo) : ViewModel() {
+class NewAddressViewModel(private val addressRepo: Repository) : ViewModel() {
     private val TAG = "NewAddressViewModel"
 
     private val _addressState = MutableStateFlow<DataState>(DataState.Loading)
