@@ -27,6 +27,7 @@ class BrandsAdapter (private val onBrandClickListener: OnBrandClickListener) :
         fun bind(smartCollection: SmartCollection , onBrandClickListener: OnBrandClickListener) {
             Glide.with(binding.root.context).load(smartCollection.image?.src)
                 .into(binding.imgProduct)
+            binding.brandName.text = smartCollection.title
             binding.brandItemContainer.setOnClickListener {
                 onBrandClickListener.onBrandClick(smartCollection.title)
             }

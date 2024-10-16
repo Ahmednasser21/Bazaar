@@ -16,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.databinding.FragmentBrandProductsBinding
 import com.iti.itp.bazaar.mainActivity.ui.DataState
-import com.iti.itp.bazaar.network.products.Products
 import com.iti.itp.bazaar.network.responses.ProductResponse
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
@@ -26,7 +25,7 @@ import kotlinx.coroutines.launch
 
 private const val TAG = "BrandProducts"
 
-class BrandProducts : Fragment(), OnBrandProductClickListener {
+class BrandProducts : Fragment(), OnBrandProductClickListener, OnFavouriteClickListener {
     private lateinit var brandTitle: TextView
     private lateinit var productRecycler: RecyclerView
     private lateinit var brandProductsViewModel: BrandProductsViewModel
@@ -43,7 +42,8 @@ class BrandProducts : Fragment(), OnBrandProductClickListener {
                 ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
             )
         )
-        brandProductsViewModel = ViewModelProvider(this, factory)[BrandProductsViewModel::class.java]
+        brandProductsViewModel =
+            ViewModelProvider(this, factory)[BrandProductsViewModel::class.java]
         binding = FragmentBrandProductsBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -54,7 +54,7 @@ class BrandProducts : Fragment(), OnBrandProductClickListener {
         val brandName = args.vendorName
         Log.i(TAG, "onViewCreated: $brandName")
 
-        productsAdapter = BrandProductsAdapter(this)
+        productsAdapter = BrandProductsAdapter(this,this)
         initialiseUI(brandName)
         brandProductsViewModel.getVendorProducts(brandName)
         getVendorProducts()
@@ -67,7 +67,7 @@ class BrandProducts : Fragment(), OnBrandProductClickListener {
         progBrandProducts = binding.progBrandProducts
         productRecycler = binding.recBrandProducts.apply {
             adapter = productsAdapter
-            layoutManager = GridLayoutManager(requireContext(),2)
+            layoutManager = GridLayoutManager(requireContext(), 2)
         }
     }
 
@@ -79,27 +79,34 @@ class BrandProducts : Fragment(), OnBrandProductClickListener {
                         progBrandProducts.visibility = View.VISIBLE
                         productRecycler.visibility = View.INVISIBLE
                     }
+
                     is DataState.OnSuccess<*> -> {
                         progBrandProducts.visibility = View.GONE
                         productRecycler.visibility = View.VISIBLE
                         val productResponse = result.data as ProductResponse
                         val productsList = productResponse.products
                         Log.i(TAG, "getProductVendors:${productsList}")
-                        if(productsList.isEmpty()){
+                        if (productsList.isEmpty()) {
                             binding.emptyBoxAnimationFav.visibility = View.VISIBLE
                         }
                         productsAdapter.submitList(productsList)
                     }
+
                     is DataState.OnFailed -> {
                         progBrandProducts.visibility = View.GONE
-                        Snackbar.make(requireView(), "Failed to get data", Snackbar.LENGTH_SHORT).show()
+                        Snackbar.make(requireView(), "Failed to get data", Snackbar.LENGTH_SHORT)
+                            .show()
                     }
                 }
             }
         }
     }
 
-        override fun onBrandProductClick(productID: Long) {
+    override fun onBrandProductClick(productID: Long) {
 // navigate to prouductDetails fragment using args with productID
+    }
+
+    override fun onFavClick() {
+
     }
 }

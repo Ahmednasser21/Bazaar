@@ -5,27 +5,29 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.iti.itp.bazaar.databinding.BrandProductsBinding
+import com.iti.itp.bazaar.databinding.ProductsItemBinding
 import com.iti.itp.bazaar.network.products.Products
 
 class BrandProductsAdapter(
-    private val onBrandProductClickListener: OnBrandProductClickListener
+    private val onBrandProductClickListener: OnBrandProductClickListener,
+    private val onFavouriteClickListener: OnFavouriteClickListener
 ) : ListAdapter<Products, BrandProductsAdapter.BrandProductViewHolder>(BrandProductsDiffUtils()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BrandProductViewHolder {
-        val binding = BrandProductsBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = ProductsItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return BrandProductViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: BrandProductViewHolder, position: Int) {
         val product = getItem(position)
-        holder.bindView(product, onBrandProductClickListener)
+        holder.bindView(product, onBrandProductClickListener,onFavouriteClickListener)
     }
 
-    class BrandProductViewHolder(private val binding: BrandProductsBinding) : RecyclerView.ViewHolder(binding.root) {
+    class BrandProductViewHolder(private val binding: ProductsItemBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bindView(
             productDTO: Products,
-            onBrandProductClickListener: OnBrandProductClickListener
+            onBrandProductClickListener: OnBrandProductClickListener,
+            onFavouriteClickListener: OnFavouriteClickListener
         ) {
             binding.tvProductName.text = extractProductName(productDTO.title)
             Glide.with(binding.root.context)
@@ -34,6 +36,9 @@ class BrandProductsAdapter(
             binding.tvProductPrice.text = "${productDTO.variants[0].price} EGP"
             binding.productContainer.setOnClickListener {
                 onBrandProductClickListener.onBrandProductClick(productDTO.id)
+            }
+            binding.imgFav.setOnClickListener{
+                onFavouriteClickListener.onFavClick()
             }
         }
         private fun extractProductName(fullName: String): String {
