@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.databinding.FragmentNewAddressBinding
 import com.iti.itp.bazaar.dto.AddressRequest
 import com.iti.itp.bazaar.dto.CustomerAddress
@@ -41,20 +42,22 @@ class NewAddressFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val customerAddress = CustomerAddress(
-            address1 = "egypt1",
-            address2 = "ismailia1",
-            city = "fayed1",
-            country_name = "Egypt1",
-            first_name = "ahmed1",
-            last_name = "samy1",
-            company = "esfd1",
-            phone = "01010095281",
-        )
-        val address = AddressRequest(customerAddress)
+
+
+
 
         binding.btnAddAddress.setOnClickListener {
-            newAddressViewModel.addNewAddress(8220771418416, address)
+            if (binding.country.text.isEmpty() || binding.etCity.text.isEmpty() || binding.etPhone.text.isEmpty()){
+                Snackbar.make(view,"All fields must be required",2000).show()
+            }else{
+                val customerAddress = CustomerAddress(
+                    city = binding.etCity.text.toString(),
+                    country = binding.country.text.toString(),
+                    phone = binding.etPhone.text.toString(),
+                )
+                val address = AddressRequest(customerAddress)
+                newAddressViewModel.addNewAddress(8220771418416, address)
+            }
         }
     }
 }

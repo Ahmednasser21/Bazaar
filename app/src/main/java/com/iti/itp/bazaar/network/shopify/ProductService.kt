@@ -3,6 +3,7 @@ package com.iti.itp.bazaar.network.shopify
 import com.iti.itp.bazaar.dto.AddressRequest
 import com.iti.itp.bazaar.dto.CustomerAddress
 import com.iti.itp.bazaar.dto.CustomerAddressResponse
+import com.iti.itp.bazaar.dto.ListOfAddresses
 import com.iti.itp.bazaar.network.responses.CouponsCountResponse
 import com.iti.itp.bazaar.network.responses.DiscountCodesResponse
 import com.iti.itp.bazaar.network.responses.PriceRulesCountResponse
@@ -46,5 +47,10 @@ interface ProductService {
 
     @GET("admin/api/2022-01/collections/{id}/products.json")
     suspend fun getCollectionProducts (@Path("id") id:Long ) : ProductResponse
+
+    @GET("/admin/api/2024-10/customers/{customer_id}/addresses.json")
+    suspend fun getAddressForCustomer(
+        @Path("customer_id")customerId: Long,
+    ): ListOfAddresses
 
 }

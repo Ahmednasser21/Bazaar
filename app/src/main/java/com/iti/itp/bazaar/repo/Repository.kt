@@ -3,6 +3,7 @@ package com.iti.itp.bazaar.repo
 import com.iti.itp.bazaar.dto.AddressRequest
 import com.iti.itp.bazaar.dto.CustomerAddress
 import com.iti.itp.bazaar.dto.CustomerAddressResponse
+import com.iti.itp.bazaar.dto.ListOfAddresses
 import com.iti.itp.bazaar.network.responses.CouponsCountResponse
 import com.iti.itp.bazaar.network.responses.DiscountCodesResponse
 import com.iti.itp.bazaar.network.responses.PriceRulesCountResponse
@@ -88,6 +89,12 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
             val collectionProductList = remoteDataSource.getCollectionProducts(id)
             emit(collectionProductList)
             delay(100)
+        }
+    }
+
+    fun getAddressForCustomer(customerId:Long):Flow<ListOfAddresses>{
+        return flow {
+            emit(remoteDataSource.getAddressForCustomer(customerId))
         }
     }
 }
