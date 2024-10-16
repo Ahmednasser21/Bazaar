@@ -5,7 +5,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import android.widget.ProgressBar
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -18,6 +20,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.R
 import com.iti.itp.bazaar.databinding.FragmentCategoriesBinding
 import com.iti.itp.bazaar.mainActivity.ui.DataState
+import com.iti.itp.bazaar.network.products.Products
 import com.iti.itp.bazaar.network.responses.ProductResponse
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
@@ -26,23 +29,27 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 private const val TAG = "CategoriesFragment"
-class CategoriesFragment : Fragment(),OnProductClickListener,OnFavouriteProductClickListener {
 
-    private lateinit var binding :FragmentCategoriesBinding
+class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteProductClickListener {
+
+    private lateinit var binding: FragmentCategoriesBinding
     private lateinit var categoryGroup: ChipGroup
-    private lateinit var menChip:Chip
+    private lateinit var menChip: Chip
     private lateinit var womenChip: Chip
     private lateinit var kidChip: Chip
-    private lateinit var saleChip:Chip
+    private lateinit var saleChip: Chip
     private lateinit var categoryProductsRec: RecyclerView
-    private lateinit var categoriesViewModel:CategoriesViewModel
+    private lateinit var categoriesViewModel: CategoriesViewModel
     private lateinit var fabMain: FloatingActionButton
-    private lateinit var fabRings: FloatingActionButton
+    private lateinit var fabAccessories: FloatingActionButton
     private lateinit var fabTshirt: FloatingActionButton
     private lateinit var fabShoes: FloatingActionButton
-    private lateinit var categoryProductsAdapter:CategoryProductsAdapter
-    private lateinit var categoriesProg:ProgressBar
+    private lateinit var categoryProductsAdapter: CategoryProductsAdapter
+    private lateinit var categoriesProg: ProgressBar
+    private lateinit var products: List<Products>
     private var isFabOpen = false
+    private var categoryID = 480514900272
+    private var previousChip: Chip? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -51,10 +58,11 @@ class CategoriesFragment : Fragment(),OnProductClickListener,OnFavouriteProductC
     ): View {
         val factory = CategoriesViewModelFactory(
             Repository.getInstance(
-            ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
-        ))
-        categoriesViewModel = ViewModelProvider(this,factory)[CategoriesViewModel::class.java]
-        categoryProductsAdapter = CategoryProductsAdapter(this,this)
+                ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
+            )
+        )
+        categoriesViewModel = ViewModelProvider(this, factory)[CategoriesViewModel::class.java]
+        categoryProductsAdapter = CategoryProductsAdapter(this, this)
         binding = FragmentCategoriesBinding.inflate(inflater, container, false)
         val root: View = binding.root
         return root
@@ -65,18 +73,56 @@ class CategoriesFragment : Fragment(),OnProductClickListener,OnFavouriteProductC
 
 
         initialiseUI()
-        categoriesViewModel.getCategoryProducts(480515457328)
+        categoriesViewModel.getCategoryProducts(categoryID)
         getCategoryProducts()
         fabMain.setOnClickListener { toggleFabMenu() }
+
+        menChip.setOnClickListener {
+
+            animateChip(menChip, 480515424560)
+        }
+        womenChip.setOnClickListener {
+            animateChip(womenChip, 480515457328)
+        }
+        kidChip.setOnClickListener {
+            animateChip(kidChip, 480515490096)
+        }
+
+        saleChip.setOnClickListener {
+            animateChip(saleChip, 480515522864)
+        }
+
+        fabAccessories.setOnClickListener {
+            val filteredProducts = products.filter { it.productType == "ACCESSORIES" }
+            if (filteredProducts.isEmpty()) {
+                setAnimationVisible()
+            }else{setAnimationInvisible()}
+            categoryProductsAdapter.submitList(filteredProducts)
+        }
+        fabShoes.setOnClickListener{
+            val filteredProducts = products.filter { it.productType == "SHOES" }
+            if (filteredProducts.isEmpty()) {
+                setAnimationVisible()
+            }else{setAnimationInvisible()}
+            categoryProductsAdapter.submitList(filteredProducts)
+        }
+
+        fabTshirt.setOnClickListener{
+            val filteredProducts = products.filter { it.productType == "T-SHIRTS" }
+            if (filteredProducts.isEmpty()) {
+                setAnimationVisible()
+            }else{setAnimationInvisible()}
+            categoryProductsAdapter.submitList(filteredProducts)
+        }
 
 
     }
 
-    private fun initialiseUI(){
+    private fun initialiseUI() {
         fabMain = binding.fabMain
         fabShoes = binding.fabShoes
         fabTshirt = binding.fabTshirt
-        fabRings = binding.fabAccessories
+        fabAccessories = binding.fabAccessories
         categoryGroup = binding.collectionGroup
         womenChip = binding.women
         menChip = binding.men
@@ -85,7 +131,7 @@ class CategoriesFragment : Fragment(),OnProductClickListener,OnFavouriteProductC
         categoriesProg = binding.progCategories
         categoryProductsRec = binding.recCategoryProducts.apply {
             adapter = categoryProductsAdapter
-            layoutManager = GridLayoutManager(requireContext(),2)
+            layoutManager = GridLayoutManager(requireContext(), 2)
         }
     }
 
@@ -99,7 +145,7 @@ class CategoriesFragment : Fragment(),OnProductClickListener,OnFavouriteProductC
 
     private fun openFabMenu() {
         isFabOpen = true
-        fabRings.show()
+        fabAccessories.show()
         fabTshirt.show()
         fabShoes.show()
         fabMain.animate().rotation(45f)
@@ -108,12 +154,38 @@ class CategoriesFragment : Fragment(),OnProductClickListener,OnFavouriteProductC
 
     private fun closeFabMenu() {
         isFabOpen = false
-        fabRings.hide()
+        fabAccessories.hide()
         fabTshirt.hide()
         fabShoes.hide()
         fabMain.animate().rotation(0f)
         fabMain.setImageResource(R.drawable.filter)
+        categoryProductsAdapter.submitList(products)
+        if(products.isNotEmpty()){
+            setAnimationInvisible()
+        }
+
     }
+
+    private fun animateChip(chip: Chip, categoryId: Long) {
+        if (chip == previousChip && categoryID != 480514900272) {
+            chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+            chip.textSize = 16f
+            categoryID = 480514900272
+            categoriesViewModel.getCategoryProducts(categoryID)
+            chip.clearAnimation()
+        } else {
+            previousChip?.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+            previousChip?.textSize = 16f
+            chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+            val animation = AnimationUtils.loadAnimation(requireContext(), R.anim.chip_anim)
+            chip.startAnimation(animation)
+            chip.textSize = 18f
+            previousChip = chip
+            categoryID = categoryId
+            categoriesViewModel.getCategoryProducts(categoryId)
+        }
+    }
+
     private fun getCategoryProducts() {
         lifecycleScope.launch {
             categoriesViewModel.categoryProductStateFlow.collectLatest { result ->
@@ -130,8 +202,9 @@ class CategoriesFragment : Fragment(),OnProductClickListener,OnFavouriteProductC
                         val productsList = productResponse.products
                         Log.i(TAG, "getCategoryProducts:${productsList}")
                         if (productsList.isEmpty()) {
-                            binding.emptyBoxAnimationFav.visibility = View.VISIBLE
-                        }
+                            setAnimationVisible()
+                        }else{setAnimationInvisible()}
+                        products = productsList
                         categoryProductsAdapter.submitList(productsList)
                     }
 
@@ -144,13 +217,20 @@ class CategoriesFragment : Fragment(),OnProductClickListener,OnFavouriteProductC
             }
         }
     }
-
+    private fun setAnimationVisible(){
+        binding.emptyBoxAnimation.visibility = View.VISIBLE
+        categoryProductsRec.visibility = View.INVISIBLE
+    }
+    private fun setAnimationInvisible(){
+        binding.emptyBoxAnimation.visibility = View.INVISIBLE
+        categoryProductsRec.visibility = View.VISIBLE
+    }
     override fun onProductClick(id: Long) {
-        TODO("Not yet implemented")
+
     }
 
     override fun onFavProductClick() {
-        TODO("Not yet implemented")
+
     }
 
 }
