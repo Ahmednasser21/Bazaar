@@ -6,10 +6,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="12dp"
-    tools:context=".settings.ui.newAddressFragment.NewAddressFragment">
+    tools:context=".settings.ui.newAddressFragment.view.NewAddressFragment">
 
     <EditText
-        android:id="@+id/editText"
+        android:id="@+id/country"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginTop="52dp"
@@ -46,7 +46,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText"
+        app:layout_constraintTop_toBottomOf="@+id/country"
         tools:ignore="RtlSymmetry" />
 
     <androidx.appcompat.widget.AppCompatButton

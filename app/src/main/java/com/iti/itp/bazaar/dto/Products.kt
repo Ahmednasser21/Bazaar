@@ -1,4 +1,4 @@
-package com.iti.itp.bazaar.network.dto
+package com.iti.itp.bazaar.dto
 
 data class Products(
     val id: Long,

@@ -1,16 +1,15 @@
 package com.iti.itp.bazaar.settings.ui.settingsFragment
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import com.iti.itp.bazaar.databinding.FragmentSettingsBinding
 
-
 class SettingsFragment : Fragment() {
-    private lateinit var binding:FragmentSettingsBinding
+    private lateinit var binding: FragmentSettingsBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -29,3 +28,4 @@ class SettingsFragment : Fragment() {
         }
     }
 }
+

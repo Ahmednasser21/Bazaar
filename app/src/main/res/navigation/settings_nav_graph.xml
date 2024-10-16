@@ -6,15 +6,6 @@
     app:startDestination="@id/settingsFragment">
 
     <fragment
-        android:id="@+id/settingsFragment"
-        android:name="com.iti.itp.bazaar.settings.ui.settingsFragment.SettingsFragment"
-        android:label="Settings"
-        tools:layout="@layout/fragment_settings" >
-        <action
-            android:id="@+id/action_settingsFragment_to_addressFragment"
-            app:destination="@id/addressFragment" />
-    </fragment>
-    <fragment
         android:id="@+id/addressFragment"
         android:name="com.iti.itp.bazaar.settings.ui.addressFragment.AddressFragment"
         android:label="fragment_address"
@@ -25,7 +16,16 @@
     </fragment>
     <fragment
         android:id="@+id/newAddressFragment"
-        android:name="com.iti.itp.bazaar.settings.ui.newAddressFragment.NewAddressFragment"
+        android:name="com.iti.itp.bazaar.settings.ui.newAddressFragment.view.NewAddressFragment"
         android:label="fragment_new_address"
         tools:layout="@layout/fragment_new_address" />
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.iti.itp.bazaar.settings.ui.settingsFragment.SettingsFragment"
+        android:label="fragment_settings"
+        tools:layout="@layout/fragment_settings" >
+        <action
+            android:id="@+id/action_settingsFragment_to_addressFragment"
+            app:destination="@id/addressFragment" />
+    </fragment>
 </navigation>

@@ -12,13 +12,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
-import com.iti.itp.bazaar.R
 import com.iti.itp.bazaar.databinding.FragmentBrandProductsBinding
 import com.iti.itp.bazaar.mainActivity.ui.DataState
-import com.iti.itp.bazaar.network.dto.Products
+import com.iti.itp.bazaar.dto.Products
 import com.iti.itp.bazaar.network.responses.ProductResponse
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
