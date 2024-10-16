@@ -1,11 +1,13 @@
 package com.iti.itp.bazaar.network.shopify
 
 import android.util.Base64
+import com.google.gson.GsonBuilder
 import com.iti.itp.bazaar.network.MyApplication
 import com.iti.itp.bazaar.network.NetworkUtil
 import okhttp3.Cache
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File

@@ -1,6 +1,6 @@
 package com.iti.itp.bazaar.network.products
 
-import com.iti.itp.bazaar.network.smartCollections.Image
+import com.iti.itp.bazaar.dto.smartCollections.Image
 
 data class Products(
     val id: Long,

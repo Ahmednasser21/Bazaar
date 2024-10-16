@@ -1,6 +1,6 @@
 package com.iti.itp.bazaar.network.exchangeCurrencyApi
 
-import com.iti.itp.bazaar.network.reponces.ExchangeRateResponse
+import com.iti.itp.bazaar.network.responses.ExchangeRateResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
 

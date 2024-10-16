@@ -1,4 +1,4 @@
-package com.iti.itp.bazaar.network.reponces
+package com.iti.itp.bazaar.network.responses
 
 import com.iti.itp.bazaar.network.products.Products
 

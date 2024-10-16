@@ -1,4 +1,4 @@
-package com.iti.itp.bazaar.network.smartCollections
+package com.iti.itp.bazaar.dto.smartCollections
 
 import com.google.gson.annotations.SerializedName
 import com.iti.itp.bazaar.network.products.Image

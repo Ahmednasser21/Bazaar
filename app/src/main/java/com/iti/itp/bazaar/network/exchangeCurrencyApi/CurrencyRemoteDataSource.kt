@@ -1,6 +1,6 @@
 package com.iti.itp.bazaar.network.exchangeCurrencyApi
 
-import com.iti.itp.bazaar.network.reponces.ExchangeRateResponse
+import com.iti.itp.bazaar.network.responses.ExchangeRateResponse
 
 class CurrencyRemoteDataSource(val currencyService: CurrencyServiceApi) {
 

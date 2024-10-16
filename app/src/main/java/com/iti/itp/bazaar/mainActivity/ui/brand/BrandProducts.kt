@@ -17,7 +17,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.databinding.FragmentBrandProductsBinding
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.network.products.Products
-import com.iti.itp.bazaar.network.reponces.ProductResponse
+import com.iti.itp.bazaar.network.responses.ProductResponse
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
 import com.iti.itp.bazaar.repo.Repository
@@ -84,11 +84,11 @@ class BrandProducts : Fragment(), OnBrandProductClickListener {
                         productRecycler.visibility = View.VISIBLE
                         val productResponse = result.data as ProductResponse
                         val productsList = productResponse.products
-                        Log.i(TAG, "getProductVendors:${createBrandProductsList(productsList)}")
-                        if(createBrandProductsList(productsList)[0].imgURL.isEmpty()){
+                        Log.i(TAG, "getProductVendors:${productsList}")
+                        if(productsList.isEmpty()){
                             binding.emptyBoxAnimationFav.visibility = View.VISIBLE
                         }
-                        productsAdapter.submitList(createBrandProductsList(productsList))
+                        productsAdapter.submitList(productsList)
                     }
                     is DataState.OnFailed -> {
                         progBrandProducts.visibility = View.GONE
@@ -97,23 +97,6 @@ class BrandProducts : Fragment(), OnBrandProductClickListener {
                 }
             }
         }
-    }
-
-    private fun createBrandProductsList(productsList: List<Products>): List<BrandProductDTO> {
-        return productsList.asSequence()
-            .map { product ->
-                BrandProductDTO(
-                    productID = product.id,
-                    productName = extractProductName(product.title),
-                    imgURL = product.image?.src?:""
-                )
-            }
-            .toList()
-    }
-    private fun extractProductName(fullName: String): String {
-        val delimiter = "|"
-        val parts = fullName.split(delimiter)
-        return if (parts.size > 1) parts[1].trim() else ""
     }
 
         override fun onBrandProductClick(productID: Long) {

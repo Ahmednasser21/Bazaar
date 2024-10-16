@@ -1,4 +1,4 @@
-package com.iti.itp.bazaar.network.reponces
+package com.iti.itp.bazaar.network.responses
 
 data class ExchangeRateResponse(
     val result: String,

@@ -1,9 +1,10 @@
 package com.iti.itp.bazaar.repo
 
 import com.iti.itp.bazaar.dto.CustomerAddress
+import com.iti.itp.bazaar.network.responses.ProductResponse
 import com.iti.itp.bazaar.network.responses.PriceRulesCountResponse
 import com.iti.itp.bazaar.network.responses.PriceRulesResponse
-import com.iti.itp.bazaar.network.responses.ProductResponse
+import com.iti.itp.bazaar.network.responses.SmartCollectionsResponse
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -23,10 +24,10 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
             }
         }
     }
-    fun getVendors(fields:String):Flow<ProductResponse>{
+    fun getVendors():Flow<SmartCollectionsResponse>{
         return flow{
-            val vendorList = remoteDataSource.getVendors(fields)
-            emit(vendorList)
+            val collectionList = remoteDataSource.getVendors()
+            emit(collectionList)
             delay(100)
         }
     }

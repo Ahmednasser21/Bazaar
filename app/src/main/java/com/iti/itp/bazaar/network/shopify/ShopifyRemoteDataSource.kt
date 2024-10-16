@@ -2,18 +2,19 @@ package com.iti.itp.bazaar.network.shopify
 
 import com.iti.itp.bazaar.dto.CustomerAddress
 import com.iti.itp.bazaar.dto.CustomerAddressResponse
+import com.iti.itp.bazaar.network.responses.ProductResponse
 import com.iti.itp.bazaar.network.responses.PriceRulesCountResponse
 import com.iti.itp.bazaar.network.responses.PriceRulesResponse
-import com.iti.itp.bazaar.network.responses.ProductResponse
+import com.iti.itp.bazaar.network.responses.SmartCollectionsResponse
 import retrofit2.Response
 
 class ShopifyRemoteDataSource(private val productService: ProductService) {
 
-    suspend fun getVendors(fields:String): ProductResponse{
-       return productService.getVendors(fields)
+    suspend fun getVendors(): SmartCollectionsResponse{
+       return productService.getVendors()
     }
 
-    suspend fun getVendorProducts(vendorName:String):ProductResponse{
+    suspend fun getVendorProducts(vendorName:String): ProductResponse {
         return productService.getVendorProducts(vendorName)
     }
 

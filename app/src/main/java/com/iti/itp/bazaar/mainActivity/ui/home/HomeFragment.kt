@@ -26,7 +26,8 @@ import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
 import com.iti.itp.bazaar.network.products.Products
-import com.iti.itp.bazaar.network.reponces.ProductResponse
+import com.iti.itp.bazaar.network.responses.ProductResponse
+import com.iti.itp.bazaar.network.responses.SmartCollectionsResponse
 import com.iti.itp.bazaar.repo.Repository
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -97,7 +98,7 @@ class HomeFragment : Fragment(), OnBrandClickListener {
             layoutManager = GridLayoutManager(requireContext(), 2, HORIZONTAL, false)
         }
         brandsProgressBar = binding.progBrands
-        homeViewModel.getVendors("vendor")
+        homeViewModel.getVendors()
         getProductVendors()
 
     }
@@ -116,10 +117,10 @@ class HomeFragment : Fragment(), OnBrandClickListener {
                     is DataState.OnSuccess<*> -> {
                         brandsProgressBar.visibility = View.GONE
                         brandsRecycler.visibility = View.VISIBLE
-                        val productResponse = result.data as ProductResponse
-                        val productsList = productResponse.products
-                        Log.i(TAG, "getProductVendors: $productsList ")
-                        brandsAdapter.submitList(createBrandsList(productsList))
+                        val smartCollectionsResponse = result.data as SmartCollectionsResponse
+                        val brandList = smartCollectionsResponse.smartCollections
+                        Log.i(TAG, "getProductVendors: $brandList ")
+                        brandsAdapter.submitList(brandList)
 
                     }
 
@@ -132,41 +133,6 @@ class HomeFragment : Fragment(), OnBrandClickListener {
                 }
 
             }
-        }
-    }
-
-    private fun createBrandsList(productsList: List<Products>): List<BrandsDTO> {
-        return productsList
-            .asSequence()
-            .map { it.vendor }
-            .distinct()
-            .filter { it != "Your Vendor Name" }
-            .map { vendorName ->
-                BrandsDTO(
-                    getImageResourceForVendor(vendorName),
-                    vendorName
-                )
-            }
-            .toList()
-    }
-
-
-    private fun getImageResourceForVendor(vendorName: String): Int {
-        return when (vendorName) {
-            "ADIDAS" -> R.drawable.adidas
-            "ASICS TIGER" -> R.drawable.asics_tiger
-            "Burton" -> R.drawable.burton
-            "CONVERSE" -> R.drawable.converse
-            "DR MARTENS" -> R.drawable.dr_martens
-            "FLEX FIT" -> R.drawable.flexfit
-            "HERSCHEL" -> R.drawable.herschel
-            "NIKE" -> R.drawable.nike
-            "PALLADIUM" -> R.drawable.palladium
-            "PUMA" -> R.drawable.puma
-            "SUPRA" -> R.drawable.supra
-            "TIMBERLAND" -> R.drawable.timberland
-            "VANS" -> R.drawable.vans
-            else -> R.drawable.curved_brownish_background
         }
     }
 
