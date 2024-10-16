@@ -77,4 +77,7 @@ dependencies {
 
 
     //slider
-    implementation 'com.github.denzcoskun:ImageSlideshow:0.1.2'}
+    implementation 'com.github.denzcoskun:ImageSlideshow:0.1.2'
+
+    implementation("com.paypal.android:paypal-web-payments:1.5.0")
+}
