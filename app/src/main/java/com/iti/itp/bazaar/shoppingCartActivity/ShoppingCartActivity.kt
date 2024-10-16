@@ -43,5 +43,20 @@ class ShoppingCartActivity : AppCompatActivity() {
         }
     }
 
+    override fun onSupportNavigateUp(): Boolean {
+        return navController.navigateUp() || super.onSupportNavigateUp()
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        if (navController.currentDestination?.id == navController.graph.startDestinationId) {
+            // If we're at the start destination, finish the activity
+            super.onBackPressed()
+        } else {
+            // Otherwise navigate up within the settings navigation graph
+            navController.navigateUp()
+        }
+    }
+
 
 }

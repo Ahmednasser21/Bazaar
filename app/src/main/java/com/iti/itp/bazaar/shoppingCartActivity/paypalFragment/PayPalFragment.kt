@@ -1,5 +1,6 @@
 //package com.iti.itp.bazaar.shoppingCartActivity.paypalFragment
 //
+//import android.app.Activity
 //import android.content.Intent
 //import android.os.Bundle
 //import android.util.Base64
@@ -43,6 +44,8 @@
 //    private var orderid = ""
 //    private lateinit var binding: FragmentPayPalBinding
 //    private val TAG = "PayPalFragment"
+//    private val PAYPAL_REQUEST_CODE = 1234 // Define your request code
+//
 //
 //    // PayPal Configuration
 //    private val clientID = "AYF_7hasq1akGkaUz04HUmMoC-Iplw7jPfoLFuEFQzfqsB3rfGQCqUw5ZcWVGY5cO0LMGjFCooWunB5N"
@@ -71,30 +74,30 @@
 //    private fun handlerOrderID(orderID: String) {
 //        val config = CoreConfig(clientID, environment = Environment.SANDBOX)
 //        val payPalWebCheckoutClient = PayPalWebCheckoutClient(requireActivity(), config, returnUrl)
+//
 //        payPalWebCheckoutClient.listener = object : PayPalWebCheckoutListener {
 //            override fun onPayPalWebSuccess(result: PayPalWebCheckoutResult) {
-//                Log.d(TAG, "onPayPalWebSuccess: $result")
-//                captureOrder(result.orderId ?: orderID)  // Use the result orderId if available, otherwise use the original orderID
+//                Log.d(TAG, "Payment successful: Order ID = ${result.orderId}")
+//                // Capture the order here
+//                captureOrder(result.orderId ?: orderID)
 //            }
 //
 //            override fun onPayPalWebFailure(error: PayPalSDKError) {
-//                Log.e(TAG, "onPayPalWebFailure: $error")
+//                Log.e(TAG, "Payment failed: ${error.message}")
 //                Toast.makeText(requireContext(), "Payment failed: ${error.message}", Toast.LENGTH_SHORT).show()
 //            }
 //
 //            override fun onPayPalWebCanceled() {
-//                Log.d(TAG, "onPayPalWebCanceled")
-//                Toast.makeText(requireContext(), "Payment Cancelled", Toast.LENGTH_SHORT).show()
+//                Log.d(TAG, "Payment was canceled")
+//                Toast.makeText(requireContext(), "Payment was canceled", Toast.LENGTH_SHORT).show()
 //            }
 //        }
 //
-//        orderid = orderID
-//        val payPalWebCheckoutRequest = PayPalWebCheckoutRequest(
-//            orderID,
-//            fundingSource = PayPalWebCheckoutFundingSource.PAYPAL
-//        )
+//        // Start the PayPal payment process
+//        val payPalWebCheckoutRequest = PayPalWebCheckoutRequest(orderID, fundingSource = PayPalWebCheckoutFundingSource.PAYPAL)
 //        payPalWebCheckoutClient.start(payPalWebCheckoutRequest)
 //    }
+//
 //
 //    private fun fetchAccessToken() {
 //        val authString = "$clientID:$secretID"
@@ -195,5 +198,19 @@
 //                Log.e(TAG, "Network error: ${t.message}")
 //            }
 //        })
+//    }
+//
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        super.onActivityResult(requestCode, resultCode, data)
+//
+//        if (requestCode == PAYPAL_REQUEST_CODE) { // Define your request code
+//            val orderId = data?.getStringExtra("orderId") // Extract orderId from Intent
+//            if (orderId != null) {
+//                captureOrder(orderId)
+//            } else {
+//                Log.e(TAG, "Order ID is null")
+//                Toast.makeText(requireContext(), "Error: Order ID is null", Toast.LENGTH_SHORT).show()
+//            }
+//        }
 //    }
 //}
