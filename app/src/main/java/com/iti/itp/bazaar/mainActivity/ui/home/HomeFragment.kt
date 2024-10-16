@@ -25,8 +25,8 @@ import com.iti.itp.bazaar.databinding.FragmentHomeBinding
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
-import com.iti.itp.bazaar.dto.Products
-import com.iti.itp.bazaar.network.responses.ProductResponse
+import com.iti.itp.bazaar.network.products.Products
+import com.iti.itp.bazaar.network.reponces.ProductResponse
 import com.iti.itp.bazaar.repo.Repository
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch

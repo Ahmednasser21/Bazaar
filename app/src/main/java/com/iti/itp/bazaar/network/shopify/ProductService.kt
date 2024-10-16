@@ -2,7 +2,7 @@ package com.iti.itp.bazaar.network.shopify
 
 import com.iti.itp.bazaar.dto.CustomerAddress
 import com.iti.itp.bazaar.dto.CustomerAddressResponse
-import com.iti.itp.bazaar.network.responses.ProductResponse
+import com.iti.itp.bazaar.network.reponces.ProductResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET

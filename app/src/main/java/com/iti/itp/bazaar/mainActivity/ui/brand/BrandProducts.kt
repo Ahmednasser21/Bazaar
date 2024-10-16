@@ -16,8 +16,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.databinding.FragmentBrandProductsBinding
 import com.iti.itp.bazaar.mainActivity.ui.DataState
-import com.iti.itp.bazaar.dto.Products
-import com.iti.itp.bazaar.network.responses.ProductResponse
+import com.iti.itp.bazaar.network.products.Products
+import com.iti.itp.bazaar.network.reponces.ProductResponse
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
 import com.iti.itp.bazaar.repo.Repository

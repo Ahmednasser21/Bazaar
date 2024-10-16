@@ -1,7 +1,7 @@
 package com.iti.itp.bazaar.repo
 
 import com.iti.itp.bazaar.dto.CustomerAddress
-import com.iti.itp.bazaar.network.responses.ProductResponse
+import com.iti.itp.bazaar.network.reponces.ProductResponse
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
