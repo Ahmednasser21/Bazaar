@@ -32,9 +32,9 @@ class HomeViewModel(private val repo: Repository) : ViewModel() {
     private val _coupons = MutableStateFlow<DataState>(DataState.Loading)
     val coupons = _coupons.asStateFlow()
 
-    fun getVendors(fields: String) {
+    fun getVendors() {
         viewModelScope.launch(Dispatchers.IO) {
-            repo.getVendors(fields)
+            repo.getVendors()
                 .catch {e->
                     _brandStateFlow.value = DataState.OnFailed(e)
                     Log.e(TAG, "failed to getVendors: ${e.message}")

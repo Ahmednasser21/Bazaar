@@ -7,6 +7,7 @@ import com.iti.itp.bazaar.network.responses.DiscountCodesResponse
 import com.iti.itp.bazaar.network.responses.PriceRulesCountResponse
 import com.iti.itp.bazaar.network.responses.PriceRulesResponse
 import com.iti.itp.bazaar.network.responses.ProductResponse
+import com.iti.itp.bazaar.network.responses.SmartCollectionsResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -15,8 +16,8 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ProductService {
-    @GET("admin/api/2022-01/products.json")
-    suspend fun getVendors(@Query("fields") fields: String): ProductResponse
+    @GET("admin/api/2022-01/smart_collections.json")
+    suspend fun getVendors():SmartCollectionsResponse
 
     @GET("admin/api/2022-01/products.json")
     suspend fun getVendorProducts(@Query("vendor") name: String): ProductResponse
