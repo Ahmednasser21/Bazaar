@@ -56,7 +56,7 @@ class NewAddressFragment : Fragment() {
                     phone = binding.etPhone.text.toString(),
                 )
                 val address = AddressRequest(customerAddress)
-                newAddressViewModel.addNewAddress(8220771418416, address)
+                newAddressViewModel.addNewAddress(8220771352880, address)
             }
         }
     }
