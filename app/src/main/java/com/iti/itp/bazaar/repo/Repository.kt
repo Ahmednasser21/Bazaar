@@ -1,6 +1,15 @@
 package com.iti.itp.bazaar.repo
 
+import com.iti.itp.bazaar.dto.AddressRequest
+import com.iti.itp.bazaar.dto.CustomerAddress
+import com.iti.itp.bazaar.dto.CustomerAddressResponse
+import com.iti.itp.bazaar.dto.ListOfAddresses
+import com.iti.itp.bazaar.network.responses.CouponsCountResponse
+import com.iti.itp.bazaar.network.responses.DiscountCodesResponse
+import com.iti.itp.bazaar.network.responses.PriceRulesCountResponse
+import com.iti.itp.bazaar.network.responses.PriceRulesResponse
 import com.iti.itp.bazaar.network.responses.ProductResponse
+import com.iti.itp.bazaar.network.responses.SmartCollectionsResponse
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -20,9 +29,9 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
             }
         }
     }
-    fun getVendors(fields:String):Flow<ProductResponse>{
+    fun getVendors():Flow<SmartCollectionsResponse>{
         return flow{
-            val vendorList = remoteDataSource.getVendors(fields)
+            val vendorList = remoteDataSource.getVendors()
             emit(vendorList)
             delay(100)
         }
@@ -36,11 +45,56 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
         }
     }
 
-    fun getProductDetails (id: Long):Flow<ProductResponse>{
+
+    suspend fun createCustomerAddress(customerId: Long, address: AddressRequest): Flow<CustomerAddressResponse> {
         return flow {
-            val ProductDetails = remoteDataSource.getProductDetails (id)
-            emit(ProductDetails)
+            emit(remoteDataSource.addAddress(customerId, address))
+        }
+    }
+
+
+    fun getPriceRules():Flow<PriceRulesResponse>{
+        return flow {
+            val priceRulesResponse = remoteDataSource.getPriceRules()
+            emit(priceRulesResponse)
             delay(100)
+        }
+    }
+
+    fun getPriceRulesCount():Flow<PriceRulesCountResponse>{
+        return flow {
+            val priceRulesCount = remoteDataSource.getPriceRulesCount()
+            emit(priceRulesCount)
+            delay(100)
+        }
+    }
+
+    fun getCouponsCount():Flow<CouponsCountResponse>{
+        return flow {
+            val couponsCount = remoteDataSource.getCouponsCount()
+            emit(couponsCount)
+            delay(100)
+        }
+    }
+
+    fun getCoupons(priceRuleId:Long):Flow<DiscountCodesResponse>{
+        return flow {
+            val coupons = remoteDataSource.getCoupons(priceRuleId)
+            emit(coupons)
+            delay(100)
+        }
+    }
+    fun getCollectionProducts(id:Long):Flow<ProductResponse>{
+        return flow{
+            val collectionProductList = remoteDataSource.getCollectionProducts(id)
+            emit(collectionProductList)
+            delay(100)
+        }
+    }
+
+    fun getAddressForCustomer(customerId:Long):Flow<ListOfAddresses>{
+        return flow {
+            emit(remoteDataSource.getAddressForCustomer(customerId))
         }
     }
 }

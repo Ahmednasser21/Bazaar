@@ -33,6 +33,7 @@ class ShoppingCartFragment : Fragment() {
         binding.btnProceedToCheckout.setOnClickListener{
             Navigation.findNavController(view).navigate(ShoppingCartFragmentDirections.actionShoppingCartFragmentToChooseAddressFragment())
         }
+
     }
 
 

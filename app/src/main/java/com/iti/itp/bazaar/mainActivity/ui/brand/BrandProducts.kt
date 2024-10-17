@@ -12,13 +12,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
-import com.iti.itp.bazaar.R
 import com.iti.itp.bazaar.databinding.FragmentBrandProductsBinding
 import com.iti.itp.bazaar.mainActivity.ui.DataState
-import com.iti.itp.bazaar.network.dto.Products
 import com.iti.itp.bazaar.network.responses.ProductResponse
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
@@ -28,7 +25,7 @@ import kotlinx.coroutines.launch
 
 private const val TAG = "BrandProducts"
 
-class BrandProducts : Fragment(), OnBrandProductClickListener {
+class BrandProducts : Fragment(), OnBrandProductClickListener, OnFavouriteClickListener {
     private lateinit var brandTitle: TextView
     private lateinit var productRecycler: RecyclerView
     private lateinit var brandProductsViewModel: BrandProductsViewModel
@@ -45,7 +42,8 @@ class BrandProducts : Fragment(), OnBrandProductClickListener {
                 ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
             )
         )
-        brandProductsViewModel = ViewModelProvider(this, factory)[BrandProductsViewModel::class.java]
+        brandProductsViewModel =
+            ViewModelProvider(this, factory)[BrandProductsViewModel::class.java]
         binding = FragmentBrandProductsBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -56,7 +54,7 @@ class BrandProducts : Fragment(), OnBrandProductClickListener {
         val brandName = args.vendorName
         Log.i(TAG, "onViewCreated: $brandName")
 
-        productsAdapter = BrandProductsAdapter(this)
+        productsAdapter = BrandProductsAdapter(this,this)
         initialiseUI(brandName)
         brandProductsViewModel.getVendorProducts(brandName)
         getVendorProducts()
@@ -69,7 +67,7 @@ class BrandProducts : Fragment(), OnBrandProductClickListener {
         progBrandProducts = binding.progBrandProducts
         productRecycler = binding.recBrandProducts.apply {
             adapter = productsAdapter
-            layoutManager = GridLayoutManager(requireContext(),2)
+            layoutManager = GridLayoutManager(requireContext(), 2)
         }
     }
 
@@ -81,44 +79,34 @@ class BrandProducts : Fragment(), OnBrandProductClickListener {
                         progBrandProducts.visibility = View.VISIBLE
                         productRecycler.visibility = View.INVISIBLE
                     }
+
                     is DataState.OnSuccess<*> -> {
                         progBrandProducts.visibility = View.GONE
                         productRecycler.visibility = View.VISIBLE
                         val productResponse = result.data as ProductResponse
                         val productsList = productResponse.products
-                        Log.i(TAG, "getProductVendors:${createBrandProductsList(productsList)}")
-                        if(createBrandProductsList(productsList)[0].imgURL.isEmpty()){
+                        Log.i(TAG, "getProductVendors:${productsList}")
+                        if (productsList.isEmpty()) {
                             binding.emptyBoxAnimationFav.visibility = View.VISIBLE
                         }
-                        productsAdapter.submitList(createBrandProductsList(productsList))
+                        productsAdapter.submitList(productsList)
                     }
+
                     is DataState.OnFailed -> {
                         progBrandProducts.visibility = View.GONE
-                        Snackbar.make(requireView(), "Failed to get data", Snackbar.LENGTH_SHORT).show()
+                        Snackbar.make(requireView(), "Failed to get data", Snackbar.LENGTH_SHORT)
+                            .show()
                     }
                 }
             }
         }
     }
 
-    private fun createBrandProductsList(productsList: List<Products>): List<BrandProductDTO> {
-        return productsList.asSequence()
-            .map { product ->
-                BrandProductDTO(
-                    productID = product.id,
-                    productName = extractProductName(product.title),
-                    imgURL = product.image?.src?:""
-                )
-            }
-            .toList()
-    }
-    private fun extractProductName(fullName: String): String {
-        val delimiter = "|"
-        val parts = fullName.split(delimiter)
-        return if (parts.size > 1) parts[1].trim() else ""
+    override fun onBrandProductClick(productID: Long) {
+// navigate to prouductDetails fragment using args with productID
     }
 
-        override fun onBrandProductClick(productID: Long) {
-// navigate to prouductDetails fragment using args with productID
+    override fun onFavClick() {
+
     }
 }
