@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="12dp"
-    tools:context=".shoppingCartActivity.CashOnDeliveryFragment">
+    tools:context=".shoppingCartActivity.cashOnDeliveryFragment.view.CashOnDeliveryFragment">
 
     <TextView
         android:id="@+id/textView10"
@@ -32,7 +32,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textView10" />
 
     <TextView
-        android:id="@+id/textView12"
+        android:id="@+id/tv_subTotalPrice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="144dp"
@@ -55,13 +55,13 @@
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@+id/textView10"
-        app:layout_constraintStart_toEndOf="@+id/textView12"
+        app:layout_constraintStart_toEndOf="@+id/tv_subTotalPrice"
         app:layout_constraintTop_toTopOf="@+id/textView10"
         app:layout_constraintVertical_bias="0.0" />
 
 
     <TextView
-        android:id="@+id/textView15"
+        android:id="@+id/tv_shippingFees"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="30.0"
@@ -71,7 +71,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/textView13"
         app:layout_constraintEnd_toStartOf="@+id/textView16"
         app:layout_constraintHorizontal_bias="0.666"
-        app:layout_constraintStart_toStartOf="@+id/textView12"
+        app:layout_constraintStart_toStartOf="@+id/tv_subTotalPrice"
         app:layout_constraintTop_toTopOf="@+id/textView13"
         app:layout_constraintVertical_bias="0.0" />
 
@@ -85,11 +85,11 @@
         android:textColor="#F44336"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@+id/textView17"
-        app:layout_constraintTop_toBottomOf="@+id/textView17" />
+        app:layout_constraintEnd_toEndOf="@+id/tvValidate"
+        app:layout_constraintTop_toBottomOf="@+id/tvValidate" />
 
     <EditText
-        android:id="@+id/editText"
+        android:id="@+id/et_coupons"
         android:layout_width="0dp"
         android:layout_height="45dp"
         android:layout_marginTop="44dp"
@@ -97,26 +97,26 @@
         android:background="@drawable/custom_et_backgroud"
         android:hint="@string/coupon"
         android:paddingStart="16dp"
-        app:layout_constraintEnd_toStartOf="@+id/textView17"
+        app:layout_constraintEnd_toStartOf="@+id/tvValidate"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/textView13"
         app:layout_constraintTop_toBottomOf="@+id/textView13"
         tools:ignore="RtlSymmetry" />
 
     <TextView
-        android:id="@+id/textView17"
+        android:id="@+id/tvValidate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/validate"
         android:textColor="@color/brown"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/editText"
+        app:layout_constraintBottom_toBottomOf="@+id/et_coupons"
         app:layout_constraintEnd_toEndOf="@+id/textView16"
-        app:layout_constraintTop_toTopOf="@+id/editText" />
+        app:layout_constraintTop_toTopOf="@+id/et_coupons" />
 
     <TextView
-        android:id="@+id/textView19"
+        android:id="@+id/tv_discountValue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="4dp"
@@ -150,9 +150,9 @@
         android:textColor="@color/brown"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/textView19"
-        app:layout_constraintStart_toStartOf="@+id/editText"
-        app:layout_constraintTop_toTopOf="@+id/textView19"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_discountValue"
+        app:layout_constraintStart_toStartOf="@+id/et_coupons"
+        app:layout_constraintTop_toTopOf="@+id/tv_discountValue"
         app:layout_constraintVertical_bias="1.0" />
 
     <TextView
@@ -169,7 +169,7 @@
         app:layout_constraintStart_toStartOf="@+id/textView20" />
 
     <TextView
-        android:id="@+id/textView22"
+        android:id="@+id/tv_grandTotal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
@@ -180,19 +180,19 @@
         app:layout_constraintStart_toStartOf="@+id/textView21"
         app:layout_constraintTop_toBottomOf="@+id/textView21" />
 
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="4dp"
         android:text="USD"
         android:textColor="@color/black"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/textView22"
-        app:layout_constraintStart_toEndOf="@+id/textView22"
-        app:layout_constraintTop_toTopOf="@+id/textView22"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_grandTotal"
+        app:layout_constraintStart_toEndOf="@+id/tv_grandTotal"
+        app:layout_constraintTop_toTopOf="@+id/tv_grandTotal"
         app:layout_constraintVertical_bias="0.0" />
-
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/appCompatButton"
@@ -215,7 +215,7 @@
         android:layout_marginTop="24dp"
         android:background="?android:attr/listDivider"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView19" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_discountValue" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

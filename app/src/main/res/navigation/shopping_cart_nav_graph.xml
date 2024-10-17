@@ -42,7 +42,7 @@
         tools:layout="@layout/fragment_pay_pal" />
     <fragment
         android:id="@+id/cashOnDeliveryFragment"
-        android:name="com.iti.itp.bazaar.shoppingCartActivity.CashOnDeliveryFragment"
+        android:name="com.iti.itp.bazaar.shoppingCartActivity.cashOnDeliveryFragment.view.CashOnDeliveryFragment"
         android:label="fragment_cash_on_delivery"
         tools:layout="@layout/fragment_cash_on_delivery" />
 </navigation>

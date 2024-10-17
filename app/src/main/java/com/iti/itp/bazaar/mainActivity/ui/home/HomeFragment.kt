@@ -74,7 +74,7 @@ class HomeFragment : Fragment(), OnBrandClickListener {
             homeViewModel.priceRules.collect{ state ->
                 when(state){
                     is DataState.Loading -> ""
-                    is DataState.OnFailed -> ""
+                    is DataState.OnFailed -> Snackbar.make(requireView(), "Failed to get coupons",2000).show()
                     is DataState.OnSuccess<*> ->{
                         val data = state.data as PriceRulesResponse
                         list = data.priceRules
