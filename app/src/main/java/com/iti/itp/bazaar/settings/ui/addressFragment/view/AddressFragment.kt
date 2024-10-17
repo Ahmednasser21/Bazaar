@@ -63,7 +63,7 @@ class AddressFragment : Fragment(), OnAddressClickListener {
     override fun onStart() {
         super.onStart()
         lifecycleScope.launch(Dispatchers.IO) {
-            addressViewModel.getAddressesForCustomer(8220771221808)
+            addressViewModel.getAddressesForCustomer(8220771418416)
             withContext(Dispatchers.Main){
                 addressViewModel.addresses.collect{State->
                     when(State){

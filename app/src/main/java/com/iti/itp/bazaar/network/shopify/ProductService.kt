@@ -27,7 +27,7 @@ interface ProductService {
     @GET("admin/api/2022-01/products.json")
     suspend fun getProductDetails(@Query("ids") id: Long): ProductResponse
 
-    @POST("admin/api/2022-01/customers/{customer_id}/addresses.json")
+    @POST("admin/api/2024-10/customers/{customer_id}/addresses.json")
     suspend fun createCustomerAddress(
         @Path("customer_id") customerId: Long,
         @Body addressRequest: AddedAddressRequest

@@ -31,10 +31,18 @@
         <action
             android:id="@+id/action_paymentMethods_to_payPalFragment"
             app:destination="@id/payPalFragment" />
+        <action
+            android:id="@+id/action_paymentMethods_to_cashOnDeliveryFragment"
+            app:destination="@id/cashOnDeliveryFragment" />
     </fragment>
     <fragment
         android:id="@+id/payPalFragment"
         android:name="com.iti.itp.bazaar.shoppingCartActivity.paypalFragment.PayPalFragment"
         android:label="fragment_pay_pal"
         tools:layout="@layout/fragment_pay_pal" />
+    <fragment
+        android:id="@+id/cashOnDeliveryFragment"
+        android:name="com.iti.itp.bazaar.shoppingCartActivity.CashOnDeliveryFragment"
+        android:label="fragment_cash_on_delivery"
+        tools:layout="@layout/fragment_cash_on_delivery" />
 </navigation>

@@ -34,6 +34,9 @@ class PaymentMethods : Fragment() {
             if (binding.paypal.isChecked){
                 val action = PaymentMethodsDirections.actionPaymentMethodsToPayPalFragment()
                 Navigation.findNavController(view).navigate(action)
+            }else if(binding.cashOnDelivery.isChecked){
+                val action = PaymentMethodsDirections.actionPaymentMethodsToCashOnDeliveryFragment()
+                Navigation.findNavController(view).navigate(action)
             }
         }
     }
