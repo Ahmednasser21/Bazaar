@@ -9,8 +9,14 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.databinding.FragmentAddressBinding
+import com.iti.itp.bazaar.dto.Address
+import com.iti.itp.bazaar.dto.AddressRequest
+import com.iti.itp.bazaar.dto.CustomerAddress
+import com.iti.itp.bazaar.dto.CustomerAddressResponse
 import com.iti.itp.bazaar.dto.ListOfAddresses
+import com.iti.itp.bazaar.dto.UpdateAddressRequest
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
@@ -23,7 +29,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-class AddressFragment : Fragment() {
+class AddressFragment : Fragment(), OnAddressClickListener {
     private lateinit var binding:FragmentAddressBinding
     private lateinit var factory:AddressViewModelFactory
     private lateinit var addressViewModel:AddressViewModel
@@ -57,7 +63,7 @@ class AddressFragment : Fragment() {
     override fun onStart() {
         super.onStart()
         lifecycleScope.launch(Dispatchers.IO) {
-            addressViewModel.getAddressesForCustomer(8220771352880)
+            addressViewModel.getAddressesForCustomer(8220771385648)
             withContext(Dispatchers.Main){
                 addressViewModel.addresses.collect{State->
                     when(State){
@@ -66,7 +72,7 @@ class AddressFragment : Fragment() {
                         is DataState.OnSuccess<*> ->{
                             showDataAndHideProgressbar()
                             val data = State.data as  ListOfAddresses
-                            val adapter = AddressAdapter()
+                            val adapter = AddressAdapter(this@AddressFragment)
                             binding.addressRv.apply {
                                 this.adapter = adapter
                                 this.layoutManager = LinearLayoutManager(requireContext())
@@ -95,6 +101,12 @@ class AddressFragment : Fragment() {
         binding.progressBar.visibility = View.GONE
         binding.btnAddNewAddresss.visibility = View.VISIBLE
         binding.addressRv.visibility = View.VISIBLE
+    }
+
+    override fun onAddressClick(customerAddress: CustomerAddress) {
+        val newAddress = customerAddress.copy(default = true)
+        val customerAddressResponse = CustomerAddressResponse(newAddress)
+        addressViewModel.updateAddress(newAddress.customer_id!!, newAddress.id!!,customerAddressResponse)
     }
 
 }

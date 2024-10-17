@@ -4,6 +4,7 @@ import com.iti.itp.bazaar.dto.AddressRequest
 import com.iti.itp.bazaar.dto.CustomerAddress
 import com.iti.itp.bazaar.dto.CustomerAddressResponse
 import com.iti.itp.bazaar.dto.ListOfAddresses
+import com.iti.itp.bazaar.dto.UpdateAddressRequest
 import com.iti.itp.bazaar.network.responses.CouponsCountResponse
 import com.iti.itp.bazaar.network.responses.DiscountCodesResponse
 import com.iti.itp.bazaar.network.responses.PriceRulesCountResponse
@@ -46,7 +47,7 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
     }
 
 
-    suspend fun createCustomerAddress(customerId: Long, address: AddressRequest): Flow<CustomerAddressResponse> {
+    fun createCustomerAddress(customerId: Long, address: AddressRequest): Flow<CustomerAddressResponse> {
         return flow {
             emit(remoteDataSource.addAddress(customerId, address))
         }
@@ -95,6 +96,12 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
     fun getAddressForCustomer(customerId:Long):Flow<ListOfAddresses>{
         return flow {
             emit(remoteDataSource.getAddressForCustomer(customerId))
+        }
+    }
+
+    fun updateCustomerAddress(customerId:Long, addressId:Long, customerAddress: CustomerAddressResponse):Flow<CustomerAddressResponse>{
+        return flow {
+            emit(remoteDataSource.updateCustomerAddress(customerId,addressId,customerAddress))
         }
     }
 }

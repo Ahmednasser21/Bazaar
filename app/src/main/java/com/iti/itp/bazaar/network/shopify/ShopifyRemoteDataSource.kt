@@ -4,6 +4,7 @@ import com.iti.itp.bazaar.dto.AddressRequest
 import com.iti.itp.bazaar.dto.CustomerAddress
 import com.iti.itp.bazaar.dto.CustomerAddressResponse
 import com.iti.itp.bazaar.dto.ListOfAddresses
+import com.iti.itp.bazaar.dto.UpdateAddressRequest
 import com.iti.itp.bazaar.network.responses.CouponsCountResponse
 import com.iti.itp.bazaar.network.responses.DiscountCodesResponse
 import com.iti.itp.bazaar.network.responses.PriceRulesCountResponse
@@ -47,5 +48,9 @@ class ShopifyRemoteDataSource(private val productService: ProductService) {
 
     suspend fun getAddressForCustomer(customerId:Long):ListOfAddresses{
         return productService.getAddressForCustomer(customerId)
+    }
+
+    suspend fun updateCustomerAddress(customerId:Long, addressId:Long, customerAddress: CustomerAddressResponse):CustomerAddressResponse{
+        return productService.updateCustomerAddress(customerId, addressId,customerAddress)
     }
 }

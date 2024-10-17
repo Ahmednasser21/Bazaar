@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.databinding.FragmentNewAddressBinding
+import com.iti.itp.bazaar.dto.AddressDetails
 import com.iti.itp.bazaar.dto.AddressRequest
 import com.iti.itp.bazaar.dto.CustomerAddress
 import com.iti.itp.bazaar.mainActivity.ui.DataState
@@ -50,13 +51,26 @@ class NewAddressFragment : Fragment() {
             if (binding.country.text.isEmpty() || binding.etCity.text.isEmpty() || binding.etPhone.text.isEmpty()){
                 Snackbar.make(view,"All fields must be required",2000).show()
             }else{
-                val customerAddress = CustomerAddress(
-                    city = binding.etCity.text.toString(),
-                    country = binding.country.text.toString(),
-                    phone = binding.etPhone.text.toString(),
+                val addressRequest = AddressRequest(
+                    customer_address = AddressDetails(
+
+                        address1 = "1 Rue des Carrieres",
+                        address2 = "Suite 1234",
+                        city = binding.etCity.text.toString(),
+                        company = "Fancy Co.",
+                        first_name = "Samuel",
+                        last_name = "de Champlain",
+                        phone = binding.etPhone.text.toString(),
+                        province = "Quebec",
+                        country = "sdgmdslkgmsdlkm",
+                        zip = "G1R 4P5",
+                        name = "Samuel de Champlain",
+                        province_code = "QC",
+                        country_code = "CA",
+                        country_name = "dslkgmds"
+                    )
                 )
-                val address = AddressRequest(customerAddress)
-                newAddressViewModel.addNewAddress(8220771352880, address)
+                newAddressViewModel.addNewAddress(8220771254576,addressRequest)
             }
         }
     }

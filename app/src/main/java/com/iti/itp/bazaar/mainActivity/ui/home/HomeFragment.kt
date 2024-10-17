@@ -22,10 +22,12 @@ import com.denzcoskun.imageslider.models.SlideModel
 import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.R
 import com.iti.itp.bazaar.databinding.FragmentHomeBinding
+import com.iti.itp.bazaar.dto.PriceRuleDto
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
 import com.iti.itp.bazaar.network.products.Products
+import com.iti.itp.bazaar.network.responses.PriceRulesResponse
 import com.iti.itp.bazaar.network.responses.ProductResponse
 import com.iti.itp.bazaar.network.responses.SmartCollectionsResponse
 import com.iti.itp.bazaar.repo.Repository
@@ -41,6 +43,7 @@ class HomeFragment : Fragment(), OnBrandClickListener {
     private lateinit var brandsAdapter: BrandsAdapter
     private lateinit var brandsRecycler: RecyclerView
     private lateinit var brandsProgressBar: ProgressBar
+    private lateinit var list:List<PriceRuleDto>
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -64,24 +67,37 @@ class HomeFragment : Fragment(), OnBrandClickListener {
 
         binding.imageSlider.setImageList(getListOfImageAds())
         val clipboard = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        homeViewModel.getPriceRules()
 
 
+        lifecycleScope.launch {
+            homeViewModel.priceRules.collect{ state ->
+                when(state){
+                    is DataState.Loading -> ""
+                    is DataState.OnFailed -> ""
+                    is DataState.OnSuccess<*> ->{
+                        val data = state.data as PriceRulesResponse
+                        list = data.priceRules
+                    }
+                }
+            }
+        }
 
-        binding.imageSlider.setItemClickListener(object : ItemClickListener {
+            binding.imageSlider.setItemClickListener(object : ItemClickListener {
             override fun onItemSelected(position: Int) {
                 when (position) {
                     0 -> {
-                        val clip = ClipData.newPlainText("ad", "You've clicked on the first ad")
+                        val clip = ClipData.newPlainText("ad", list.get(position).title)
                         clipboard.setPrimaryClip(clip)
                         Snackbar.make(view, "Coupon is copied", 2000).show()
                     }
                     1 -> {
-                        val clip = ClipData.newPlainText("ad", "You've clicked on the second ad")
+                        val clip = ClipData.newPlainText("ad", list.get(position).title)
                         clipboard.setPrimaryClip(clip)
                         Snackbar.make(view, "Coupon is copied", 2000).show()
                     }
                     2 -> {
-                        val clip = ClipData.newPlainText("ad", "You've clicked on the third ad")
+                        val clip = ClipData.newPlainText("ad", list.get(position).title)
                         clipboard.setPrimaryClip(clip)
                         Snackbar.make(view, "Coupon is copied", 2000).show()
                     }

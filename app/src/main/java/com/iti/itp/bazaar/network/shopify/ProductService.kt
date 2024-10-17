@@ -4,6 +4,7 @@ import com.iti.itp.bazaar.dto.AddressRequest
 import com.iti.itp.bazaar.dto.CustomerAddress
 import com.iti.itp.bazaar.dto.CustomerAddressResponse
 import com.iti.itp.bazaar.dto.ListOfAddresses
+import com.iti.itp.bazaar.dto.UpdateAddressRequest
 import com.iti.itp.bazaar.network.responses.CouponsCountResponse
 import com.iti.itp.bazaar.network.responses.DiscountCodesResponse
 import com.iti.itp.bazaar.network.responses.PriceRulesCountResponse
@@ -14,6 +15,7 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -53,4 +55,10 @@ interface ProductService {
         @Path("customer_id")customerId: Long,
     ): ListOfAddresses
 
+    @PUT("/admin/api/2024-10/customers/{customer_id}/addresses/{address_id}.json")
+    suspend fun updateCustomerAddress(
+        @Path("customer_id") customerId: Long,
+        @Path("address_id") addressId: Long,
+        @Body addressRequest: CustomerAddressResponse
+    ): CustomerAddressResponse
 }

@@ -58,4 +58,6 @@
     <string name="sale">SALE</string>
     <string name="men">MEN</string>
     <string name="kid">KID</string>
+    <string name="currency">Currency</string>
+    <string name="egp">EGP</string>
 </resources>
