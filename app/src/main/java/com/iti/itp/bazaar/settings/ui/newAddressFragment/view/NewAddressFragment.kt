@@ -1,27 +1,20 @@
 package com.iti.itp.bazaar.settings.ui.newAddressFragment.view
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.databinding.FragmentNewAddressBinding
-import com.iti.itp.bazaar.dto.AddressDetails
-import com.iti.itp.bazaar.dto.AddressRequest
-import com.iti.itp.bazaar.dto.CustomerAddress
-import com.iti.itp.bazaar.mainActivity.ui.DataState
+import com.iti.itp.bazaar.dto.AddedAddressRequest
+import com.iti.itp.bazaar.dto.AddedCustomerAddress
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
 import com.iti.itp.bazaar.repo.Repository
 import com.iti.itp.bazaar.settings.ui.newAddressFragment.viewModel.NewAddressViewModel
 import com.iti.itp.bazaar.settings.ui.newAddressFragment.viewModel.NewAddressViewModelFactory
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class NewAddressFragment : Fragment() {
     private lateinit var binding: FragmentNewAddressBinding
@@ -51,26 +44,19 @@ class NewAddressFragment : Fragment() {
             if (binding.country.text.isEmpty() || binding.etCity.text.isEmpty() || binding.etPhone.text.isEmpty()){
                 Snackbar.make(view,"All fields must be required",2000).show()
             }else{
-                val addressRequest = AddressRequest(
-                    customer_address = AddressDetails(
-
-                        address1 = "1 Rue des Carrieres",
-                        address2 = "Suite 1234",
-                        city = binding.etCity.text.toString(),
-                        company = "Fancy Co.",
-                        first_name = "Samuel",
-                        last_name = "de Champlain",
-                        phone = binding.etPhone.text.toString(),
-                        province = "Quebec",
-                        country = "sdgmdslkgmsdlkm",
-                        zip = "G1R 4P5",
-                        name = "Samuel de Champlain",
-                        province_code = "QC",
-                        country_code = "CA",
-                        country_name = "dslkgmds"
-                    )
+                val addedCustomerAddress = AddedCustomerAddress(
+                    address1 = "egypt1",
+                    address2 = "ismailia1",
+                    city = "fayed1",
+                    country = binding.country.text.toString(),
+                    country_name = "Egypt1",
+                    first_name = "ahmed1",
+                    last_name = "samy1",
+                    company = "esfd1",
+                    phone = "01010095281",
                 )
-                newAddressViewModel.addNewAddress(8220771254576,addressRequest)
+                val address = AddedAddressRequest(addedCustomerAddress)
+                newAddressViewModel.addNewAddress(8220771221808,address)
             }
         }
     }

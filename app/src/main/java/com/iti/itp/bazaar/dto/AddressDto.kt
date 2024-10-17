@@ -16,9 +16,35 @@ data class CustomerAddress(
     val id: Long?=null,
     val name: String="",
     val province_code: String? = null,
-    val country_code: String="",
+    val country_code: String?,
     val country_name: String="",
-    val default: Boolean = false
+    val default: Boolean?= null
+)
+
+data class AddedCustomerAddress(
+    val address1: String = "",
+    val address2: String?= "",
+    val city: String= "",
+    val company: String?= "",
+    val first_name: String= "",
+    val last_name: String= "",
+    val phone: String= "",
+    val province: String= "",
+    val country: String= "",
+    val zip: String= "",
+    val name: String= "",
+    val province_code: String= "",
+    val country_code: String= "",
+    val country_name: String= ""
+)
+
+data class AddedAddressRequest(
+    val address: AddedCustomerAddress
+)
+
+
+data class AddedCustomerAddressResponse(
+    val customer_address: AddedCustomerAddress
 )
 
 data class Address(
@@ -33,28 +59,24 @@ data class UpdateAddressRequest(
 
 
 data class AddressRequest(
-    val customer_address: AddressDetails
+    val address: AddressDetails
 )
 
 data class AddressDetails(
-    val id: Long? =null,
-    val customer_id: Long?=null,
-    val first_name: String,
-    val last_name: String? = null, // Nullable to allow null values
-    val company: String="",
-    val address1: String ="",
-    val address2: String = "",       // Default to empty string
+    val address1: String,
+    val address2: String = "",               // Default to empty string
     val city: String,
-    val province: String = "",       // Default to empty string
-    val country: String,        // Default to empty string
-    val zip: String = "",            // Default to empty string
+    val company: String? = null,             // Nullable for optional values
+    val first_name: String,
+    val last_name: String,
     val phone: String,
-    val name: String="",
-    val province_code: String? = null, // Nullable
-    val country_code: String ?= null,  // Nullable
-    val country_name: String = "",      // Default to empty string
-    val default: Boolean = false
-)
+    val province: String,
+    val country: String,
+    val zip: String,
+    val name: String,
+    val province_code: String,
+    val country_code: String,
+    val country_name: String)
 
 
 

@@ -1,17 +1,15 @@
 package com.iti.itp.bazaar.network.shopify
 
-import com.iti.itp.bazaar.dto.AddressRequest
-import com.iti.itp.bazaar.dto.CustomerAddress
+import com.iti.itp.bazaar.dto.AddedAddressRequest
 import com.iti.itp.bazaar.dto.CustomerAddressResponse
+import com.iti.itp.bazaar.dto.AddedCustomerAddressResponse
 import com.iti.itp.bazaar.dto.ListOfAddresses
-import com.iti.itp.bazaar.dto.UpdateAddressRequest
 import com.iti.itp.bazaar.network.responses.CouponsCountResponse
 import com.iti.itp.bazaar.network.responses.DiscountCodesResponse
 import com.iti.itp.bazaar.network.responses.PriceRulesCountResponse
 import com.iti.itp.bazaar.network.responses.PriceRulesResponse
 import com.iti.itp.bazaar.network.responses.ProductResponse
 import com.iti.itp.bazaar.network.responses.SmartCollectionsResponse
-import retrofit2.Response
 
 class ShopifyRemoteDataSource(private val productService: ProductService) {
 
@@ -23,7 +21,7 @@ class ShopifyRemoteDataSource(private val productService: ProductService) {
         return productService.getVendorProducts(vendorName)
     }
 
-    suspend fun addAddress(customerId: Long, customerAddress: AddressRequest): CustomerAddressResponse {
+    suspend fun addAddress(customerId: Long, customerAddress: AddedAddressRequest): AddedCustomerAddressResponse {
         return productService.createCustomerAddress(customerId,customerAddress)
     }
 

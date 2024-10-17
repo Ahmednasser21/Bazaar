@@ -63,7 +63,7 @@ class AddressFragment : Fragment(), OnAddressClickListener {
     override fun onStart() {
         super.onStart()
         lifecycleScope.launch(Dispatchers.IO) {
-            addressViewModel.getAddressesForCustomer(8220771385648)
+            addressViewModel.getAddressesForCustomer(8220771221808)
             withContext(Dispatchers.Main){
                 addressViewModel.addresses.collect{State->
                     when(State){
@@ -106,7 +106,7 @@ class AddressFragment : Fragment(), OnAddressClickListener {
     override fun onAddressClick(customerAddress: CustomerAddress) {
         val newAddress = customerAddress.copy(default = true)
         val customerAddressResponse = CustomerAddressResponse(newAddress)
-        addressViewModel.updateAddress(newAddress.customer_id!!, newAddress.id!!,customerAddressResponse)
+        addressViewModel.updateAddress(customerAddress.customer_id!!, customerAddress.id!!,customerAddressResponse)
     }
 
 }
