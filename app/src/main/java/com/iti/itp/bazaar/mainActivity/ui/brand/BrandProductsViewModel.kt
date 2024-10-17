@@ -15,7 +15,6 @@ class BrandProductsViewModel(private val repo:Repository) : ViewModel() {
 
     private val _productStateFlow = MutableStateFlow<DataState>(DataState.Loading)
     val productStateFlow = _productStateFlow.asStateFlow()
-
     fun getVendorProducts(vendorName: String) {
         viewModelScope.launch(Dispatchers.IO) {
             repo.getVendorProducts(vendorName)

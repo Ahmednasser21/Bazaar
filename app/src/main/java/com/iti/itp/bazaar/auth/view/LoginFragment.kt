@@ -35,6 +35,7 @@ lateinit var binding : FragmentLoginBinding
         val user = authViewModel.checkIfEmailVerified()
         if(user!=null)
         {
+            // mAuth.uid // unique id of user in
             // here should be the navigation step to the home screen casue the user is aready logged in
         startActivity(Intent(requireActivity(),MainActivity::class.java))
         }
@@ -119,6 +120,9 @@ lateinit var binding : FragmentLoginBinding
 
         }
     }
+
+
+    
 
 
 }
