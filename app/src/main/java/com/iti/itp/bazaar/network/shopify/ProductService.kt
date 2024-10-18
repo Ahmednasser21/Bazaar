@@ -4,6 +4,7 @@ import com.iti.itp.bazaar.dto.AddedAddressRequest
 import com.iti.itp.bazaar.dto.CustomerAddressResponse
 import com.iti.itp.bazaar.dto.AddedCustomerAddressResponse
 import com.iti.itp.bazaar.dto.CustomerRequest
+import com.iti.itp.bazaar.dto.DraftOrderRequest
 import com.iti.itp.bazaar.dto.ListOfAddresses
 import com.iti.itp.bazaar.dto.cutomerResponce.CustomerResponse
 import com.iti.itp.bazaar.network.responses.CouponsCountResponse
@@ -64,5 +65,10 @@ interface ProductService {
 
     @POST("admin/api/2024-10/customers.json")
     suspend fun postCustomer (@Body customer : CustomerRequest) : CustomerResponse
+
+    @POST("admin/api/2024-10/draft_orders.json")
+    suspend fun createDraftOrder(
+        @Body draftOrderRequest: DraftOrderRequest
+    ): DraftOrderRequest
 
 }

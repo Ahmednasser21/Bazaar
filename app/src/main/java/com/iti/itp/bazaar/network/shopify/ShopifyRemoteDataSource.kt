@@ -6,6 +6,7 @@ import com.iti.itp.bazaar.dto.AddressRequest
 import com.iti.itp.bazaar.dto.CustomerAddress
 import com.iti.itp.bazaar.dto.CustomerAddressResponse
 import com.iti.itp.bazaar.dto.CustomerRequest
+import com.iti.itp.bazaar.dto.DraftOrderRequest
 import com.iti.itp.bazaar.dto.ListOfAddresses
 import com.iti.itp.bazaar.dto.cutomerResponce.CustomerResponse
 import com.iti.itp.bazaar.network.responses.CouponsCountResponse
@@ -65,6 +66,10 @@ class ShopifyRemoteDataSource(private val productService: ProductService) {
 
     suspend fun updateCustomerAddress(customerId:Long, addressId:Long, customerAddress: CustomerAddressResponse):CustomerAddressResponse{
         return productService.updateCustomerAddress(customerId, addressId,customerAddress)
+    }
+
+    suspend fun createDraftOrder(draftOrderRequest:DraftOrderRequest):DraftOrderRequest{
+        return productService.createDraftOrder(draftOrderRequest)
     }
 
 }

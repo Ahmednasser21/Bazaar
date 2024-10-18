@@ -18,12 +18,18 @@ import com.example.productinfoform_commerce.productInfo.viewModel.ProuductIfonVi
 import com.example.productinfoform_commerce.productInfo.viewModel.prouductInfoViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.databinding.FragmentProuductnfoBinding
+import com.iti.itp.bazaar.dto.AppliedDiscount
+import com.iti.itp.bazaar.dto.Customer
+import com.iti.itp.bazaar.dto.DraftOrder
+import com.iti.itp.bazaar.dto.DraftOrderRequest
+import com.iti.itp.bazaar.dto.LineItem
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.network.exchangeCurrencyApi.CurrencyRemoteDataSource
 import com.iti.itp.bazaar.network.exchangeCurrencyApi.ExchangeRetrofitObj
 import com.iti.itp.bazaar.network.products.Option
 import com.iti.itp.bazaar.network.products.Products
 import com.iti.itp.bazaar.network.responses.ExchangeRateResponse
+import com.iti.itp.bazaar.network.responses.PriceRulesResponse
 import com.iti.itp.bazaar.network.responses.ProductResponse
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
@@ -31,8 +37,11 @@ import com.iti.itp.bazaar.productInfo.OnClickListner
 import com.iti.itp.bazaar.productInfo.OnColorClickListner
 import com.iti.itp.bazaar.repo.CurrencyRepository
 import com.iti.itp.bazaar.repo.Repository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.random.Random
 
 
@@ -120,6 +129,14 @@ class ProuductnfoFragment : Fragment() , OnClickListner<AvailableSizes> , OnColo
 
                  // samy's work
                // choosenSize , choosenColor , product (golbal variable taken its value when sussecc in getProductDetails() )
+                 lifecycleScope.launch(Dispatchers.IO){
+                     ProductInfoViewModel.getPriceRules()
+                     ProductInfoViewModel.createOrder(draftOrderRequest())
+                     withContext(Dispatchers.Main){
+                         Snackbar.make(requireView(), "Successfully creating the order", 2000).show()
+                     }
+                 }
+
              }
 
 
@@ -279,5 +296,33 @@ fun getCurrencyRate (price : Double) {
     }
 }
 
+
+private fun draftOrderRequest():DraftOrderRequest{
+    val draftOrderRequest = DraftOrderRequest(
+        draft_order = DraftOrder(
+            line_items = listOf(
+                LineItem(proudct.title, proudct.variants[0].price,1)
+            ),
+            use_customer_default_address = true,
+            applied_discount = AppliedDiscount(),
+            customer = Customer(8220771418416)
+        )
+
+    )
+    return draftOrderRequest
+}
+
+
+//    suspend fun priceRulesResult(){
+//        ProductInfoViewModel.priceRules.collect{state->
+//            when(state){
+//                is DataState.Loading ->{}
+//                is DataState.OnFailed ->{}
+//                is DataState.OnSuccess<*> ->{
+//                    val data = state.data as PriceRulesResponse
+//                }
+//            }
+//        }
+//    }
 
 }
