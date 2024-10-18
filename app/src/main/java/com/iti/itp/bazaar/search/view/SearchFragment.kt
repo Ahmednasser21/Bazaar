@@ -74,7 +74,6 @@ lateinit var searshAdapter: SearchAdapter
                             override fun onQueryTextSubmit(query: String?): Boolean {
                                 return false
                             }
-
                             override fun onQueryTextChange(newText: String?): Boolean {
                                 lifecycleScope.launch {
                                     if (newText.isNullOrEmpty()) {

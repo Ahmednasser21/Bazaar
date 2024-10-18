@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
@@ -226,7 +227,8 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteProduc
         categoryProductsRec.visibility = View.VISIBLE
     }
     override fun onProductClick(id: Long) {
-
+     val action = CategoriesFragmentDirections.actionNavCategoriesToProuductnfoFragment(id)
+        Navigation.findNavController(binding.root).navigate(action)
     }
 
     override fun onFavProductClick() {
