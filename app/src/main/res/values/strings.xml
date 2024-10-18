@@ -67,4 +67,11 @@
     <string name="coupon">Coupon</string>
     <string name="discount">Discount</string>
     <string name="place_order">Place Order</string>
+    <string name="tv_review">Reviews</string>
+    <string name="tv_desc">Description:</string>
+    <string name="tv_reviews">"Reviews : "</string>
+    <string name="tv_availableSizes">Available Sizes</string>
+    <string name="tv_avalablColorTxt">Available Colors</string>
+    <string name="btn_addToCart">Add To Bag</string>
+    <string name="prouductDetails">Product Details</string>
 </resources>

@@ -61,4 +61,8 @@ class ShopifyRemoteDataSource(private val productService: ProductService) {
         return productService.postCustomer (customer)
     }
 
+    suspend fun updateCustomerAddress(customerId:Long, addressId:Long, customerAddress: CustomerAddressResponse):CustomerAddressResponse{
+        return productService.updateCustomerAddress(customerId, addressId,customerAddress)
+    }
+
 }

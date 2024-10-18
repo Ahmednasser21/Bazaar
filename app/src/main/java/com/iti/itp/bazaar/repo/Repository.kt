@@ -115,4 +115,10 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
             delay(100)
         }
     }
+
+    fun updateCustomerAddress(customerId:Long, addressId:Long, customerAddress: CustomerAddressResponse):Flow<CustomerAddressResponse>{
+        return flow {
+            emit(remoteDataSource.updateCustomerAddress(customerId,addressId,customerAddress))
+        }
+    }
 }

@@ -3,7 +3,9 @@ package com.iti.itp.bazaar.network.shopify
 import com.iti.itp.bazaar.dto.AddedAddressRequest
 import com.iti.itp.bazaar.dto.CustomerAddressResponse
 import com.iti.itp.bazaar.dto.AddedCustomerAddressResponse
+import com.iti.itp.bazaar.dto.CustomerRequest
 import com.iti.itp.bazaar.dto.ListOfAddresses
+import com.iti.itp.bazaar.dto.cutomerResponce.CustomerResponse
 import com.iti.itp.bazaar.network.responses.CouponsCountResponse
 import com.iti.itp.bazaar.network.responses.DiscountCodesResponse
 import com.iti.itp.bazaar.network.responses.PriceRulesCountResponse
@@ -59,4 +61,8 @@ interface ProductService {
         @Path("address_id") addressId: Long,
         @Body addressRequest: CustomerAddressResponse
     ): CustomerAddressResponse
+
+    @POST("admin/api/2024-10/customers.json")
+    suspend fun postCustomer (@Body customer : CustomerRequest) : CustomerResponse
+
 }
