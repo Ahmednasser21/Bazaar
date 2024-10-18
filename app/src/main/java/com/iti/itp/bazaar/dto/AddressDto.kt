@@ -47,10 +47,7 @@ data class AddedCustomerAddressResponse(
     val customer_address: AddedCustomerAddress
 )
 
-data class Address(
-    val id: Long,
-    val zip: String =""
-)
+
 
 data class UpdateAddressRequest(
     val address: Address

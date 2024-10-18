@@ -1,5 +1,7 @@
 package com.iti.itp.bazaar.network.shopify
 
+import com.iti.itp.bazaar.dto.AddedAddressRequest
+import com.iti.itp.bazaar.dto.AddedCustomerAddressResponse
 import com.iti.itp.bazaar.dto.AddressRequest
 import com.iti.itp.bazaar.dto.CustomerAddress
 import com.iti.itp.bazaar.dto.CustomerAddressResponse
@@ -27,7 +29,7 @@ class ShopifyRemoteDataSource(private val productService: ProductService) {
         return productService.getVendorProducts(vendorName)
     }
 
-    suspend fun addAddress(customerId: Long, customerAddress: AddressRequest): CustomerAddressResponse {
+    suspend fun addAddress(customerId: Long, customerAddress: AddedAddressRequest): AddedCustomerAddressResponse {
         return productService.createCustomerAddress(customerId,customerAddress)
     }
 

@@ -10,5 +10,5 @@ data class ExchangeRateResponse(
     val time_next_update_utc: String,
     val base_code: String,
     val target_code: String,
-    val conversion_rate: Double
+    val conversion_rate: Double // da hdrhabo fel 3omla elli 3andi (EGP , USD)
 )
