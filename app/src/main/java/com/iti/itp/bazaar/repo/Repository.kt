@@ -145,4 +145,12 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
             emit(remoteDataSource.getAllDraftOrders())
         }
     }
+
+    fun getAllProuducts () :Flow<ProductResponse>{
+        return flow {
+            val AllProduct = remoteDataSource.getAllProducts()
+            emit(AllProduct)
+            delay(100)
+        }
+    }
 }
