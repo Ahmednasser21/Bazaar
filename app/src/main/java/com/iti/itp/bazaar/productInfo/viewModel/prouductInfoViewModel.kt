@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 
 import com.iti.itp.bazaar.mainActivity.ui.DataState
+import com.iti.itp.bazaar.repo.CurrencyRepository
 import com.iti.itp.bazaar.repo.Repository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,11 +14,13 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-class prouductInfoViewModel (private val repo: Repository) : ViewModel() {
+class prouductInfoViewModel (private val repo: Repository , private val currencyRepository: CurrencyRepository) : ViewModel() {
 
     private val _productDetailsStateFlow = MutableStateFlow<DataState>(DataState.Loading)
     val productDetailsStateFlow = _productDetailsStateFlow.asStateFlow()
 
+    private val _currencyStateFlow = MutableStateFlow<DataState>(DataState.Loading)
+    val currencyStateFlow = _currencyStateFlow.asStateFlow()
 
     fun getProductDetails(id: Long) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -31,6 +34,24 @@ class prouductInfoViewModel (private val repo: Repository) : ViewModel() {
                     Log.d("TAG", "getProductDetails VIEW MODEL: CASE SUCCESS")
                 }
         }
+    }
+
+    fun getCurrencyRate ( base :String , target : String  ) {
+        viewModelScope.launch (Dispatchers.IO){
+            currencyRepository.getExchangeRate(base ,target )
+                .catch {
+                    _currencyStateFlow.value = DataState.OnFailed(it)
+                    Log.d("TAG", "getCuurencyRate VIEW MODEL: ${it.printStackTrace()}")
+                }
+                .collectLatest {
+                    _currencyStateFlow.value = DataState.OnSuccess(it)
+                    Log.d("TAG", "getCuurencyRate VIEW MODEL: CASE SUCCESS")
+                }
+
+
+        }
+
+
     }
 
 }

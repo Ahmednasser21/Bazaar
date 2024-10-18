@@ -1,5 +1,7 @@
 package com.iti.itp.bazaar.productInfo.view
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -17,13 +19,17 @@ import com.example.productinfoform_commerce.productInfo.viewModel.prouductInfoVi
 import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.databinding.FragmentProuductnfoBinding
 import com.iti.itp.bazaar.mainActivity.ui.DataState
+import com.iti.itp.bazaar.network.exchangeCurrencyApi.CurrencyRemoteDataSource
+import com.iti.itp.bazaar.network.exchangeCurrencyApi.ExchangeRetrofitObj
 import com.iti.itp.bazaar.network.products.Option
 import com.iti.itp.bazaar.network.products.Products
+import com.iti.itp.bazaar.network.responses.ExchangeRateResponse
 import com.iti.itp.bazaar.network.responses.ProductResponse
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
 import com.iti.itp.bazaar.productInfo.OnClickListner
 import com.iti.itp.bazaar.productInfo.OnColorClickListner
+import com.iti.itp.bazaar.repo.CurrencyRepository
 import com.iti.itp.bazaar.repo.Repository
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -37,9 +43,13 @@ class ProuductnfoFragment : Fragment() , OnClickListner<AvailableSizes> , OnColo
     lateinit var vmFActory : ProuductIfonViewModelFactory
     lateinit var availableSizesAdapter : AvailableSizesAdapter
     lateinit var availableColorsAdapter : AvailableColorAdapter
+    lateinit var sharedPreferences: SharedPreferences
+     var conversionRate : Double? = 0.0
      var choosenSize : String? = null
      var choosenColor : String?= null
+
     lateinit var proudct :Products
+    lateinit var Currentcurrency : String
     private val ratingList = listOf(2.5f,3.0f,3.5f, 4.0f, 4.5f, 5.0f)
     private val reviewList = listOf(
         "Excellent product, highly recommend!",
@@ -66,9 +76,15 @@ class ProuductnfoFragment : Fragment() , OnClickListner<AvailableSizes> , OnColo
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        sharedPreferences = requireActivity().getSharedPreferences(
+            "currencySharedPrefs",
+            Context.MODE_PRIVATE
+        )
+        Currentcurrency = sharedPreferences.getString("currency","EGP") ?:"EGP"
         vmFActory = ProuductIfonViewModelFactory( Repository.getInstance(
             ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
-        ))
+        ) , CurrencyRepository(CurrencyRemoteDataSource(ExchangeRetrofitObj.service))
+        )
         ProductInfoViewModel = ViewModelProvider(this , vmFActory).get(prouductInfoViewModel::class.java)
 // here i should recive args from any string with id : Long
 
@@ -145,7 +161,20 @@ class ProuductnfoFragment : Fragment() , OnClickListner<AvailableSizes> , OnColo
        binding.tvProuductDesc.text = productsList.get(0).bodyHtml
 
        // da el se3r w hyt8yar based on shared pref in setting
-       binding.tvProuductPrice.text = "${productsList.get(0).variants.get(0).price} EGP"
+       when (Currentcurrency){
+           "EGP"->{
+               binding.tvProuductPrice.text = "${productsList.get(0).variants.get(0).price} EGP"
+           }
+           "USD"->{
+               ProductInfoViewModel.getCurrencyRate("EGP","USD")
+               val prics = productsList.get(0).variants.get(0).price.toDouble()
+               getCurrencyRate( prics)
+
+//               val newPrice = (prics * conversionRate!!)
+//               binding.tvProuductPrice.text = "${newPrice} USD"
+           }
+       }
+
 
        val randomRating = ratingList[Random.nextInt(ratingList.size)]
        val randomReview = reviewList[Random.nextInt(reviewList.size)]
@@ -174,6 +203,7 @@ class ProuductnfoFragment : Fragment() , OnClickListner<AvailableSizes> , OnColo
                     val availableSizesList=  it.values.map{AvailableSizes(it)}
                     availableSizesAdapter.submitList(availableSizesList)
 
+
                 }
                 else ->{}
             }
@@ -194,8 +224,6 @@ class ProuductnfoFragment : Fragment() , OnClickListner<AvailableSizes> , OnColo
             Log.d("TAG", "OnColorClick: choosen size  is  ${choosenSize} ")
             Snackbar.make(requireView(), "Your choosen Size has been Changed To Be ${t.size} ", 2000).show()
         }
-
-
 
     }
 
@@ -230,7 +258,26 @@ class ProuductnfoFragment : Fragment() , OnClickListner<AvailableSizes> , OnColo
         }
     }
 
+fun getCurrencyRate (price : Double) {
 
+   lifecycleScope.launch {
+        ProductInfoViewModel.currencyStateFlow.collectLatest { result ->
+            when (result){
+                DataState.Loading -> {   Log.d("TAG", "getCurrencyRate: loading   ")}
+                is DataState.OnFailed ->{ Log.d("TAG", "getCurrencyRate: failure    ")}
+                is DataState.OnSuccess<*> -> {
+
+                  conversionRate =  (result.data  as ExchangeRateResponse).conversion_rate
+                    Log.d("TAG", "getCurrencyRate: succes   $conversionRate   ")
+                    binding.tvProuductPrice.text = String.format("%.2f", (price * conversionRate!!))+" USD"
+
+
+                }
+            }
+
+        }
+    }
+}
 
 
 }
