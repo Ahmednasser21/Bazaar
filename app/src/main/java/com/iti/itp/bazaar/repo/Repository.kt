@@ -123,4 +123,11 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
             emit(remoteDataSource.updateCustomerAddress(customerId,addressId,customerAddress))
         }
     }
+    fun getAllProuducts () :Flow<ProductResponse>{
+        return flow {
+            val AllProduct = remoteDataSource.getAllProducts()
+            emit(AllProduct)
+            delay(100)
+        }
+    }
 }

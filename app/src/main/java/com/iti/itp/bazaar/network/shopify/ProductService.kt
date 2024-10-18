@@ -65,4 +65,6 @@ interface ProductService {
     @POST("admin/api/2024-10/customers.json")
     suspend fun postCustomer (@Body customer : CustomerRequest) : CustomerResponse
 
+    @GET("admin/api/2024-10/products.json")
+    suspend fun getAllProducts(): ProductResponse
 }

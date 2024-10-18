@@ -271,7 +271,6 @@ fun getCurrencyRate (price : Double) {
                     Log.d("TAG", "getCurrencyRate: succes   $conversionRate   ")
                     binding.tvProuductPrice.text = String.format("%.2f", (price * conversionRate!!))+" USD"
 
-
                 }
             }
 
