@@ -48,7 +48,7 @@ lateinit var searshAdapter: SearchAdapter
     ): View? {
         // Inflate the layout for this fragment
         vmFactory = SearchViewModelFactory(Repository.getInstance(ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)))
-        searchViewModel = ViewModelProvider(this ,vmFactory).get(SearchViewModel::class.java)
+        searchViewModel = ViewModelProvider(requireActivity() ,vmFactory).get(SearchViewModel::class.java)
         searshAdapter= SearchAdapter(this,this)
         binding = FragmentSearchBinding.inflate(inflater,container , false)
         return binding.root

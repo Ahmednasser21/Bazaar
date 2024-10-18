@@ -71,4 +71,7 @@ interface ProductService {
         @Body draftOrderRequest: DraftOrderRequest
     ): DraftOrderRequest
 
+    @GET("admin/api/2024-10/products.json")
+    suspend fun getAllProducts(): ProductResponse
+
 }
