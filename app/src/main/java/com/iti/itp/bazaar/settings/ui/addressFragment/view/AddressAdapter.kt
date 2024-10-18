@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.iti.itp.bazaar.databinding.AddressItemBinding
 import com.iti.itp.bazaar.dto.CustomerAddress
 
-class AddressAdapter:ListAdapter<CustomerAddress,AddressAdapter.AddressViewHolder>(AddressDiffUtil()) {
+class AddressAdapter(val addressListener:OnAddressClickListener):ListAdapter<CustomerAddress,AddressAdapter.AddressViewHolder>(AddressDiffUtil()) {
     private lateinit var binding:AddressItemBinding
 
     class AddressViewHolder(val binding:AddressItemBinding):ViewHolder(binding.root)
@@ -21,8 +21,11 @@ class AddressAdapter:ListAdapter<CustomerAddress,AddressAdapter.AddressViewHolde
 
     override fun onBindViewHolder(holder: AddressViewHolder, position: Int) {
         val currentItem = getItem(position)
-        holder.binding.countryValue.text = currentItem.country
-        holder.binding.cityValue.text = currentItem.city
+        holder.binding.countryValue.text = currentItem.address1
+        holder.binding.cityValue.text = currentItem.address2
         holder.binding.phoneValue.text = currentItem.phone
+        holder.binding.addressCardView.setOnClickListener{
+            addressListener.onAddressClick(currentItem)
+        }
     }
 }
