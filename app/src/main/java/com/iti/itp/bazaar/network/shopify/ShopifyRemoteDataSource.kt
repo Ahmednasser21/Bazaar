@@ -6,6 +6,7 @@ import com.iti.itp.bazaar.dto.AddressRequest
 import com.iti.itp.bazaar.dto.CustomerAddress
 import com.iti.itp.bazaar.dto.CustomerAddressResponse
 import com.iti.itp.bazaar.dto.CustomerRequest
+import com.iti.itp.bazaar.dto.DraftOrderRequest
 import com.iti.itp.bazaar.dto.ListOfAddresses
 import com.iti.itp.bazaar.dto.cutomerResponce.CustomerResponse
 import com.iti.itp.bazaar.network.responses.CouponsCountResponse
@@ -68,6 +69,10 @@ class ShopifyRemoteDataSource(private val productService: ProductService) {
     }
     suspend fun getAllProducts () : ProductResponse{
         return productService.getAllProducts()
+    }
+
+    suspend fun createDraftOrder(draftOrderRequest:DraftOrderRequest):DraftOrderRequest{
+        return productService.createDraftOrder(draftOrderRequest)
     }
 
 }
