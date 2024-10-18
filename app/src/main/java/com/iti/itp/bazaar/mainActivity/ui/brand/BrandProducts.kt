@@ -10,6 +10,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -104,6 +105,8 @@ class BrandProducts : Fragment(), OnBrandProductClickListener, OnFavouriteClickL
 
     override fun onBrandProductClick(productID: Long) {
 // navigate to prouductDetails fragment using args with productID
+        val action = BrandProductsDirections.actionNavBrandProductsToProuductnfoFragment(productID)
+        Navigation.findNavController(binding.root).navigate(action)
     }
 
     override fun onFavClick() {

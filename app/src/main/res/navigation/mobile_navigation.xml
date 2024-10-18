@@ -3,13 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
+    android:label="@string/prouductDetails"
     app:startDestination="@+id/nav_home">
 
     <fragment
         android:id="@+id/nav_home"
         android:name="com.iti.itp.bazaar.mainActivity.ui.home.HomeFragment"
         android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" >
+        tools:layout="@layout/fragment_home">
         <action
             android:id="@+id/action_nav_home_to_brandProducts"
             app:destination="@id/nav_brand_products" />
@@ -34,5 +35,16 @@
         <argument
             android:name="vendorName"
             app:argType="string" />
+        <action
+            android:id="@+id/action_nav_brand_products_to_prouductnfoFragment"
+            app:destination="@id/prouductnfoFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/prouductnfoFragment"
+        android:name="com.iti.itp.bazaar.productInfo.view.ProuductnfoFragment"
+        tools:layout="@layout/fragment_prouductnfo">
+        <argument
+            android:name="productId"
+            app:argType="long" />
     </fragment>
 </navigation>

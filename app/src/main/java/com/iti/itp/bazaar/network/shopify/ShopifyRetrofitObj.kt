@@ -25,6 +25,8 @@ object ShopifyRetrofitObj {
             .build()
     }
 
+    //@Headers("Content-Type:application/json","X-Shopify-Access-Token:${Constants.ACCESS_TOKEN}")
+
     private val offlineInterceptor: Interceptor = Interceptor { chain ->
         var request = chain.request()
         if (!NetworkUtil.isNetworkAvailable()) {

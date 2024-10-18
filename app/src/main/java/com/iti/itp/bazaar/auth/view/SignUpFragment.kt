@@ -20,6 +20,10 @@ import com.iti.itp.bazaar.auth.firebase.FirebaseReposatory
 import com.iti.itp.bazaar.auth.viewModel.AuthViewModel
 import com.iti.itp.bazaar.auth.viewModel.AuthViewModelFactory
 import com.iti.itp.bazaar.databinding.FragmentSignUpBinding
+import com.iti.itp.bazaar.network.shopify.ProductService
+import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
+import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
+import com.iti.itp.bazaar.repo.Repository
 import java.util.regex.Pattern
 
 
@@ -47,7 +51,8 @@ class SignUpFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mAuth = FirebaseAuth.getInstance()
-        vmFactory = AuthViewModelFactory(FirebaseReposatory.getInstance(FirebaseRemotDataSource(mAuth)))
+        vmFactory = AuthViewModelFactory(FirebaseReposatory.getInstance(FirebaseRemotDataSource(mAuth)) ,
+            Repository.getInstance(ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)))
         authViewModel = ViewModelProvider(this , vmFactory).get (AuthViewModel::class.java)
 
 

@@ -18,7 +18,7 @@ data class Products(
     val status: String,
     @SerializedName("admin_graphql_api_id") val adminGraphqlApiId: String,
     val variants: List<Variant>,
-    val options: List<Option>,
+    val options: List<Option>, // option
     val images: List<Image>,
     val image: Image?
 )

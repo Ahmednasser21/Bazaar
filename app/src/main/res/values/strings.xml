@@ -58,4 +58,11 @@
     <string name="sale">SALE</string>
     <string name="men">MEN</string>
     <string name="kid">KID</string>
+    <string name="tv_review">Reviews</string>
+    <string name="tv_desc">Description:</string>
+    <string name="tv_reviews">"Reviews : "</string>
+    <string name="tv_availableSizes">Available Sizes</string>
+    <string name="tv_avalablColorTxt">Available Colors</string>
+    <string name="btn_addToCart">Add To Bag</string>
+    <string name="prouductDetails">Product Details</string>
 </resources>
