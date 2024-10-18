@@ -1,5 +1,7 @@
 package com.iti.itp.bazaar.productInfo.view
 
+import ReceivedLineItem
+import ReceivedOrdersResponse
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -23,6 +25,7 @@ import com.iti.itp.bazaar.dto.Customer
 import com.iti.itp.bazaar.dto.DraftOrder
 import com.iti.itp.bazaar.dto.DraftOrderRequest
 import com.iti.itp.bazaar.dto.LineItem
+import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.network.exchangeCurrencyApi.CurrencyRemoteDataSource
 import com.iti.itp.bazaar.network.exchangeCurrencyApi.ExchangeRetrofitObj
@@ -53,9 +56,9 @@ class ProuductnfoFragment : Fragment() , OnClickListner<AvailableSizes> , OnColo
     lateinit var availableSizesAdapter : AvailableSizesAdapter
     lateinit var availableColorsAdapter : AvailableColorAdapter
     lateinit var sharedPreferences: SharedPreferences
-     var conversionRate : Double? = 0.0
-     var choosenSize : String? = null
-     var choosenColor : String?= null
+    var conversionRate : Double? = 0.0
+    var choosenSize : String? = null
+    var choosenColor : String?= null
 
     lateinit var proudct :Products
     lateinit var Currentcurrency : String
@@ -114,32 +117,74 @@ class ProuductnfoFragment : Fragment() , OnClickListner<AvailableSizes> , OnColo
         }
 
 // handel btn_addToCart
-        binding.btnAddToCart.setOnClickListener{
-            if (choosenSize.isNullOrBlank())
-            {
-                Snackbar.make(requireView(), "You must choose a size to proceed with this action} ", 2000).show()
-
+        // handel btn_addToCart
+        binding.btnAddToCart.setOnClickListener {
+            when {
+                choosenSize.isNullOrBlank() -> {
+                    Snackbar.make(requireView(), "You must choose a size to proceed with this action", Snackbar.LENGTH_SHORT).show()
+                }
+                choosenColor.isNullOrBlank() -> {
+                    Snackbar.make(requireView(), "You must choose a color to proceed with this action", Snackbar.LENGTH_SHORT).show()
+                }
+                else -> {
+                    // samy's work
+                    // chosenSize, chosenColor, product (global variable taken its value when success in getProductDetails())
+                    viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                        ProductInfoViewModel.getPriceRules()
+                        ProductInfoViewModel.getAllDraftOrders()
+                        ProductInfoViewModel.allDraftOrders.collect { state ->
+                            when (state) {
+                                is DataState.Loading -> {}
+                                is DataState.OnFailed -> {}
+                                is DataState.OnSuccess<*> -> {
+                                    val data = state.data as ReceivedOrdersResponse
+                                    if (data.draft_orders.isEmpty()) {
+                                        ProductInfoViewModel.createOrder(draftOrderRequest())
+                                    } else {
+                                        // Use the first existing draft order
+                                        val existingOrder = data.draft_orders.first()
+                                        Log.i("TAG", "product id is: ${ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId}")
+                                        val updatedLineItems = (existingOrder.line_items ?: emptyList()).toMutableList().apply {
+                                            add(ReceivedLineItem(
+                                                id = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
+                                                variant_title = "dgldsjglk",
+                                                product_id = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
+                                                title = proudct.title,
+                                                price = proudct.variants[0].price,
+                                                quantity = 1
+                                            ))
+                                        }
+                                        ProductInfoViewModel.updateDraftOrder(
+                                            existingOrder.id,
+                                            UpdateDraftOrderRequest(
+                                                DraftOrder(
+                                                    line_items = updatedLineItems.map {
+                                                        LineItem(
+                                                            id = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
+                                                            product_id = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
+                                                            title = it.title, price = it.price, quantity = it.quantity ?: 1)
+                                                    },
+                                                    applied_discount = existingOrder.applied_discount?.let {
+                                                        AppliedDiscount(
+                                                            description = it.description,
+                                                            value_type = it.value_type,
+                                                            value = it.value,
+                                                            amount = it.amount,
+                                                            title = it.title
+                                                        )
+                                                    },
+                                                    customer = Customer(existingOrder.customer?.id ?: 0),
+                                                    use_customer_default_address = true
+                                                )
+                                            )
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
-            else if (choosenColor.isNullOrBlank())
-            {
-                Snackbar.make(requireView(), "you Must Choose a color To Procced with this action} ", 2000).show()
-
-            }
-             else {
-
-                 // samy's work
-               // choosenSize , choosenColor , product (golbal variable taken its value when sussecc in getProductDetails() )
-                 lifecycleScope.launch(Dispatchers.IO){
-                     ProductInfoViewModel.getPriceRules()
-                     ProductInfoViewModel.createOrder(draftOrderRequest())
-                     withContext(Dispatchers.Main){
-                         Snackbar.make(requireView(), "Successfully creating the order", 2000).show()
-                     }
-                 }
-
-             }
-
-
         }
     }
 
@@ -173,40 +218,40 @@ class ProuductnfoFragment : Fragment() , OnClickListner<AvailableSizes> , OnColo
 
     }
 
-   fun setProudctDetailToUI ( productsList : List<Products>){
-       binding.tvProuductName.text = productsList.get(0).title
-       binding.tvProuductDesc.text = productsList.get(0).bodyHtml
+    fun setProudctDetailToUI ( productsList : List<Products>){
+        binding.tvProuductName.text = productsList.get(0).title
+        binding.tvProuductDesc.text = productsList.get(0).bodyHtml
 
-       // da el se3r w hyt8yar based on shared pref in setting
-       when (Currentcurrency){
-           "EGP"->{
-               binding.tvProuductPrice.text = "${productsList.get(0).variants.get(0).price} EGP"
-           }
-           "USD"->{
-               ProductInfoViewModel.getCurrencyRate("EGP","USD")
-               val prics = productsList.get(0).variants.get(0).price.toDouble()
-               getCurrencyRate( prics)
+        // da el se3r w hyt8yar based on shared pref in setting
+        when (Currentcurrency){
+            "EGP"->{
+                binding.tvProuductPrice.text = "${productsList.get(0).variants.get(0).price} EGP"
+            }
+            "USD"->{
+                ProductInfoViewModel.getCurrencyRate("EGP","USD")
+                val prics = productsList.get(0).variants.get(0).price.toDouble()
+                getCurrencyRate( prics)
 
 //               val newPrice = (prics * conversionRate!!)
 //               binding.tvProuductPrice.text = "${newPrice} USD"
-           }
-       }
+            }
+        }
 
 
-       val randomRating = ratingList[Random.nextInt(ratingList.size)]
-       val randomReview = reviewList[Random.nextInt(reviewList.size)]
+        val randomRating = ratingList[Random.nextInt(ratingList.size)]
+        val randomReview = reviewList[Random.nextInt(reviewList.size)]
 
-       // Set the rating and review to the UI
-       binding.rbProuductRatingBar.rating = randomRating
-       binding.rbProuductRatingBar.setIsIndicator(true) // to make the rating bar unchangable
-       binding.tvProuductReview.text = randomReview
-       Log.d("TAG", "getProductDetails: url sora  ${productsList.get(0).images.get(0).src} ")
+        // Set the rating and review to the UI
+        binding.rbProuductRatingBar.rating = randomRating
+        binding.rbProuductRatingBar.setIsIndicator(true) // to make the rating bar unchangable
+        binding.tvProuductReview.text = randomReview
+        Log.d("TAG", "getProductDetails: url sora  ${productsList.get(0).images.get(0).src} ")
 
-       // Set the image src to slider
-       val imageSlideModels = productsList.get(0).images.map { SlideModel(it.src,"",
-           ScaleTypes.FIT) }
-       binding.isProuductImage .setImageList(imageSlideModels)
-   }
+        // Set the image src to slider
+        val imageSlideModels = productsList.get(0).images.map { SlideModel(it.src,"",
+            ScaleTypes.FIT) }
+        binding.isProuductImage .setImageList(imageSlideModels)
+    }
 
     fun setUpTheAvailableSizesAndColors (optionList : List<Option>)
     {
@@ -275,43 +320,46 @@ class ProuductnfoFragment : Fragment() , OnClickListner<AvailableSizes> , OnColo
         }
     }
 
-fun getCurrencyRate (price : Double) {
+    fun getCurrencyRate (price : Double) {
 
-   lifecycleScope.launch {
-        ProductInfoViewModel.currencyStateFlow.collectLatest { result ->
-            when (result){
-                DataState.Loading -> {   Log.d("TAG", "getCurrencyRate: loading   ")}
-                is DataState.OnFailed ->{ Log.d("TAG", "getCurrencyRate: failure    ")}
-                is DataState.OnSuccess<*> -> {
+        lifecycleScope.launch {
+            ProductInfoViewModel.currencyStateFlow.collectLatest { result ->
+                when (result){
+                    DataState.Loading -> {   Log.d("TAG", "getCurrencyRate: loading   ")}
+                    is DataState.OnFailed ->{ Log.d("TAG", "getCurrencyRate: failure    ")}
+                    is DataState.OnSuccess<*> -> {
 
-                  conversionRate =  (result.data  as ExchangeRateResponse).conversion_rate
-                    Log.d("TAG", "getCurrencyRate: succes   $conversionRate   ")
-                    binding.tvProuductPrice.text = String.format("%.2f", (price * conversionRate!!))+" USD"
+                        conversionRate =  (result.data  as ExchangeRateResponse).conversion_rate
+                        Log.d("TAG", "getCurrencyRate: succes   $conversionRate   ")
+                        binding.tvProuductPrice.text = String.format("%.2f", (price * conversionRate!!))+" USD"
 
 
+                    }
                 }
-            }
 
+            }
         }
     }
-}
 
 
 
-private fun draftOrderRequest():DraftOrderRequest{
-    val draftOrderRequest = DraftOrderRequest(
-        draft_order = DraftOrder(
-            line_items = listOf(
-                LineItem(proudct.title, proudct.variants[0].price,1)
-            ),
-            use_customer_default_address = true,
-            applied_discount = AppliedDiscount(),
-            customer = Customer(8220771418416)
+    private fun draftOrderRequest():DraftOrderRequest{
+        val draftOrderRequest = DraftOrderRequest(
+            draft_order = DraftOrder(
+                line_items = listOf(
+                    LineItem(
+                        id = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
+                        product_id =  ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
+                        title = proudct.title, price = proudct.variants[0].price, quantity = 1)
+                ),
+                use_customer_default_address = true,
+                applied_discount = AppliedDiscount(),
+                customer = Customer(8220771418416)
+            )
+
         )
-
-    )
-    return draftOrderRequest
-}
+        return draftOrderRequest
+    }
 
 
 //    suspend fun priceRulesResult(){

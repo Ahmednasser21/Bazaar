@@ -1,5 +1,7 @@
 package com.iti.itp.bazaar.network.shopify
 
+import ReceivedDraftOrder
+import ReceivedOrdersResponse
 import com.iti.itp.bazaar.dto.AddedAddressRequest
 import com.iti.itp.bazaar.dto.AddedCustomerAddressResponse
 import com.iti.itp.bazaar.dto.AddressRequest
@@ -8,6 +10,7 @@ import com.iti.itp.bazaar.dto.CustomerAddressResponse
 import com.iti.itp.bazaar.dto.CustomerRequest
 import com.iti.itp.bazaar.dto.DraftOrderRequest
 import com.iti.itp.bazaar.dto.ListOfAddresses
+import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
 import com.iti.itp.bazaar.dto.cutomerResponce.CustomerResponse
 import com.iti.itp.bazaar.network.responses.CouponsCountResponse
 import com.iti.itp.bazaar.network.responses.DiscountCodesResponse
@@ -68,8 +71,16 @@ class ShopifyRemoteDataSource(private val productService: ProductService) {
         return productService.updateCustomerAddress(customerId, addressId,customerAddress)
     }
 
-    suspend fun createDraftOrder(draftOrderRequest:DraftOrderRequest):DraftOrderRequest{
+    suspend fun createDraftOrder(draftOrderRequest:DraftOrderRequest):ReceivedDraftOrder{
         return productService.createDraftOrder(draftOrderRequest)
+    }
+
+    suspend fun updateDraftOrder(customerId: Long, updateDraftOrderRequest:UpdateDraftOrderRequest):UpdateDraftOrderRequest{
+        return productService.updateDraftOrder(customerId, updateDraftOrderRequest)
+    }
+
+    suspend fun getAllDraftOrders():ReceivedOrdersResponse{
+        return productService.getAllDraftOrders()
     }
 
 }

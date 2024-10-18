@@ -1,5 +1,7 @@
 package com.iti.itp.bazaar.repo
 
+import ReceivedDraftOrder
+import ReceivedOrdersResponse
 import com.iti.itp.bazaar.dto.AddedAddressRequest
 import com.iti.itp.bazaar.dto.AddedCustomerAddressResponse
 import com.iti.itp.bazaar.dto.AddressRequest
@@ -8,6 +10,7 @@ import com.iti.itp.bazaar.dto.CustomerAddressResponse
 import com.iti.itp.bazaar.dto.CustomerRequest
 import com.iti.itp.bazaar.dto.DraftOrderRequest
 import com.iti.itp.bazaar.dto.ListOfAddresses
+import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
 import com.iti.itp.bazaar.dto.cutomerResponce.CustomerResponse
 import com.iti.itp.bazaar.network.responses.CouponsCountResponse
 import com.iti.itp.bazaar.network.responses.DiscountCodesResponse
@@ -125,9 +128,21 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
         }
     }
 
-    fun createDraftOrder(draftOrderRequest: DraftOrderRequest):Flow<DraftOrderRequest>{
+    fun createDraftOrder(draftOrderRequest: DraftOrderRequest):Flow<ReceivedDraftOrder>{
         return flow {
             emit(remoteDataSource.createDraftOrder(draftOrderRequest))
+        }
+    }
+
+    fun updateDraftOrderRequest(customerId: Long, updateDraftOrderRequest: UpdateDraftOrderRequest):Flow<UpdateDraftOrderRequest>{
+        return flow {
+            emit(remoteDataSource.updateDraftOrder(customerId, updateDraftOrderRequest))
+        }
+    }
+
+    fun getAllDraftOrders():Flow<ReceivedOrdersResponse>{
+        return flow {
+            emit(remoteDataSource.getAllDraftOrders())
         }
     }
 }

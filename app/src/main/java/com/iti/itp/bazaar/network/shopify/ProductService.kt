@@ -1,11 +1,14 @@
 package com.iti.itp.bazaar.network.shopify
 
+import ReceivedDraftOrder
+import ReceivedOrdersResponse
 import com.iti.itp.bazaar.dto.AddedAddressRequest
 import com.iti.itp.bazaar.dto.CustomerAddressResponse
 import com.iti.itp.bazaar.dto.AddedCustomerAddressResponse
 import com.iti.itp.bazaar.dto.CustomerRequest
 import com.iti.itp.bazaar.dto.DraftOrderRequest
 import com.iti.itp.bazaar.dto.ListOfAddresses
+import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
 import com.iti.itp.bazaar.dto.cutomerResponce.CustomerResponse
 import com.iti.itp.bazaar.network.responses.CouponsCountResponse
 import com.iti.itp.bazaar.network.responses.DiscountCodesResponse
@@ -22,10 +25,11 @@ import retrofit2.http.Query
 
 interface ProductService {
     @GET("admin/api/2022-01/smart_collections.json")
-    suspend fun getVendors():SmartCollectionsResponse
+    suspend fun getVendors(): SmartCollectionsResponse
 
     @GET("admin/api/2022-01/products.json")
     suspend fun getVendorProducts(@Query("vendor") name: String): ProductResponse
+
     ///
     @GET("admin/api/2022-01/products.json")
     suspend fun getProductDetails(@Query("ids") id: Long): ProductResponse
@@ -49,11 +53,11 @@ interface ProductService {
     suspend fun getDiscountCodes(@Path("price_rule_id") priceRuleId: Long): DiscountCodesResponse
 
     @GET("admin/api/2022-01/collections/{id}/products.json")
-    suspend fun getCollectionProducts (@Path("id") id:Long ) : ProductResponse
+    suspend fun getCollectionProducts(@Path("id") id: Long): ProductResponse
 
     @GET("/admin/api/2024-10/customers/{customer_id}/addresses.json")
     suspend fun getAddressForCustomer(
-        @Path("customer_id")customerId: Long,
+        @Path("customer_id") customerId: Long,
     ): ListOfAddresses
 
     @PUT("/admin/api/2024-10/customers/{customer_id}/addresses/{address_id}.json")
@@ -64,11 +68,20 @@ interface ProductService {
     ): CustomerAddressResponse
 
     @POST("admin/api/2024-10/customers.json")
-    suspend fun postCustomer (@Body customer : CustomerRequest) : CustomerResponse
+    suspend fun postCustomer(@Body customer: CustomerRequest): CustomerResponse
 
     @POST("admin/api/2024-10/draft_orders.json")
     suspend fun createDraftOrder(
         @Body draftOrderRequest: DraftOrderRequest
-    ): DraftOrderRequest
+    ): ReceivedDraftOrder
+
+    @PUT("admin/api/2024-10/draft_orders/{draftOrderId}.json")
+    suspend fun updateDraftOrder(
+        @Path("draftOrderId") draftOrderId: Long,
+        @Body updateDraftOrderRequest: UpdateDraftOrderRequest
+    ): UpdateDraftOrderRequest
+
+    @GET("admin/api/2024-10/draft_orders.json")
+    suspend fun getAllDraftOrders():ReceivedOrdersResponse
 
 }

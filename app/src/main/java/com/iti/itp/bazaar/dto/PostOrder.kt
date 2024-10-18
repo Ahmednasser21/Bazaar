@@ -12,9 +12,26 @@ data class DraftOrder(
 )
 
 data class LineItem(
+    val id: Long?= null,
+    val variant_id: Long?= null,
+    val product_id: Long,
     val title: String,
-    val price: String,  // Using String to maintain decimal precision
-    val quantity: Int
+    val variant_title: String?= null,
+    val sku: String?= null,
+    val vendor: String?= null,
+    val quantity: Int?= null,
+    val requires_shipping: Boolean?= null,
+    val taxable: Boolean?= null,
+    val gift_card: Boolean?= null,
+    val fulfillment_service: String?= null,
+    val grams: Int?= null,
+    val tax_lines: List<Any>?= null,
+    val applied_discount: Any?= null,
+    val name: String?= null,
+    val properties: List<Any>?= null,
+    val custom: Boolean?= null,
+    val price: String,
+    val admin_graphql_api_id: String?= null
 )
 
 data class AppliedDiscount(

@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.iti.itp.bazaar.dto.DraftOrderRequest
+import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
 
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.mainActivity.ui.home.HomeViewModel
@@ -33,6 +34,12 @@ class prouductInfoViewModel (private val repo: Repository , private val currency
 
     private val _priceRules = MutableStateFlow<DataState>(DataState.Loading)
     val priceRules = _priceRules.asStateFlow()
+
+    private val _updatedOrder = MutableStateFlow<DataState>(DataState.Loading)
+    val updatedOrder = _updatedOrder.asStateFlow()
+
+    private val _allDraftOrders = MutableStateFlow<DataState>(DataState.Loading)
+    val allDraftOrders = _allDraftOrders.asStateFlow()
 
     fun getProductDetails(id: Long) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -84,6 +91,31 @@ class prouductInfoViewModel (private val repo: Repository , private val currency
             }.collect{
                 _priceRules.value = DataState.OnSuccess(it)
                 Log.i(TAG, "success to getPriceRules: $it")
+            }
+        }
+    }
+
+
+    fun updateDraftOrder(customerId:Long, updateDraftOrderRequest: UpdateDraftOrderRequest){
+        viewModelScope.launch(Dispatchers.IO){
+            repo.updateDraftOrderRequest(customerId, updateDraftOrderRequest).catch {
+                _updatedOrder.value = DataState.OnFailed(it)
+                Log.e(TAG, "error updateDraftOrder: ${it.message}")
+            }.collect{
+                _updatedOrder.value = DataState.OnSuccess(it)
+                Log.i(TAG, "updateDraftOrder: $it")
+            }
+        }
+    }
+
+    fun getAllDraftOrders(){
+        viewModelScope.launch(Dispatchers.IO){
+            repo.getAllDraftOrders().catch {
+                _allDraftOrders.value = DataState.OnFailed(it)
+                Log.e(TAG, "error getAllDraftOrders: ${it.message}")
+            }.collect{
+                _allDraftOrders.value = DataState.OnSuccess(it)
+                Log.i(TAG, "success getAllDraftOrders")
             }
         }
     }
