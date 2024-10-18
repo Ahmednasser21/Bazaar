@@ -84,4 +84,7 @@ interface ProductService {
     @GET("admin/api/2024-10/draft_orders.json")
     suspend fun getAllDraftOrders():ReceivedOrdersResponse
 
+    @GET("admin/api/2024-10/products.json")
+    suspend fun getAllProducts(): ProductResponse
+
 }

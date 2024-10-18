@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
     android:label="@string/prouductDetails"
-    app:startDestination="@+id/nav_home">
+    app:startDestination="@id/nav_home">
 
     <fragment
         android:id="@+id/nav_home"
@@ -20,7 +20,11 @@
         android:id="@+id/nav_categories"
         android:name="com.iti.itp.bazaar.mainActivity.ui.categories.CategoriesFragment"
         android:label="Categories"
-        tools:layout="@layout/fragment_categories" />
+        tools:layout="@layout/fragment_categories" >
+        <action
+            android:id="@+id/action_nav_categories_to_prouductnfoFragment"
+            app:destination="@id/prouductnfoFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/nav_me"
@@ -42,9 +46,19 @@
     <fragment
         android:id="@+id/prouductnfoFragment"
         android:name="com.iti.itp.bazaar.productInfo.view.ProuductnfoFragment"
+        android:label="@string/fragmentProuductInfo"
         tools:layout="@layout/fragment_prouductnfo">
         <argument
             android:name="productId"
             app:argType="long" />
+    </fragment>
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.iti.itp.bazaar.search.view.SearchFragment"
+        android:label="@string/fragmentSearch"
+        tools:layout="@layout/fragment_search" >
+        <action
+            android:id="@+id/action_searchFragment_to_prouductnfoFragment"
+            app:destination="@id/prouductnfoFragment" />
     </fragment>
 </navigation>

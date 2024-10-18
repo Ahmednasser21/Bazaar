@@ -74,4 +74,6 @@
     <string name="tv_avalablColorTxt">Available Colors</string>
     <string name="btn_addToCart">Add To Bag</string>
     <string name="prouductDetails">Product Details</string>
+    <string name="fragmentSearch">Search</string>
+    <string name="fragmentProuductInfo">Product Details</string>
 </resources>
