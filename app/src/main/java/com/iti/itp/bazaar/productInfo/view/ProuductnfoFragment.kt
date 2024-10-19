@@ -2,6 +2,7 @@ package com.iti.itp.bazaar.productInfo.view
 
 import ReceivedLineItem
 import ReceivedOrdersResponse
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -87,6 +88,7 @@ class ProuductnfoFragment : Fragment() , OnClickListner<AvailableSizes> , OnColo
         return binding.root
     }
 
+    @SuppressLint("SuspiciousIndentation")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -166,12 +168,12 @@ class ProuductnfoFragment : Fragment() , OnClickListner<AvailableSizes> , OnColo
                                                     line_items = updatedLineItems.map {
                                                         LineItem(
                                                             sku = it.sku ?: ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId.toString(),  // Use existing SKU or new one
-                                                            product_id = it.product_id ,
+                                                            product_id = it.product_id ?: ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
                                                             title = it.title!!,
                                                             price = it.price,
                                                             quantity = it.quantity ?: 1
                                                         )
-                                                    },
+                                                    }
                                                 )
                                             )
                                         )

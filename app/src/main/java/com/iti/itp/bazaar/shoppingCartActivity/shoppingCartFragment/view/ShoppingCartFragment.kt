@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.iti.itp.bazaar.databinding.FragmentShoppingCartBinding
 import com.iti.itp.bazaar.dto.AppliedDiscount
@@ -41,7 +42,6 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
     private lateinit var firstDraftOrder: ReceivedDraftOrder
     private lateinit var adapter: ItemAdapter
     private val currencyFormatter = NumberFormat.getCurrencyInstance(Locale.US)
-    private val totalPrice = 0.0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -143,6 +143,70 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
         val totalPrice = calculateTotalPrice()
         binding.tvTotalPriceValue.text = currencyFormatter.format(totalPrice)
         adapter.submitList(firstDraftOrder.line_items?.toMutableList())
+
+        val swipeToDeleteCallback = SwipeToDelete(
+            adapter = adapter,
+            onDelete = { deletedItem ->
+                // Remove the item from the local list
+                val updatedLineItems = firstDraftOrder.line_items?.toMutableList() ?: mutableListOf()
+                updatedLineItems.removeAll { it.id == deletedItem.id }
+
+                // Update the UI immediately
+                firstDraftOrder = firstDraftOrder.copy(line_items = updatedLineItems)
+                adapter.submitList(updatedLineItems)
+
+                // Recalculate and update the total price
+                val newTotalPrice = calculateTotalPrice()
+                binding.tvTotalPriceValue.text = currencyFormatter.format(newTotalPrice)
+
+                // If the cart is now empty, show the empty cart UI
+                if (updatedLineItems.isEmpty()) {
+                    showEmptyCart()
+                }
+
+                // Perform the API call to sync with the server
+                viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                    try {
+                        val updateRequest = UpdateDraftOrderRequest(
+                            DraftOrder(
+                                line_items = updatedLineItems.map { item ->
+                                    LineItem(
+                                        id = item.id,
+                                        product_id = item.product_id,
+                                        title = item.title ?: "",
+                                        price = item.price,
+                                        quantity = item.quantity ?: 1,
+                                        sku = item.sku
+                                    )
+                                },
+                                applied_discount = AppliedDiscount(null),
+                                customer = Customer(firstDraftOrder.customer?.id ?: 0),
+                                use_customer_default_address = true
+                            )
+                        )
+
+                        shoppingCartViewModel.updateDraftOrder(firstDraftOrder.id, updateRequest)
+
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(requireContext(), "Item deleted successfully", Toast.LENGTH_SHORT).show()
+                        }
+                    } catch (e: Exception) {
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(
+                                requireContext(),
+                                "Failed to sync deletion with server: ${e.message}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            Log.e("ShoppingCart", "Error syncing deletion", e)
+                        }
+                    }
+                }
+
+                Log.i("TAG", "updateCartUI: item deleted")
+            }
+        )
+
+        ItemTouchHelper(swipeToDeleteCallback).attachToRecyclerView(binding.itemsRv)
     }
 
     private fun calculateTotalPrice(): Double {
@@ -175,11 +239,16 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
         }
 
         val updatedLineItems = firstDraftOrder.line_items?.map { item ->
+            // Calculate the updated price based on quantity
+            val basePrice = item.price.toDouble()
+            val quantity = item.quantity ?: 1
+            val totalPrice = (basePrice * quantity).toString()
+
             LineItem(
                 variant_id = item.variant_id,
                 product_id = item.product_id,
-                quantity = item.quantity ?: 1,
-                price = item.price,
+                quantity = quantity,
+                price = totalPrice,  // Use the calculated total price
                 title = item.title ?: "",
                 variant_title = item.variant_title,
                 sku = item.sku,
