@@ -146,17 +146,16 @@ class ProuductnfoFragment : Fragment() , OnClickListner<AvailableSizes> , OnColo
                                         // Use the first existing draft order
                                         val existingOrder = data.draft_orders.first()
                                         Log.i("TAG", "product id is: ${ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId}")
-                                        val updatedLineItems = (existingOrder.line_items ?: emptyList()).toMutableList().apply {
-                                            add(ReceivedLineItem(
-                                                sku = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId.toString(),
-                                                id = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
-                                                variant_title = "dgldsjglk",
-                                                product_id = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
-                                                title = proudct.title,
-                                                price = proudct.variants[0].price,
-                                                quantity = 1
-                                            ))
-                                        }
+                                        val updatedLineItems = (existingOrder.line_items ?: emptyList()).toMutableList()
+                                            updatedLineItems.add(ReceivedLineItem(
+                                            sku = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId.toString(),
+                                            id = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
+                                            variant_title = "dgldsjglk",
+                                            product_id = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
+                                            title = proudct.title,
+                                            price = proudct.variants[0].price,
+                                            quantity = 1
+                                        ))
                                         ProductInfoViewModel.updateDraftOrder(
                                             existingOrder.id,
                                             UpdateDraftOrderRequest(
@@ -166,9 +165,12 @@ class ProuductnfoFragment : Fragment() , OnClickListner<AvailableSizes> , OnColo
                                                     use_customer_default_address = true,
                                                     line_items = updatedLineItems.map {
                                                         LineItem(
-                                                            sku = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId.toString(),
-                                                            product_id = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
-                                                            title = it.title!!, price = it.price, quantity = it.quantity ?: 1)
+                                                            sku = it.sku ?: ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId.toString(),  // Use existing SKU or new one
+                                                            product_id = it.product_id ,
+                                                            title = it.title!!,
+                                                            price = it.price,
+                                                            quantity = it.quantity ?: 1
+                                                        )
                                                     },
                                                 )
                                             )
