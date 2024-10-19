@@ -148,6 +148,7 @@ class ProuductnfoFragment : Fragment() , OnClickListner<AvailableSizes> , OnColo
                                         Log.i("TAG", "product id is: ${ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId}")
                                         val updatedLineItems = (existingOrder.line_items ?: emptyList()).toMutableList().apply {
                                             add(ReceivedLineItem(
+                                                sku = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId.toString(),
                                                 id = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
                                                 variant_title = "dgldsjglk",
                                                 product_id = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
@@ -165,6 +166,7 @@ class ProuductnfoFragment : Fragment() , OnClickListner<AvailableSizes> , OnColo
                                                     use_customer_default_address = true,
                                                     line_items = updatedLineItems.map {
                                                         LineItem(
+                                                            sku = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId.toString(),
                                                             product_id = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
                                                             title = it.title!!, price = it.price, quantity = it.quantity ?: 1)
                                                     },
@@ -341,6 +343,7 @@ class ProuductnfoFragment : Fragment() , OnClickListner<AvailableSizes> , OnColo
             draft_order = DraftOrder(
                 line_items = listOf(
                     LineItem(
+                        sku = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId.toString(),
                         name = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId.toString(),
                         id = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
                         product_id =  ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,

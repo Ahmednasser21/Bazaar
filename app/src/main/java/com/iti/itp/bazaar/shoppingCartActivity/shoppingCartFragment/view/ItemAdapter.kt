@@ -27,7 +27,8 @@ class ItemAdapter(
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val currentItem = getItem(position)
-        val unitPrice = currentItem.price.toDouble() / (currentItem.quantity ?: 1)
+        // Calculate unit price correctly by dividing the total price by quantity
+        val unitPrice = currentItem.price.toDouble()
         val formatter = NumberFormat.getCurrencyInstance(Locale.US)
 
         holder.binding.apply {
@@ -36,25 +37,26 @@ class ItemAdapter(
             // Update the displayed quantity and price
             val currentQuantity = currentItem.quantity ?: 1
             tvQuantity.text = currentQuantity.toString()
-            tvPrice.text = formatter.format(unitPrice * currentQuantity) // Format the total price
+            tvPrice.text = formatter.format(unitPrice * currentQuantity)
 
             ivIncrease.setOnClickListener {
                 val newQuantity = currentQuantity + 1
-                val newPrice = unitPrice * newQuantity
+                val newPrice = unitPrice // Keep the original unit price
                 onQuantityChangeListener.onQuantityChanged(currentItem, newQuantity, newPrice)
-                Log.i("TAG", "onBindViewHolder: New Price: $newPrice")
+                Log.i("TAG", "onBindViewHolder: New Unit Price: $newPrice, Quantity: $newQuantity")
             }
 
             ivDecrease.setOnClickListener {
                 if (currentQuantity > 1) {
                     val newQuantity = currentQuantity - 1
-                    val newPrice = unitPrice * newQuantity
+                    val newPrice = unitPrice // Keep the original unit price
                     onQuantityChangeListener.onQuantityChanged(currentItem, newQuantity, newPrice)
                 }
             }
         }
     }
 }
+
 
 interface OnQuantityChangeListener {
     fun onQuantityChanged(item: ReceivedLineItem, newQuantity: Int, newPrice: Double)

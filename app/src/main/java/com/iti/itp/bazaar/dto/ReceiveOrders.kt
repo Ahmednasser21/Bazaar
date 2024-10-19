@@ -47,7 +47,7 @@ data class ReceivedLineItem(
     val variant_id: Long?= null,
     val product_id: Long,
     val title: String?=null,
-    val variant_title: String,
+    val variant_title: String? = null,
     val sku: String?= null,
     val vendor: String?= null,
     val quantity: Int?= null,

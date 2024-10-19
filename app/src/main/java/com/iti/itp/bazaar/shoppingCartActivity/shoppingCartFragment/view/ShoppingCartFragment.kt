@@ -41,6 +41,7 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
     private lateinit var firstDraftOrder: ReceivedDraftOrder
     private lateinit var adapter: ItemAdapter
     private val currencyFormatter = NumberFormat.getCurrencyInstance(Locale.US)
+    private val totalPrice = 0.0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,7 +91,7 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
     private fun handleCartState(state: DataState) {
         when (state) {
             is DataState.Loading -> showLoading()
-            is DataState.OnFailed -> handleError()
+            is DataState.OnFailed -> handleError(state.msg.message)
             is DataState.OnSuccess<*> -> handleSuccess(state.data as ReceivedOrdersResponse)
         }
     }
@@ -104,39 +105,39 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
         }
     }
 
-    private fun handleError() {
+    private fun handleError(message: String?) {
         binding.apply {
             progressBar.visibility = View.GONE
             itemsRv.visibility = View.GONE
             tvTotalPriceValue.visibility = View.GONE
             btnProceedToCheckout.visibility = View.GONE
         }
-        Toast.makeText(requireContext(), "Failed to load cart", Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), message ?: "Failed to load cart", Toast.LENGTH_SHORT).show()
     }
 
     private fun handleSuccess(data: ReceivedOrdersResponse) {
         binding.apply {
             progressBar.visibility = View.GONE
-            itemsRv.visibility = View.VISIBLE
-            tvTotalPriceValue.visibility = View.VISIBLE
-            btnProceedToCheckout.visibility = View.VISIBLE
-
-        }
-
-        // Check if draft_orders is not empty
-        if (data.draft_orders.isNotEmpty()) {
-            firstDraftOrder = data.draft_orders[0]
-            updateCartUI()
-        } else {
-            // Handle the case where there are no draft orders
-            Toast.makeText(requireContext(), "No items in the cart", Toast.LENGTH_SHORT).show()
-            // Optionally hide the cart UI or show a message
-            binding.itemsRv.visibility = View.GONE
-            binding.tvTotalPriceValue.visibility = View.GONE
-            binding.btnProceedToCheckout.visibility = View.GONE
+            if (data.draft_orders.isNotEmpty()) {
+                itemsRv.visibility = View.VISIBLE
+                tvTotalPriceValue.visibility = View.VISIBLE
+                btnProceedToCheckout.visibility = View.VISIBLE
+                firstDraftOrder = data.draft_orders[0]
+                updateCartUI()
+            } else {
+                showEmptyCart()
+            }
         }
     }
 
+    private fun showEmptyCart() {
+        binding.apply {
+            itemsRv.visibility = View.GONE
+            tvTotalPriceValue.visibility = View.GONE
+            btnProceedToCheckout.visibility = View.GONE
+        }
+        Toast.makeText(requireContext(), "Your cart is empty", Toast.LENGTH_SHORT).show()
+    }
 
     private fun updateCartUI() {
         val totalPrice = calculateTotalPrice()
@@ -146,8 +147,7 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
 
     private fun calculateTotalPrice(): Double {
         return firstDraftOrder.line_items?.sumOf { item ->
-            // Calculate unit price by dividing the total price by quantity
-            val unitPrice = item.price.toDouble() / (item.quantity ?: 1)
+            val unitPrice = item.price.toDouble()
             unitPrice * (item.quantity ?: 1)
         } ?: 0.0
     }
@@ -155,31 +155,32 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
     override fun onQuantityChanged(item: ReceivedLineItem, newQuantity: Int, newPrice: Double) {
         val updatedLineItems = firstDraftOrder.line_items?.map {
             if (it.id == item.id) {
-                // Calculate the unit price from the original item
-                val unitPrice = it.price.toDouble() / (it.quantity ?: 1)
                 it.copy(
                     quantity = newQuantity,
-                    price = (unitPrice * newQuantity).toString(),
-                    title = it.title ?: "Unknown Title",
-                    variant_title = it.variant_title ?: "Default Variant Title"
+                    price = newPrice.toString()
                 )
             } else {
                 it
             }
         }?.toMutableList()
 
-        firstDraftOrder.line_items = updatedLineItems
+        firstDraftOrder = firstDraftOrder.copy(line_items = updatedLineItems)
         updateCartUI()
     }
 
     private fun updateDraftOrderToAPI() {
+        if (firstDraftOrder.line_items.isNullOrEmpty()) {
+            Toast.makeText(requireContext(), "Cart is empty", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val updatedLineItems = firstDraftOrder.line_items?.map { item ->
             LineItem(
                 variant_id = item.variant_id,
                 product_id = item.product_id,
                 quantity = item.quantity ?: 1,
-                title = item.title!!,
                 price = item.price,
+                title = item.title ?: "",
                 variant_title = item.variant_title,
                 sku = item.sku,
                 vendor = item.vendor,
@@ -194,29 +195,60 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
             )
         } ?: emptyList()
 
-        val updateRequest = UpdateDraftOrderRequest(
-            draft_order = DraftOrder(
-                applied_discount = AppliedDiscount(null),
-                customer = Customer(84986816),
+        val updateRequest = firstDraftOrder.customer?.let {
+            Customer(it.id)
+        }?.let {
+            DraftOrder(
+                line_items = updatedLineItems,
+                customer = it,
                 use_customer_default_address = true,
-                line_items = updatedLineItems
+                applied_discount = null
             )
-        )
+        }?.let {
+            UpdateDraftOrderRequest(
+                draft_order = it
+            )
+        }
+
+        // Show loading state
+        binding.btnProceedToCheckout.isEnabled = false
+        binding.progressBar.visibility = View.VISIBLE
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                shoppingCartViewModel.updateDraftOrder(firstDraftOrder.id, updateRequest)
+                shoppingCartViewModel.updateDraftOrder(firstDraftOrder.id, updateRequest!!)
+
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(requireContext(), "Cart updated successfully", Toast.LENGTH_SHORT).show()
-                    Navigation.findNavController(requireView())
-                        .navigate(ShoppingCartFragmentDirections.actionShoppingCartFragmentToChooseAddressFragment())
+                    handleUpdateSuccess()
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    Log.e("ShoppingCart", "Failed to update cart", e)
-                    Toast.makeText(requireContext(), "Failed to update cart", Toast.LENGTH_SHORT).show()
+                    handleUpdateError(e)
                 }
             }
         }
+    }
+
+    private fun handleUpdateSuccess() {
+        binding.apply {
+            btnProceedToCheckout.isEnabled = true
+            progressBar.visibility = View.GONE
+        }
+        Toast.makeText(requireContext(), "Cart updated successfully", Toast.LENGTH_SHORT).show()
+        Navigation.findNavController(requireView())
+            .navigate(ShoppingCartFragmentDirections.actionShoppingCartFragmentToChooseAddressFragment())
+    }
+
+    private fun handleUpdateError(e: Exception) {
+        binding.apply {
+            btnProceedToCheckout.isEnabled = true
+            progressBar.visibility = View.GONE
+        }
+        Log.e("ShoppingCart", "Failed to update cart: ${e.message}", e)
+        Toast.makeText(
+            requireContext(),
+            "Failed to update cart: ${e.message ?: "Unknown error"}",
+            Toast.LENGTH_SHORT
+        ).show()
     }
 }

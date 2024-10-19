@@ -16,7 +16,7 @@
     </fragment>
     <fragment
         android:id="@+id/chooseAddressFragment"
-        android:name="com.iti.itp.bazaar.shoppingCartActivity.ChooseAdressFragment.ChooseAddressFragment"
+        android:name="com.iti.itp.bazaar.shoppingCartActivity.ChooseAdressFragment.view.ChooseAddressFragment"
         android:label="fragment_choose_address"
         tools:layout="@layout/fragment_choose_address" >
         <action
