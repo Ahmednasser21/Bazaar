@@ -120,6 +120,7 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
             itemsRv.visibility = View.VISIBLE
             tvTotalPriceValue.visibility = View.VISIBLE
             btnProceedToCheckout.visibility = View.VISIBLE
+
         }
 
         // Check if draft_orders is not empty
