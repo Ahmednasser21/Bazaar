@@ -41,6 +41,10 @@ class prouductInfoViewModel (private val repo: Repository , private val currency
     private val _allDraftOrders = MutableStateFlow<DataState>(DataState.Loading)
     val allDraftOrders = _allDraftOrders.asStateFlow()
 
+
+    private val _specificDraftOrders = MutableStateFlow<DataState>(DataState.Loading)
+    val specificDraftOrders = _specificDraftOrders.asStateFlow()
+
     fun getProductDetails(id: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             repo.getProductDetails (id)
@@ -74,10 +78,10 @@ class prouductInfoViewModel (private val repo: Repository , private val currency
         viewModelScope.launch(Dispatchers.IO){
             repo.createDraftOrder(draftOrderRequest).catch {
                 _createdOrder.value = DataState.OnFailed(it)
-                Log.e(TAG, "there was error while creating error: ${it.message}")
+                Log.e("TAG", "there was error while creating error: ${it.message}")
             }.collect{
                 _createdOrder.value = DataState.OnSuccess(it)
-                Log.i(TAG, "created the Order successfully")
+                Log.i("TAG", "created the Order successfully")
             }
         }
     }
@@ -117,6 +121,21 @@ class prouductInfoViewModel (private val repo: Repository , private val currency
                 _allDraftOrders.value = DataState.OnSuccess(it)
                 Log.i(TAG, "success getAllDraftOrders")
             }
+        }
+    }
+
+    fun getSpecificDraftOrder (draftOrderId: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+
+            repo.getSpecificDraftOrder(draftOrderId).catch {
+                _specificDraftOrders.value = DataState.OnFailed(it)
+                Log.e(TAG, "error getSpecificDraftOrder: ${it.message}")
+
+            }.collect {
+                _specificDraftOrders.value = DataState.OnSuccess(it)
+                Log.i(TAG, "success getSpecificDraftOrder")
+            }
+
         }
     }
 

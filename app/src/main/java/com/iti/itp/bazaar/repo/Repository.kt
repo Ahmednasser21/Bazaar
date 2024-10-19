@@ -153,4 +153,12 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
             delay(100)
         }
     }
+
+    fun getSpecificDraftOrder (draftOrderId: Long) :Flow<DraftOrderRequest>{
+        return flow {
+            val draftOrder = remoteDataSource.getSpecificDraftOrder(draftOrderId)
+            emit(draftOrder)
+            delay(100)
+        }
+    }
 }

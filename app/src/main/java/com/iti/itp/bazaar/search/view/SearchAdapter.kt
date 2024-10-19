@@ -2,6 +2,7 @@ package com.iti.itp.bazaar.search.view
 
 import android.content.Context
 import android.graphics.Color
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
@@ -46,6 +47,7 @@ class SearchAdapter ( var  onClick : OnCardClickListner , var onFavClick : OnSea
         }
         holder.binding.btnAddToFav.setOnClickListener {
             onFavClick.onFavClick(currentProduct)
+            Log.d("TAG", "onFavClick: click favorite adapter")
             holder.binding.btnAddToFav.setColorFilter(Color.BLUE)
         }
 
