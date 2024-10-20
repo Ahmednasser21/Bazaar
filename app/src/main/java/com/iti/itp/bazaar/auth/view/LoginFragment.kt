@@ -20,7 +20,7 @@ import com.iti.itp.bazaar.auth.firebase.FirebaseReposatory
 import com.iti.itp.bazaar.auth.viewModel.AuthViewModel
 import com.iti.itp.bazaar.auth.viewModel.AuthViewModelFactory
 import com.iti.itp.bazaar.databinding.FragmentLoginBinding
-import com.iti.itp.bazaar.dto.order.Address
+import com.iti.itp.bazaar.dto.Address
 import com.iti.itp.bazaar.dto.CustomerRequest
 
 

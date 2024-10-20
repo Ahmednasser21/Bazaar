@@ -14,9 +14,9 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.databinding.FragmentCashOnDeliveryBinding
 import com.iti.itp.bazaar.dto.AppliedDiscount
-import com.iti.itp.bazaar.dto.order.Customer
+import com.iti.itp.bazaar.dto.Customer
 import com.iti.itp.bazaar.dto.DraftOrder
-import com.iti.itp.bazaar.dto.order.LineItem
+import com.iti.itp.bazaar.dto.LineItem
 import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.network.exchangeCurrencyApi.CurrencyRemoteDataSource

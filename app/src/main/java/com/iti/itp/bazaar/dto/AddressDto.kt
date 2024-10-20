@@ -1,6 +1,6 @@
 package com.iti.itp.bazaar.dto
 
-import com.iti.itp.bazaar.dto.order.Address
+import com.iti.itp.bazaar.dto.Address
 
 
 data class CustomerAddress(
