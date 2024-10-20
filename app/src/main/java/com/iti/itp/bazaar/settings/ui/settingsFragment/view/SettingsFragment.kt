@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.RadioGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -37,111 +36,118 @@ class SettingsFragment : Fragment() {
     private lateinit var binding: FragmentSettingsBinding
     private lateinit var factory: SettingsViewModelFactory
     private lateinit var settingsViewModel: SettingsViewModel
-    private lateinit var currencySharedPreferences:SharedPreferences
+    private lateinit var currencySharedPreferences: SharedPreferences
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
+    ): View {
         factory = SettingsViewModelFactory(
             Repository.getInstance(
                 ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
             ),
             CurrencyRepository(CurrencyRemoteDataSource(ExchangeRetrofitObj.service))
         )
-        settingsViewModel = ViewModelProvider(this, factory).get(SettingsViewModel::class.java)
-        currencySharedPreferences = requireContext().getSharedPreferences("currencySharedPrefs", Context.MODE_PRIVATE)
+        settingsViewModel = ViewModelProvider(this, factory)[SettingsViewModel::class.java]
+        currencySharedPreferences = requireActivity().applicationContext.getSharedPreferences("currencySharedPrefs", Context.MODE_PRIVATE)
         binding = FragmentSettingsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.cvAddress.setOnClickListener {
-            val action = SettingsFragmentDirections.actionSettingsFragmentToAddressFragment()
-            Navigation.findNavController(view).navigate(action)
-        }
-
-        binding.cvContactUs.setOnClickListener{
-            val action = SettingsFragmentDirections.actionSettingsFragmentToContactUsFragment()
-            Navigation.findNavController(view).navigate(action)
-        }
-
-        binding.cvAboutUs.setOnClickListener{
-            val action = SettingsFragmentDirections.actionSettingsFragmentToAboutUsFragment()
-            Navigation.findNavController(view).navigate(action)
-        }
+        setupNavigationListeners()
     }
 
     override fun onStart() {
         super.onStart()
+        updateCurrencyDisplay()
+        fetchAndDisplayDefaultAddress()
+        setupCurrencySelectionDialog()
+    }
 
-        val currency = currencySharedPreferences.getString("currency", "EGP")
-        if (currency == "EGP"){
-            binding.currency.text = "EGP"
-        }else{
-            binding.currency.text = "USD"
+    private fun setupNavigationListeners() {
+        binding.apply {
+            cvAddress.setOnClickListener { navigateTo(SettingsFragmentDirections.actionSettingsFragmentToAddressFragment()) }
+            cvContactUs.setOnClickListener { navigateTo(SettingsFragmentDirections.actionSettingsFragmentToContactUsFragment()) }
+            cvAboutUs.setOnClickListener { navigateTo(SettingsFragmentDirections.actionSettingsFragmentToAboutUsFragment()) }
         }
+    }
 
+    private fun navigateTo(action: androidx.navigation.NavDirections) {
+        Navigation.findNavController(requireView()).navigate(action)
+    }
+
+    private fun updateCurrencyDisplay() {
+        val currency = currencySharedPreferences.getFloat("currency", 1F)
+        binding.currency.text = if (currency == 1.0f) "EGP" else "USD"
+    }
+
+    private fun fetchAndDisplayDefaultAddress() {
         lifecycleScope.launch(Dispatchers.IO) {
             settingsViewModel.getAddressesForCustomer(8220771385648)
             withContext(Dispatchers.Main) {
                 settingsViewModel.addresses.collect { state ->
                     when (state) {
-                        is DataState.Loading -> Snackbar.make(requireView(), "Loading", 2000).show()
-                        is DataState.OnFailed -> Snackbar.make(
-                            requireView(),
-                            "Failed to fetch default address",
-                            2000
-                        ).show()
-
+                        is DataState.Loading -> showSnackbar("Loading")
+                        is DataState.OnFailed -> showSnackbar("Failed to fetch default address")
                         is DataState.OnSuccess<*> -> {
-                            val data = state.data as ListOfAddresses
-                            val defaultAddress = data.addresses.find {
-                                it.default == true
-                            }
+                            val data = state.data as? ListOfAddresses
+                            val defaultAddress = data?.addresses?.find { it.default == true }
                             binding.address.text = defaultAddress?.country ?: "No default countries"
                         }
                     }
                 }
             }
         }
+    }
 
-
+    private fun setupCurrencySelectionDialog() {
         binding.cvCurrency.setOnClickListener {
-            // Create a Dialog
             val dialog = Dialog(requireContext())
             dialog.setContentView(R.layout.dialog_currency_selection)
 
-            // Find the radio buttons and button in the dialog
             val radioGroup = dialog.findViewById<RadioGroup>(R.id.radioGroup)
             val buttonOk = dialog.findViewById<Button>(R.id.buttonOk)
 
-            // Set the OK button's click listener
             buttonOk.setOnClickListener {
-                // Get the selected radio button
-                val selectedId = radioGroup.checkedRadioButtonId
-                when (selectedId) {
+                when (radioGroup.checkedRadioButtonId) {
                     R.id.radioButtonUSD -> {
-                        currencySharedPreferences.edit().putString("currency", "USD").apply()
-                        binding.currency.text = "USD" // Update the displayed text to USD
+                       lifecycleScope.launch(Dispatchers.IO) {
+                           settingsViewModel.changeCurrency("EGP", "USD")
+                           withContext(Dispatchers.Main){
+                               observeCurrency()
+                           }
+                       }
+                        binding.currency.text = "USD"
                     }
-                    R.id.radioButtonEUR -> {
-                        currencySharedPreferences.edit().putString("currency", "EGP").apply()
-                        binding.currency.text = "EGP" // Update the displayed text to EGP
+                    R.id.radioButtonEGP -> {
+                        currencySharedPreferences.edit().putFloat("currency", 1F).apply()
+                        binding.currency.text = "EGP"
                     }
                 }
-
-                // Dismiss the dialog
                 dialog.dismiss()
             }
 
-            // Show the dialog
             dialog.show()
         }
+    }
 
+    private suspend fun observeCurrency() {
+            settingsViewModel.currency.collect { state ->
+                when (state) {
+                    DataState.Loading -> showSnackbar("Loading")
+                    is DataState.OnFailed -> showSnackbar("Failed to change the currency")
+                    is DataState.OnSuccess<*> -> {
+                        val data = state.data as? ExchangeRateResponse
+                        currencySharedPreferences.edit().putFloat("currency", data?.conversion_rate?.toFloat()?:1F).apply()
+                    }
+                }
 
+        }
+    }
+
+    private fun showSnackbar(message: String) {
+        Snackbar.make(requireView(), message, Snackbar.LENGTH_SHORT).show()
     }
 }
-

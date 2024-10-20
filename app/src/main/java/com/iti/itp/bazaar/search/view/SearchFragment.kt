@@ -56,7 +56,7 @@ lateinit var searshAdapter: SearchAdapter
     lateinit var DraftvmFActory : ProuductIfonViewModelFactory
 
     lateinit var sharedPreferences: SharedPreferences
-     var draftOrderId:Long  = 0
+    var draftOrderId:Long  = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -136,6 +136,7 @@ lateinit var searshAdapter: SearchAdapter
 
 
     override fun onCardClick(prduct: Products) {
+        // navigate to product info Screen
        val action = SearchFragmentDirections.actionSearchFragmentToProuductnfoFragment(prduct.id)
         Navigation.findNavController(binding.root).navigate(action)
     }
@@ -161,7 +162,6 @@ lateinit var searshAdapter: SearchAdapter
                         }
                     }
 
-
                 }
 
             }
@@ -180,7 +180,6 @@ lateinit var searshAdapter: SearchAdapter
                             }
                             // now i want to add this list to my new liked item
                             currentDraftOrderItems.add(draftOrderRequest(prduct).draft_order.line_items.get(0))
-
                             var updatedDraftOrder = draftOrderRequest(prduct).draft_order
                             updatedDraftOrder.line_items =currentDraftOrderItems
                             ProductInfoViewModel.updateDraftOrder(draftOrderId,UpdateDraftOrderRequest(updatedDraftOrder) )
@@ -189,35 +188,7 @@ lateinit var searshAdapter: SearchAdapter
 
 
                 }
-//            ProductInfoViewModel.updateDraftOrder(8220771385648, UpdateDraftOrderRequest(
-//                draft_order = UpdateDraftOrder(
-//                    line_items = listOf(
-//                        UpdateLineItem(
-//                            product_id =  prduct.id,
-//                            title = "Sample Product",
-//                            price = "50.00"
-//                        ),
-//                        UpdateLineItem(
-//                            product_id = 54321L,
-//                            title = "Another Product",
-//                            price = "30.00"
-//                        )
-//                    ),
-//                    applied_discount = AppliedDiscount(
-//                        description = "10% off",
-//                        value_type = "percentage",
-//                        value = "10",
-//                        amount = "5.00",
-//                        title = "Discount"
-//                    ),
-//                    customer = Customer(
-//                        id = 8220771385648
-//                    ),
-//                    use_customer_default_address = true )
-//
-//
-//            )
-//            )
+
 
             }
 
@@ -240,58 +211,14 @@ lateinit var searshAdapter: SearchAdapter
 
             }
 
-//        lifecycleScope.launch(Dispatchers.IO) {
-//            ProductInfoViewModel.updatedOrder.collectLatest { result->
-//                when(result){
-//                    DataState.Loading -> {
-//                    }
-//
-//                    is DataState.OnFailed -> { }
-//                    is DataState.OnSuccess<*> -> {
-//                        val x = result.data as UpdateDraftOrderRequest
-//                        Log.d("TAG", "onFavClick: w id el draft odre is ->${x.draft_order} ")
-//                    }
-//                }
-//
-//
-//            }
-//
-//        }
+
 
         }
 
 
     }
 
-//    fun createDraftOrderRequest(prouductId : Long): DraftOrderRequest {
-//        return DraftOrderRequest(
-//            draft_order = DraftOrder(
-//                line_items = listOf(
-//                    LineItem(
-//                        product_id = prouductId,
-//                        title = "Sample Product",
-//                        price = "50.00"
-//                    ),
-//                    LineItem(
-//                        product_id = 54321L,
-//                        title = "Another Product",
-//                        price = "30.00"
-//                    )
-//                ),
-//                applied_discount = AppliedDiscount(
-//                    description = "10% off",
-//                    value_type = "percentage",
-//                    value = "10",
-//                    amount = "5.00",
-//                    title = "Discount"
-//                ),
-//                customer = Customer(
-//                    id = 8220771385648
-//                ),
-//                use_customer_default_address = true
-//            )
-//        )
-//    }
+
 private fun draftOrderRequest(prduct: Products):DraftOrderRequest{
     val draftOrderRequest = DraftOrderRequest(
         draft_order = DraftOrder(
@@ -299,6 +226,7 @@ private fun draftOrderRequest(prduct: Products):DraftOrderRequest{
                 LineItem(
                     id = prduct.id,
                     product_id = prduct.id,
+                    sku = "${prduct.id.toString()}##${prduct.image?.src}",
                     title = prduct.title, price = prduct.variants[0].price, quantity = 1)
             ),
             use_customer_default_address = true,

@@ -138,5 +138,13 @@ class prouductInfoViewModel (private val repo: Repository , private val currency
 
         }
     }
+    fun deleteSpecificDraftOrder (draftOrderId :Long )
+    {
+        viewModelScope.launch {
+            repo.deleteSpecificDraftOrder(draftOrderId)
+        }
+
+    }
+
 
 }
