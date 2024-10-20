@@ -11,6 +11,7 @@ import com.iti.itp.bazaar.dto.CustomerAddressResponse
 import com.iti.itp.bazaar.dto.CustomerRequest
 import com.iti.itp.bazaar.dto.DraftOrderRequest
 import com.iti.itp.bazaar.dto.ListOfAddresses
+import com.iti.itp.bazaar.dto.SingleCustomerResponse
 import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
 import com.iti.itp.bazaar.dto.cutomerResponce.CustomerResponse
 import com.iti.itp.bazaar.network.responses.CouponsCountResponse
@@ -88,6 +89,10 @@ class ShopifyRemoteDataSource(private val productService: ProductService) {
     }
     suspend fun getSpecificDraftOrder(draftOrderId: Long): DraftOrderRequest{
         return productService.getSpecificDraftOrder(draftOrderId)
+    }
+
+    suspend fun getCustomerById(customerId: Long):SingleCustomerResponse{
+        return productService.getCustomerById(customerId)
     }
 
 

@@ -9,6 +9,7 @@ import com.iti.itp.bazaar.dto.AddedCustomerAddressResponse
 import com.iti.itp.bazaar.dto.CustomerRequest
 import com.iti.itp.bazaar.dto.DraftOrderRequest
 import com.iti.itp.bazaar.dto.ListOfAddresses
+import com.iti.itp.bazaar.dto.SingleCustomerResponse
 import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
 import com.iti.itp.bazaar.dto.cutomerResponce.CustomerResponse
 import com.iti.itp.bazaar.network.responses.CouponsCountResponse
@@ -93,5 +94,11 @@ interface ProductService {
     suspend fun getSpecificDraftOrder(
         @Path("draftOrderId") draftOrderId: Long
     ): DraftOrderRequest
+
+
+    @GET("/admin/api/2024-10/customers/{customer_id}.json")
+    suspend fun getCustomerById(
+        @Path("customer_id") customerId:Long
+    ): SingleCustomerResponse
 
 }

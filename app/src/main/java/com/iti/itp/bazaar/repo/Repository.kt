@@ -11,6 +11,7 @@ import com.iti.itp.bazaar.dto.CustomerAddressResponse
 import com.iti.itp.bazaar.dto.CustomerRequest
 import com.iti.itp.bazaar.dto.DraftOrderRequest
 import com.iti.itp.bazaar.dto.ListOfAddresses
+import com.iti.itp.bazaar.dto.SingleCustomerResponse
 import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
 import com.iti.itp.bazaar.dto.cutomerResponce.CustomerResponse
 import com.iti.itp.bazaar.network.responses.CouponsCountResponse
@@ -159,6 +160,13 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
         return flow {
             val draftOrder = remoteDataSource.getSpecificDraftOrder(draftOrderId)
             emit(draftOrder)
+            delay(100)
+        }
+    }
+
+    fun getCustomerById(customerId: Long):Flow<SingleCustomerResponse>{
+        return flow {
+            emit(remoteDataSource.getCustomerById(customerId))
             delay(100)
         }
     }
