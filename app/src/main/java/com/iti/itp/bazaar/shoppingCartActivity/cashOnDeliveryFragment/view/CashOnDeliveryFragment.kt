@@ -193,10 +193,11 @@ class CashOnDeliveryFragment : Fragment() {
         if (currentDraftOrder != null) {
             val updatedLineItems = currentDraftOrder.line_items?.map { item ->
                 LineItem(
-                    product_id = item.sku?.toLong()!!,
+                    product_id = item.product_id,
                     title = item.title,
                     price = item.price,
                     quantity = item.quantity,
+                    sku = item.sku,
                     applied_discount = AppliedDiscount(couponCode, discountAmount.toString())
                 )
             }
