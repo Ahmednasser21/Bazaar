@@ -41,7 +41,7 @@ class OrderFragment : Fragment() {
             )
         )
         val customerID = arguments?.let { OrderFragmentArgs.fromBundle(it).customerID }
-        orderViewModel = ViewModelProvider(this, factory)[OrderViewModel::class.java]
+        orderViewModel = ViewModelProvider(requireActivity(), factory)[OrderViewModel::class.java]
         orderViewModel.getOrdersByCustomerID(customerID.toString())
         orderAdapter = OrdersAdapter()
     }
