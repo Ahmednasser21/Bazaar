@@ -108,4 +108,10 @@ interface ProductService {
         @Path("address_id") addressId: Long
     )
 
+
+    @DELETE ("/admin/api/2024-10/draft_orders/{draftOrderId}.json")
+    suspend fun deleteSpecificDraftOrder (
+        @Path("draftOrderId") draftOrderId: Long
+    )
+
 }

@@ -174,4 +174,8 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
     suspend fun deleteAddressOfSpecificCustomer(customerId: Long, addressId: Long){
         return remoteDataSource.deleteAddressOfSpecificCustomer(customerId,addressId)
     }
+    suspend fun deleteSpecificDraftOrder (draftOrderId: Long){
+
+        remoteDataSource.deleteSpecificDraftOrder(draftOrderId)
+    }
 }
