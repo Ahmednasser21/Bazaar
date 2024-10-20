@@ -3,6 +3,7 @@ package com.iti.itp.bazaar.shoppingCartActivity.shoppingCartFragment.view
 import ReceivedLineItem
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.SharedPreferences
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -30,6 +31,7 @@ class ItemAdapter(
     }
     private lateinit var repository: Repository
     private lateinit var context: Context
+    private lateinit var currencySharedPreferences: SharedPreferences
 
     class ItemViewHolder(val binding: ShoppingCartItemBinding) : ViewHolder(binding.root)
 
@@ -38,6 +40,7 @@ class ItemAdapter(
         val inflater = parent.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val binding = ShoppingCartItemBinding.inflate(inflater, parent, false)
         repository = Repository.getInstance(ShopifyRemoteDataSource(ShopifyRetrofitObj.productService))
+        currencySharedPreferences = parent.context.applicationContext.getSharedPreferences("currencySharedPrefs",Context.MODE_PRIVATE)
         return ItemViewHolder(binding)
     }
 
@@ -46,7 +49,7 @@ class ItemAdapter(
         val currentItem = getItem(position)
         makeNetWorkCallForImage(currentItem.sku?.toLong()?:0, position, holder)
         // Calculate unit price correctly by dividing the total price by quantity
-        val unitPrice = currentItem.price.toDouble()
+        val unitPrice = currentItem.price.toDouble() * currencySharedPreferences.getFloat("currency",1F)
         val formatter = NumberFormat.getCurrencyInstance(Locale.US)
 
         holder.binding.apply {

@@ -1,6 +1,8 @@
 package com.iti.itp.bazaar.mainActivity.ui.notifications
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -28,7 +30,7 @@ import kotlinx.coroutines.withContext
 class NotificationsFragment : Fragment() {
     private lateinit var notificationsViewModel:NotificationsViewModel
     private lateinit var factory:NotificationViewModelFactory
-
+    private lateinit var currencySharePrefs:SharedPreferences
     private lateinit var binding:FragmentNotificationsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,33 +49,37 @@ class NotificationsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        currencySharePrefs = requireActivity().applicationContext.getSharedPreferences("currencySharedPrefs", Context.MODE_PRIVATE)
         binding = FragmentNotificationsBinding.inflate(inflater, container, false)
         val root: View = binding.root
         return root
     }
 
-    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        notificationsViewModel.getCurrency("EGP", "USD")
-        lifecycleScope.launch(Dispatchers.IO){
-            notificationsViewModel.getCustomerById(8220771418416)
-            notificationsViewModel.customer.collect{state ->
-                withContext(Dispatchers.Main){
-                    when(state){
-                        DataState.Loading -> {}
-                        is DataState.OnFailed -> {}
-                        is DataState.OnSuccess<*>->{
-                            val data = state.data as SingleCustomerResponse
-                            binding.nameOfUser.text = "${data.customer.firstName} ${data.customer.lastName}"
-                            binding.createdAt.text = data.customer.createdAt
-                            binding.priceValue.text = data.customer.totalSpent.toPlainString()
-                        }
-                    }
-                }
-            }
-        }
+    }
 
+
+    @SuppressLint("SetTextI18n", "DefaultLocale")
+    override fun onStart() {
+        super.onStart()
+//        val currency = currencySharePrefs.getFloat("currency", 1F)
+//        lifecycleScope.launch(Dispatchers.IO){
+//            notificationsViewModel.getCustomerById(8220771418416)
+//            notificationsViewModel.customer.collect{state ->
+//                withContext(Dispatchers.Main){
+//                    when(state){
+//                        DataState.Loading -> {}
+//                        is DataState.OnFailed -> {}
+//                        is DataState.OnSuccess<*>->{
+//                            val data = state.data as SingleCustomerResponse
+//                            binding.nameOfUser.text = "${data.customer.firstName} ${data.customer.lastName}"
+//                            binding.createdAt.text = data.customer.createdAt
+//                            binding.priceValue.text = String.format("%.2f", data.customer.totalSpent * currency)                        }
+//                    }
+//                }
+//            }
+//        }
     }
 
 }

@@ -23,7 +23,7 @@ data class SingleCustomer(
     val ordersCount: Int,
     val state: String,
     @SerializedName("total_spent")
-    val totalSpent: BigDecimal,
+    val totalSpent: Double,
     @SerializedName("last_order_id")
     val lastOrderId: Long,
     val note: String?,

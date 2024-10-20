@@ -24,7 +24,7 @@
             android:text="USD" />
 
         <RadioButton
-            android:id="@+id/radioButtonEUR"
+            android:id="@+id/radioButtonEGP"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="EGP" />
