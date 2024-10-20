@@ -3,6 +3,7 @@ package com.iti.itp.bazaar.settings.ui.newAddressFragment.viewModel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.iti.itp.bazaar.dto.AddAddressResponse
 import com.iti.itp.bazaar.dto.AddedAddressRequest
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 
@@ -20,9 +21,9 @@ class NewAddressViewModel(private val addressRepo: Repository) : ViewModel() {
     private val _addressState = MutableStateFlow<DataState>(DataState.Loading)
     val addressState = _addressState.asStateFlow()
 
-    fun addNewAddress(customerId: Long, addressDetails: AddedAddressRequest) {
+    fun addNewAddress(customerId: Long, address: AddAddressResponse) {
         viewModelScope.launch(Dispatchers.IO) {
-            addressRepo.createCustomerAddress(customerId, addressDetails).catch {
+            addressRepo.addAddress(customerId, address).catch {
                 _addressState.value = DataState.OnFailed(it)
                 Log.e(TAG, "addNewAddress: failed to add the new address ${it.message}")
             }.collect {

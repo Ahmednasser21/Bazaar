@@ -2,6 +2,7 @@ package com.iti.itp.bazaar.repo
 
 import ReceivedDraftOrder
 import ReceivedOrdersResponse
+import com.iti.itp.bazaar.dto.AddAddressResponse
 import com.iti.itp.bazaar.dto.AddedAddressRequest
 import com.iti.itp.bazaar.dto.AddedCustomerAddressResponse
 import com.iti.itp.bazaar.dto.AddressRequest
@@ -54,7 +55,7 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
     }
 
 
-    suspend fun createCustomerAddress(customerId: Long, address: AddedAddressRequest): Flow<AddedCustomerAddressResponse> {
+    fun addAddress(customerId: Long, address: AddAddressResponse): Flow<AddAddressResponse> {
         return flow {
             emit(remoteDataSource.addAddress(customerId, address))
         }

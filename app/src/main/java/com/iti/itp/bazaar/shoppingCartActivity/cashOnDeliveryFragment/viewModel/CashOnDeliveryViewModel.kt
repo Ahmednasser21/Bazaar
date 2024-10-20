@@ -3,6 +3,7 @@ package com.iti.itp.bazaar.shoppingCartActivity.cashOnDeliveryFragment.viewModel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.network.responses.ExchangeRateResponse
 import com.iti.itp.bazaar.repo.CurrencyRepository
@@ -24,6 +25,9 @@ class CashOnDeliveryViewModel(val repository: Repository, val currencyRepository
     private val _currency = MutableStateFlow<DataState>(DataState.Loading)
     val currency = _currency.asStateFlow()
 
+    private val _draftOrders = MutableStateFlow<DataState>(DataState.Loading)
+    val draftOrders = _draftOrders.asStateFlow()
+
 
     fun getCoupons(){
         viewModelScope.launch(Dispatchers.IO){
@@ -43,6 +47,26 @@ class CashOnDeliveryViewModel(val repository: Repository, val currencyRepository
                 _currency.value = DataState.OnFailed(it)
             }.collect{
                 _currency.value = DataState.OnSuccess(it)
+            }
+        }
+    }
+
+    fun getAllDraftOrders(){
+        viewModelScope.launch(Dispatchers.IO){
+            repository.getAllDraftOrders().catch {
+                _draftOrders.value = DataState.OnFailed(it)
+            }.collect{
+                _draftOrders.value = DataState.OnSuccess(it)
+            }
+        }
+    }
+
+    fun updateDraftOrder(customerId:Long,updateDraftOrderRequest: UpdateDraftOrderRequest){
+        viewModelScope.launch(Dispatchers.IO){
+            repository.updateDraftOrderRequest(customerId, updateDraftOrderRequest).catch {
+                Log.e(TAG, "failed to apply the discount: ${it.message}")
+            }.collect{
+                Log.i(TAG, "updateDraftOrder: success to apply the discount")
             }
         }
     }

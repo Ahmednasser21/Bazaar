@@ -2,6 +2,7 @@ package com.iti.itp.bazaar.network.shopify
 
 import ReceivedDraftOrder
 import ReceivedOrdersResponse
+import com.iti.itp.bazaar.dto.AddAddressResponse
 import com.iti.itp.bazaar.dto.AddedAddressRequest
 import com.iti.itp.bazaar.dto.CustomerAddressResponse
 import com.iti.itp.bazaar.dto.AddedCustomerAddressResponse
@@ -34,11 +35,11 @@ interface ProductService {
     @GET("admin/api/2022-01/products.json")
     suspend fun getProductDetails(@Query("ids") id: Long): ProductResponse
 
-    @POST("admin/api/2024-10/customers/{customer_id}/addresses.json")
-    suspend fun createCustomerAddress(
-        @Path("customer_id") customerId: Long,
-        @Body addressRequest: AddedAddressRequest
-    ): AddedCustomerAddressResponse
+    @POST("admin/api/2024-10/customers/{customerId}/addresses.json")
+    suspend fun addAddress(
+        @Path("customerId") customerId: Long,
+        @Body address: AddAddressResponse
+    ): AddAddressResponse
 
     @GET("admin/api/2024-10/price_rules.json")
     suspend fun getPriceRules(): PriceRulesResponse

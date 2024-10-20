@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.iti.itp.bazaar.databinding.FragmentNewAddressBinding
+import com.iti.itp.bazaar.dto.AddAddressResponse
 import com.iti.itp.bazaar.dto.AddedAddressRequest
 import com.iti.itp.bazaar.dto.AddedCustomerAddress
 import com.iti.itp.bazaar.dto.AddressRequest
@@ -43,21 +44,43 @@ class NewAddressFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val customerAddress = AddedCustomerAddress(
-            address1 = "${binding.governorate.text}",
-            address2 = "${binding.etCity.text}",
-            city = "${binding.governorate.text}",
-            country_name = "${binding.nonEditable.text}",
-            first_name = "ahmed1",
-            last_name = "samy1",
-            company = "esfd1",
-            phone = "01010095281",
-            country_code = "EG"
+//        val customerAddress = AddedCustomerAddress(
+//            address1 = "${binding.governorate.text}",
+//            address2 = "${binding.etCity.text}",
+//            city = "${binding.governorate.text}",
+//            country_name = "${binding.nonEditable.text}",
+//            first_name = "ahmed1",
+//            last_name = "samy1",
+//            company = "esfd1",
+//            phone = "01010095281",
+//            country_code = "EG"
+//        )
+//        val address = AddedAddressRequest(customerAddress)
+
+        val address = AddAddressResponse(
+            CustomerAddress(
+                id = 8220771418416,
+                customer_id = 8220771418416,
+                first_name = "ahmed",
+                last_name = "samy",
+                company = "ahmed's company",
+                address1 = "elmsaken eleqtsadya",
+                address2 = "building number 8",
+                city = "fayed",
+                province = "",
+                country = "egypt",
+                zip = "",
+                phone = "01010095281",
+                name = "ahmed samy",
+                province_code = "",
+                country_code = "EG",
+                country_name = "Egypt",
+                default = false,
+            )
         )
-        val address = AddedAddressRequest(customerAddress)
 
         binding.btnAddAddress.setOnClickListener {
-            newAddressViewModel.addNewAddress(8220771418416, address)
+            newAddressViewModel.addNewAddress(8220771418416,address)
         }
     }
 }
