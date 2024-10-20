@@ -52,4 +52,10 @@ class AddressViewModel(val repository: Repository):ViewModel() {
         }
     }
 
+    fun deleteAddressForSpecificCustomer(customerId: Long, addressId: Long){
+        viewModelScope.launch(Dispatchers.IO){
+            repository.deleteAddressOfSpecificCustomer(customerId,addressId)
+        }
+    }
+
 }

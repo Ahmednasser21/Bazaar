@@ -19,6 +19,7 @@ import com.iti.itp.bazaar.network.responses.PriceRulesResponse
 import com.iti.itp.bazaar.network.responses.ProductResponse
 import com.iti.itp.bazaar.network.responses.SmartCollectionsResponse
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -100,5 +101,11 @@ interface ProductService {
     suspend fun getCustomerById(
         @Path("customer_id") customerId:Long
     ): SingleCustomerResponse
+
+    @DELETE("/admin/api/2024-10/customers/{customer_id}/addresses/{address_id}.json")
+    suspend fun deleteAddressOfSpecificCustomer(
+        @Path("customer_id") customerId: Long,
+        @Path("address_id") addressId: Long
+    )
 
 }

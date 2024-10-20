@@ -95,5 +95,9 @@ class ShopifyRemoteDataSource(private val productService: ProductService) {
         return productService.getCustomerById(customerId)
     }
 
+    suspend fun deleteAddressOfSpecificCustomer(customerId: Long, addressId: Long){
+        return productService.deleteAddressOfSpecificCustomer(customerId, addressId)
+    }
+
 
 }
