@@ -12,6 +12,7 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.Navigation
 import com.iti.itp.bazaar.databinding.FragmentNotificationsBinding
 import com.iti.itp.bazaar.dto.SingleCustomerResponse
 import com.iti.itp.bazaar.mainActivity.ui.DataState
@@ -32,6 +33,7 @@ class NotificationsFragment : Fragment() {
     private lateinit var factory:NotificationViewModelFactory
     private lateinit var currencySharePrefs:SharedPreferences
     private lateinit var binding:FragmentNotificationsBinding
+    private lateinit var moreOrders:TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,7 +59,14 @@ class NotificationsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        moreOrders = binding.moreOrders
+        moreOrders.setOnClickListener{
+            val action = NotificationsFragmentDirections.actionNavMeToOrderFragment("customer_id:8220771418416")
+            Navigation.findNavController(it).navigate(action)
+        }
     }
+
 
 
     @SuppressLint("SetTextI18n", "DefaultLocale")

@@ -79,4 +79,5 @@
     <string name="my_orders">MY ORDERS</string>
     <string name="price_order">Price:</string>
     <string name="creation_date">Creation Date:</string>
+    <string name="favProducts">Favorite</string>
 </resources>

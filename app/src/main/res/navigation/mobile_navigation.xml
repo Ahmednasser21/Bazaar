@@ -74,4 +74,13 @@
             android:name="customerID"
             app:argType="string" />
     </fragment>
+    <fragment
+        android:id="@+id/favoriteProductsFragment"
+        android:name="com.iti.itp.bazaar.favoriteProducts.view.FavoriteProductsFragment"
+        android:label="@string/favProducts"
+        tools:layout="@layout/fragment_favorite_products" >
+        <action
+            android:id="@+id/action_favoriteProductsFragment_to_prouductnfoFragment"
+            app:destination="@id/prouductnfoFragment" />
+    </fragment>
 </navigation>
