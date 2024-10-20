@@ -17,6 +17,7 @@ import com.iti.itp.bazaar.network.responses.PriceRulesResponse
 import com.iti.itp.bazaar.network.responses.ProductResponse
 import com.iti.itp.bazaar.network.responses.SmartCollectionsResponse
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -92,5 +93,10 @@ interface ProductService {
     suspend fun getSpecificDraftOrder(
         @Path("draftOrderId") draftOrderId: Long
     ): DraftOrderRequest
+
+    @DELETE ("/admin/api/2024-10/draft_orders/{draftOrderId}.json")
+    suspend fun deleteSpecificDraftOrder (
+        @Path("draftOrderId") draftOrderId: Long
+    )
 
 }

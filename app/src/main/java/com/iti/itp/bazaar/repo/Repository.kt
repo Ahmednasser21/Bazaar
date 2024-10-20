@@ -161,4 +161,9 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
             delay(100)
         }
     }
+
+    suspend fun deleteSpecificDraftOrder (draftOrderId: Long){
+
+        remoteDataSource.deleteSpecificDraftOrder(draftOrderId)
+    }
 }

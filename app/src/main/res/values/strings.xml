@@ -76,4 +76,5 @@
     <string name="prouductDetails">Product Details</string>
     <string name="fragmentSearch">Search</string>
     <string name="fragmentProuductInfo">Product Details</string>
+    <string name="favProducts">Favorite</string>
 </resources>

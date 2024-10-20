@@ -88,6 +88,9 @@ class ShopifyRemoteDataSource(private val productService: ProductService) {
     suspend fun getSpecificDraftOrder(draftOrderId: Long): DraftOrderRequest{
         return productService.getSpecificDraftOrder(draftOrderId)
     }
+    suspend fun deleteSpecificDraftOrder (draftOrderId: Long){
+        productService.deleteSpecificDraftOrder(draftOrderId)
+    }
 
 
 }

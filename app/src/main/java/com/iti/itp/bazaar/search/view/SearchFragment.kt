@@ -139,6 +139,7 @@ lateinit var searshAdapter: SearchAdapter
 
 
     override fun onCardClick(prduct: Products) {
+        // navigate to product info Screen
        val action = SearchFragmentDirections.actionSearchFragmentToProuductnfoFragment(prduct.id)
         Navigation.findNavController(binding.root).navigate(action)
     }
@@ -182,7 +183,6 @@ lateinit var searshAdapter: SearchAdapter
                             }
                             // now i want to add this list to my new liked item
                             currentDraftOrderItems.add(draftOrderRequest(prduct).draft_order.line_items.get(0))
-
                             var updatedDraftOrder = draftOrderRequest(prduct).draft_order
                             updatedDraftOrder.line_items =currentDraftOrderItems
                             ProductInfoViewModel.updateDraftOrder(draftOrderId,UpdateDraftOrderRequest(updatedDraftOrder) )
@@ -229,6 +229,7 @@ private fun draftOrderRequest(prduct: Products):DraftOrderRequest{
                 LineItem(
                     id = prduct.id,
                     product_id = prduct.id,
+                    sku = "${prduct.id.toString()}##${prduct.image?.src}",
                     title = prduct.title, price = prduct.variants[0].price, quantity = 1)
             ),
             use_customer_default_address = true,
