@@ -2,12 +2,14 @@ package com.iti.itp.bazaar.network.shopify
 
 import ReceivedDraftOrder
 import ReceivedOrdersResponse
+import com.iti.itp.bazaar.dto.AddAddressResponse
 import com.iti.itp.bazaar.dto.AddedAddressRequest
 import com.iti.itp.bazaar.dto.CustomerAddressResponse
 import com.iti.itp.bazaar.dto.AddedCustomerAddressResponse
 import com.iti.itp.bazaar.dto.CustomerRequest
 import com.iti.itp.bazaar.dto.DraftOrderRequest
 import com.iti.itp.bazaar.dto.ListOfAddresses
+import com.iti.itp.bazaar.dto.SingleCustomerResponse
 import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
 import com.iti.itp.bazaar.dto.cutomerResponce.CustomerResponse
 import com.iti.itp.bazaar.network.responses.CouponsCountResponse
@@ -35,11 +37,11 @@ interface ProductService {
     @GET("admin/api/2022-01/products.json")
     suspend fun getProductDetails(@Query("ids") id: Long): ProductResponse
 
-    @POST("admin/api/2024-10/customers/{customer_id}/addresses.json")
-    suspend fun createCustomerAddress(
-        @Path("customer_id") customerId: Long,
-        @Body addressRequest: AddedAddressRequest
-    ): AddedCustomerAddressResponse
+    @POST("admin/api/2024-10/customers/{customerId}/addresses.json")
+    suspend fun addAddress(
+        @Path("customerId") customerId: Long,
+        @Body address: AddAddressResponse
+    ): AddAddressResponse
 
     @GET("admin/api/2024-10/price_rules.json")
     suspend fun getPriceRules(): PriceRulesResponse
@@ -94,9 +96,16 @@ interface ProductService {
         @Path("draftOrderId") draftOrderId: Long
     ): DraftOrderRequest
 
-    @DELETE ("/admin/api/2024-10/draft_orders/{draftOrderId}.json")
-    suspend fun deleteSpecificDraftOrder (
-        @Path("draftOrderId") draftOrderId: Long
+
+    @GET("/admin/api/2024-10/customers/{customer_id}.json")
+    suspend fun getCustomerById(
+        @Path("customer_id") customerId:Long
+    ): SingleCustomerResponse
+
+    @DELETE("/admin/api/2024-10/customers/{customer_id}/addresses/{address_id}.json")
+    suspend fun deleteAddressOfSpecificCustomer(
+        @Path("customer_id") customerId: Long,
+        @Path("address_id") addressId: Long
     )
 
 }

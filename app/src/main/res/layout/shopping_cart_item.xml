@@ -35,7 +35,6 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
         android:background="@drawable/custom_price_background"
-        android:text="1000 EGP"
         android:textColor="@color/brown"
         android:textSize="18sp"
         android:textStyle="bold"
@@ -45,7 +44,7 @@
 
 
     <ImageButton
-        android:id="@+id/imageButton4"
+        android:id="@+id/iv_increase"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
@@ -56,15 +55,15 @@
         app:layout_constraintTop_toTopOf="@+id/tv_price" />
 
     <ImageButton
-        android:id="@+id/imageButton"
+        android:id="@+id/iv_decrease"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="4dp"
         android:background="@android:color/transparent"
         android:src="@drawable/circular_remove"
-        app:layout_constraintBottom_toBottomOf="@+id/imageButton4"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_increase"
         app:layout_constraintEnd_toStartOf="@+id/tv_quantity"
-        app:layout_constraintTop_toTopOf="@+id/imageButton4" />
+        app:layout_constraintTop_toTopOf="@+id/iv_increase" />
 
     <TextView
         android:id="@+id/tv_quantity"
@@ -76,8 +75,8 @@
         android:textColor="@color/brown"
         android:textSize="18sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/imageButton"
-        app:layout_constraintEnd_toStartOf="@+id/imageButton4"
-        app:layout_constraintTop_toTopOf="@+id/imageButton"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_decrease"
+        app:layout_constraintEnd_toStartOf="@+id/iv_increase"
+        app:layout_constraintTop_toTopOf="@+id/iv_decrease"
         app:layout_constraintVertical_bias="0.0" />
 </androidx.constraintlayout.widget.ConstraintLayout>

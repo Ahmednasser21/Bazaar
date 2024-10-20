@@ -2,6 +2,7 @@ package com.iti.itp.bazaar.productInfo.view
 
 import ReceivedLineItem
 import ReceivedOrdersResponse
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -25,7 +26,9 @@ import com.iti.itp.bazaar.dto.Customer
 import com.iti.itp.bazaar.dto.DraftOrder
 import com.iti.itp.bazaar.dto.DraftOrderRequest
 import com.iti.itp.bazaar.dto.LineItem
+import com.iti.itp.bazaar.dto.UpdateDraftOrder
 import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
+import com.iti.itp.bazaar.dto.UpdateLineItem
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.network.exchangeCurrencyApi.CurrencyRemoteDataSource
 import com.iti.itp.bazaar.network.exchangeCurrencyApi.ExchangeRetrofitObj
@@ -85,6 +88,7 @@ class ProuductnfoFragment : Fragment() , OnClickListner<AvailableSizes> , OnColo
         return binding.root
     }
 
+    @SuppressLint("SuspiciousIndentation")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -144,37 +148,32 @@ class ProuductnfoFragment : Fragment() , OnClickListner<AvailableSizes> , OnColo
                                         // Use the first existing draft order
                                         val existingOrder = data.draft_orders.first()
                                         Log.i("TAG", "product id is: ${ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId}")
-                                        val updatedLineItems = (existingOrder.line_items ?: emptyList()).toMutableList().apply {
-                                            add(ReceivedLineItem(
-                                                id = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
-                                                variant_title = "dgldsjglk",
-                                                product_id = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
-                                                title = proudct.title,
-                                                price = proudct.variants[0].price,
-                                                quantity = 1
-                                            ))
-                                        }
+                                        val updatedLineItems = (existingOrder.line_items ?: emptyList()).toMutableList()
+                                            updatedLineItems.add(ReceivedLineItem(
+                                            sku = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId.toString(),
+                                            id = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
+                                            variant_title = "dgldsjglk",
+                                            product_id = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
+                                            title = proudct.title,
+                                            price = proudct.variants[0].price,
+                                            quantity = 1
+                                        ))
                                         ProductInfoViewModel.updateDraftOrder(
                                             existingOrder.id,
                                             UpdateDraftOrderRequest(
                                                 DraftOrder(
+                                                    applied_discount = AppliedDiscount(null),
+                                                    customer = Customer(8220771418416),
+                                                    use_customer_default_address = true,
                                                     line_items = updatedLineItems.map {
                                                         LineItem(
-                                                            id = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
-                                                            product_id = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
-                                                            title = it.title, price = it.price, quantity = it.quantity ?: 1)
-                                                    },
-                                                    applied_discount = existingOrder.applied_discount?.let {
-                                                        AppliedDiscount(
-                                                            description = it.description,
-                                                            value_type = it.value_type,
-                                                            value = it.value,
-                                                            amount = it.amount,
-                                                            title = it.title
+                                                            sku = it.sku ?: ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId.toString(),  // Use existing SKU or new one
+                                                            product_id = it.product_id ?: ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
+                                                            title = it.title!!,
+                                                            price = it.price,
+                                                            quantity = it.quantity ?: 1
                                                         )
-                                                    },
-                                                    customer = Customer(existingOrder.customer?.id ?: 0),
-                                                    use_customer_default_address = true
+                                                    }
                                                 )
                                             )
                                         )
@@ -348,6 +347,8 @@ class ProuductnfoFragment : Fragment() , OnClickListner<AvailableSizes> , OnColo
             draft_order = DraftOrder(
                 line_items = listOf(
                     LineItem(
+                        sku = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId.toString(),
+                        name = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId.toString(),
                         id = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
                         product_id =  ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
                         title = proudct.title, price = proudct.variants[0].price, quantity = 1)

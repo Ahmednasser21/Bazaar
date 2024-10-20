@@ -62,6 +62,16 @@ class SettingsFragment : Fragment() {
             val action = SettingsFragmentDirections.actionSettingsFragmentToAddressFragment()
             Navigation.findNavController(view).navigate(action)
         }
+
+        binding.cvContactUs.setOnClickListener{
+            val action = SettingsFragmentDirections.actionSettingsFragmentToContactUsFragment()
+            Navigation.findNavController(view).navigate(action)
+        }
+
+        binding.cvAboutUs.setOnClickListener{
+            val action = SettingsFragmentDirections.actionSettingsFragmentToAboutUsFragment()
+            Navigation.findNavController(view).navigate(action)
+        }
     }
 
     override fun onStart() {

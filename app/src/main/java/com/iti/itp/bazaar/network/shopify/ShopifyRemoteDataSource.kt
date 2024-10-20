@@ -2,6 +2,7 @@ package com.iti.itp.bazaar.network.shopify
 
 import ReceivedDraftOrder
 import ReceivedOrdersResponse
+import com.iti.itp.bazaar.dto.AddAddressResponse
 import com.iti.itp.bazaar.dto.AddedAddressRequest
 import com.iti.itp.bazaar.dto.AddedCustomerAddressResponse
 import com.iti.itp.bazaar.dto.AddressRequest
@@ -10,6 +11,7 @@ import com.iti.itp.bazaar.dto.CustomerAddressResponse
 import com.iti.itp.bazaar.dto.CustomerRequest
 import com.iti.itp.bazaar.dto.DraftOrderRequest
 import com.iti.itp.bazaar.dto.ListOfAddresses
+import com.iti.itp.bazaar.dto.SingleCustomerResponse
 import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
 import com.iti.itp.bazaar.dto.cutomerResponce.CustomerResponse
 import com.iti.itp.bazaar.network.responses.CouponsCountResponse
@@ -33,8 +35,8 @@ class ShopifyRemoteDataSource(private val productService: ProductService) {
         return productService.getVendorProducts(vendorName)
     }
 
-    suspend fun addAddress(customerId: Long, customerAddress: AddedAddressRequest): AddedCustomerAddressResponse {
-        return productService.createCustomerAddress(customerId,customerAddress)
+    suspend fun addAddress(customerId: Long, address:AddAddressResponse):AddAddressResponse{
+        return productService.addAddress(customerId, address)
     }
 
     suspend fun getPriceRules():PriceRulesResponse{
@@ -90,6 +92,14 @@ class ShopifyRemoteDataSource(private val productService: ProductService) {
     }
     suspend fun deleteSpecificDraftOrder (draftOrderId: Long){
         productService.deleteSpecificDraftOrder(draftOrderId)
+    }
+
+    suspend fun getCustomerById(customerId: Long):SingleCustomerResponse{
+        return productService.getCustomerById(customerId)
+    }
+
+    suspend fun deleteAddressOfSpecificCustomer(customerId: Long, addressId: Long){
+        return productService.deleteAddressOfSpecificCustomer(customerId, addressId)
     }
 
 

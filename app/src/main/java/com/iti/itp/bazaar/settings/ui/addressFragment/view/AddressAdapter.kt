@@ -21,8 +21,8 @@ class AddressAdapter(val addressListener:OnAddressClickListener):ListAdapter<Cus
 
     override fun onBindViewHolder(holder: AddressViewHolder, position: Int) {
         val currentItem = getItem(position)
-        holder.binding.countryValue.text = currentItem.address1
-        holder.binding.cityValue.text = currentItem.address2
+        holder.binding.countryValue.text = currentItem.city
+        holder.binding.cityValue.text = currentItem.address1
         holder.binding.phoneValue.text = currentItem.phone
         holder.binding.addressCardView.setOnClickListener{
             addressListener.onAddressClick(currentItem)

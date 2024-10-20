@@ -16,7 +16,7 @@ data class LineItem(
     val id: Long?= null,
     val variant_id: Long?= null,
     val product_id: Long,
-    val title: String,
+    val title: String?,
     val variant_title: String?= null,
     var sku: String?= null,
     val vendor: String?= null,

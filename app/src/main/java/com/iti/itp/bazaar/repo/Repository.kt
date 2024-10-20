@@ -2,6 +2,7 @@ package com.iti.itp.bazaar.repo
 
 import ReceivedDraftOrder
 import ReceivedOrdersResponse
+import com.iti.itp.bazaar.dto.AddAddressResponse
 import com.iti.itp.bazaar.dto.AddedAddressRequest
 import com.iti.itp.bazaar.dto.AddedCustomerAddressResponse
 import com.iti.itp.bazaar.dto.AddressRequest
@@ -10,6 +11,7 @@ import com.iti.itp.bazaar.dto.CustomerAddressResponse
 import com.iti.itp.bazaar.dto.CustomerRequest
 import com.iti.itp.bazaar.dto.DraftOrderRequest
 import com.iti.itp.bazaar.dto.ListOfAddresses
+import com.iti.itp.bazaar.dto.SingleCustomerResponse
 import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
 import com.iti.itp.bazaar.dto.cutomerResponce.CustomerResponse
 import com.iti.itp.bazaar.network.responses.CouponsCountResponse
@@ -54,7 +56,7 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
     }
 
 
-    suspend fun createCustomerAddress(customerId: Long, address: AddedAddressRequest): Flow<AddedCustomerAddressResponse> {
+    fun addAddress(customerId: Long, address: AddAddressResponse): Flow<AddAddressResponse> {
         return flow {
             emit(remoteDataSource.addAddress(customerId, address))
         }
@@ -162,8 +164,14 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
         }
     }
 
-    suspend fun deleteSpecificDraftOrder (draftOrderId: Long){
+    fun getCustomerById(customerId: Long):Flow<SingleCustomerResponse>{
+        return flow {
+            emit(remoteDataSource.getCustomerById(customerId))
+            delay(100)
+        }
+    }
 
-        remoteDataSource.deleteSpecificDraftOrder(draftOrderId)
+    suspend fun deleteAddressOfSpecificCustomer(customerId: Long, addressId: Long){
+        return remoteDataSource.deleteAddressOfSpecificCustomer(customerId,addressId)
     }
 }

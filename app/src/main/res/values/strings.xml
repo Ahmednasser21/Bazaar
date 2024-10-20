@@ -36,7 +36,7 @@
     <string name="icon_for_product">icon for product</string>
     <string name="fragment_name">fragment_name</string>
     <string name="more">More</string>
-    <string name="price">Price:</string>
+    <string name="price">Total spent:</string>
     <string name="created_at">created at:</string>
 
     <string name="orders">Orders</string>
@@ -46,7 +46,7 @@
     <string name="paypal">PayPal</string>
     <string name="proceed">Proceed</string>
     <string name="address">Address</string>
-    <string name="country">Country:</string>
+    <string name="country">Governorate:</string>
     <string name="phone">Phone:</string>
     <string name="city_text">City:</string>
     <string name="add_new_address">Add new address</string>
