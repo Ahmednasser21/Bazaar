@@ -26,6 +26,8 @@ import com.iti.itp.bazaar.network.responses.ProductResponse
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
 import com.iti.itp.bazaar.repo.Repository
+import com.iti.itp.bazaar.search.viewModel.SearchViewModel
+import com.iti.itp.bazaar.search.viewModel.SearchViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -41,6 +43,7 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteProduc
     private lateinit var saleChip: Chip
     private lateinit var categoryProductsRec: RecyclerView
     private lateinit var categoriesViewModel: CategoriesViewModel
+    private lateinit var searchViewModel: SearchViewModel
     private lateinit var fabMain: FloatingActionButton
     private lateinit var fabAccessories: FloatingActionButton
     private lateinit var fabTshirt: FloatingActionButton
@@ -57,13 +60,22 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteProduc
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val factory = CategoriesViewModelFactory(
+        val categoriesFactory = CategoriesViewModelFactory(
             Repository.getInstance(
                 ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
             )
         )
-        categoriesViewModel = ViewModelProvider(this, factory)[CategoriesViewModel::class.java]
+        val searchFactory = SearchViewModelFactory(
+            Repository.getInstance(
+                ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
+            )
+        )
+        categoriesViewModel =
+            ViewModelProvider(this, categoriesFactory)[CategoriesViewModel::class.java]
+        searchViewModel =
+            ViewModelProvider(requireActivity(), searchFactory)[SearchViewModel::class.java]
         categoryProductsAdapter = CategoryProductsAdapter(this, this)
+
         binding = FragmentCategoriesBinding.inflate(inflater, container, false)
         val root: View = binding.root
         return root
@@ -75,6 +87,7 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteProduc
 
         initialiseUI()
         categoriesViewModel.getCategoryProducts(categoryID)
+        searchViewModel.getAllProducts()
         getCategoryProducts()
         fabMain.setOnClickListener { toggleFabMenu() }
 
@@ -97,22 +110,28 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteProduc
             val filteredProducts = products.filter { it.productType == "ACCESSORIES" }
             if (filteredProducts.isEmpty()) {
                 setAnimationVisible()
-            }else{setAnimationInvisible()}
+            } else {
+                setAnimationInvisible()
+            }
             categoryProductsAdapter.submitList(filteredProducts)
         }
-        fabShoes.setOnClickListener{
+        fabShoes.setOnClickListener {
             val filteredProducts = products.filter { it.productType == "SHOES" }
             if (filteredProducts.isEmpty()) {
                 setAnimationVisible()
-            }else{setAnimationInvisible()}
+            } else {
+                setAnimationInvisible()
+            }
             categoryProductsAdapter.submitList(filteredProducts)
         }
 
-        fabTshirt.setOnClickListener{
+        fabTshirt.setOnClickListener {
             val filteredProducts = products.filter { it.productType == "T-SHIRTS" }
             if (filteredProducts.isEmpty()) {
                 setAnimationVisible()
-            }else{setAnimationInvisible()}
+            } else {
+                setAnimationInvisible()
+            }
             categoryProductsAdapter.submitList(filteredProducts)
         }
 
@@ -161,7 +180,7 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteProduc
         fabMain.animate().rotation(0f)
         fabMain.setImageResource(R.drawable.filter)
         categoryProductsAdapter.submitList(products)
-        if(products.isNotEmpty()){
+        if (products.isNotEmpty()) {
             setAnimationInvisible()
         }
 
@@ -191,6 +210,43 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteProduc
         lifecycleScope.launch {
             categoriesViewModel.categoryProductStateFlow.collectLatest { result ->
                 when (result) {
+                    is DataState.Loading -> {}
+
+                    is DataState.OnSuccess<*> -> {
+                        categoriesProg.visibility = View.GONE
+                        categoryProductsRec.visibility = View.VISIBLE
+                        val productResponse = result.data as ProductResponse
+                        val productsList = productResponse.products
+                        Log.i(TAG, "getCategoryProducts:${productsList}")
+                        if (productsList.isEmpty()) {
+                            setAnimationVisible()
+                        } else {
+                            setAnimationInvisible()
+                        }
+                        if(categoryID!=480514900272){
+                        categoryProductsAdapter.submitList(getListWithProductPrice(productsList))
+                        }
+                        else{
+                            getListWithProductPrice(productsList)
+                        }
+
+                    }
+
+                    is DataState.OnFailed -> {
+                        categoriesProg.visibility = View.GONE
+                        Snackbar.make(requireView(), "Failed to get data", Snackbar.LENGTH_SHORT)
+                            .show()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun getListWithProductPrice(categoryProducts: List<Products>): List<Products> {
+        var filteredProducts: List<Products> = listOf()
+        lifecycleScope.launch {
+            searchViewModel.searchStateFlow.collectLatest { result ->
+                when (result) {
                     is DataState.Loading -> {
                         categoriesProg.visibility = View.VISIBLE
                         categoryProductsRec.visibility = View.INVISIBLE
@@ -204,9 +260,21 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteProduc
                         Log.i(TAG, "getCategoryProducts:${productsList}")
                         if (productsList.isEmpty()) {
                             setAnimationVisible()
-                        }else{setAnimationInvisible()}
-                        products = productsList
-                        categoryProductsAdapter.submitList(productsList)
+                        } else {
+                            setAnimationInvisible()
+                        }
+                        filteredProducts = productsList.filter { product ->
+                            categoryProducts.any { it.id == product.id }
+                        }
+                        if(categoryID==480514900272){
+                            val filteredList =productsList.filter { !it.image?.src.isNullOrBlank() }
+                            products = filteredList
+                            categoryProductsAdapter.submitList(filteredList)
+                        }
+                        else{
+                            products = filteredProducts
+                        }
+
                     }
 
                     is DataState.OnFailed -> {
@@ -217,17 +285,21 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteProduc
                 }
             }
         }
+        return filteredProducts
     }
-    private fun setAnimationVisible(){
+
+    private fun setAnimationVisible() {
         binding.emptyBoxAnimation.visibility = View.VISIBLE
         categoryProductsRec.visibility = View.INVISIBLE
     }
-    private fun setAnimationInvisible(){
+
+    private fun setAnimationInvisible() {
         binding.emptyBoxAnimation.visibility = View.INVISIBLE
         categoryProductsRec.visibility = View.VISIBLE
     }
+
     override fun onProductClick(id: Long) {
-     val action = CategoriesFragmentDirections.actionNavCategoriesToProuductnfoFragment(id)
+        val action = CategoriesFragmentDirections.actionNavCategoriesToProuductnfoFragment(id)
         Navigation.findNavController(binding.root).navigate(action)
     }
 
