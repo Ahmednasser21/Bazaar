@@ -59,8 +59,11 @@
                 android:textSize="24sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="@+id/city"
-                app:layout_constraintStart_toStartOf="@+id/countryValue"
-                app:layout_constraintTop_toTopOf="@+id/city" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.025"
+                app:layout_constraintStart_toEndOf="@+id/city"
+                app:layout_constraintTop_toTopOf="@+id/city"
+                app:layout_constraintVertical_bias="1.0" />
 
             <TextView
                 android:id="@+id/phoneValue"
@@ -72,8 +75,11 @@
                 android:textSize="24sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="@+id/phone"
-                app:layout_constraintStart_toStartOf="@+id/cityValue"
-                app:layout_constraintTop_toTopOf="@+id/phone" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.031"
+                app:layout_constraintStart_toEndOf="@+id/phone"
+                app:layout_constraintTop_toTopOf="@+id/phone"
+                app:layout_constraintVertical_bias="0.0" />
 
             <TextView
                 android:id="@+id/city"
@@ -84,7 +90,7 @@
                 android:textColor="@color/brown"
                 android:textSize="24sp"
                 android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="@+id/country"
+                app:layout_constraintStart_toStartOf="@+id/country"
                 app:layout_constraintTop_toBottomOf="@+id/country" />
 
             <TextView
@@ -96,7 +102,7 @@
                 android:textColor="@color/brown"
                 android:textSize="24sp"
                 android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="@+id/city"
+                app:layout_constraintStart_toStartOf="@+id/city"
                 app:layout_constraintTop_toBottomOf="@+id/city" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
