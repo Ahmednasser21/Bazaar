@@ -21,6 +21,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.iti.itp.bazaar.R
 import com.iti.itp.bazaar.shoppingCartActivity.ShoppingCartActivity
 import com.iti.itp.bazaar.databinding.ActivityMainBinding
+import com.iti.itp.bazaar.mainActivity.ui.home.HomeFragmentDirections
 import com.iti.itp.bazaar.settings.SettingsActivity
 
 class MainActivity : AppCompatActivity() {
@@ -65,6 +66,9 @@ class MainActivity : AppCompatActivity() {
             closeIcon.setColorFilter(Color.WHITE)
         }
 
+        searchView.setOnClickListener{
+            navController.navigate(R.id.searchFragment)
+        }
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
 

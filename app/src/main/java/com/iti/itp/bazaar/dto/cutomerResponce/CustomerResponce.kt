@@ -1,6 +1,6 @@
 package com.iti.itp.bazaar.dto.cutomerResponce
 
-import com.iti.itp.bazaar.dto.Address
+import com.iti.itp.bazaar.dto.order.Address
 
 data class CustomerResponse(
     val customers: List<Customer>

@@ -3,10 +3,6 @@ package com.iti.itp.bazaar.network.shopify
 import ReceivedDraftOrder
 import ReceivedOrdersResponse
 import com.iti.itp.bazaar.dto.AddAddressResponse
-import com.iti.itp.bazaar.dto.AddedAddressRequest
-import com.iti.itp.bazaar.dto.AddedCustomerAddressResponse
-import com.iti.itp.bazaar.dto.AddressRequest
-import com.iti.itp.bazaar.dto.CustomerAddress
 import com.iti.itp.bazaar.dto.CustomerAddressResponse
 import com.iti.itp.bazaar.dto.CustomerRequest
 import com.iti.itp.bazaar.dto.DraftOrderRequest
@@ -16,14 +12,11 @@ import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
 import com.iti.itp.bazaar.dto.cutomerResponce.CustomerResponse
 import com.iti.itp.bazaar.network.responses.CouponsCountResponse
 import com.iti.itp.bazaar.network.responses.DiscountCodesResponse
+import com.iti.itp.bazaar.network.responses.OrdersResponse
 import com.iti.itp.bazaar.network.responses.PriceRulesCountResponse
 import com.iti.itp.bazaar.network.responses.PriceRulesResponse
 import com.iti.itp.bazaar.network.responses.ProductResponse
 import com.iti.itp.bazaar.network.responses.SmartCollectionsResponse
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import retrofit2.Response
 
 class ShopifyRemoteDataSource(private val productService: ProductService) {
 
@@ -97,6 +90,10 @@ class ShopifyRemoteDataSource(private val productService: ProductService) {
 
     suspend fun deleteAddressOfSpecificCustomer(customerId: Long, addressId: Long){
         return productService.deleteAddressOfSpecificCustomer(customerId, addressId)
+    }
+
+    suspend fun getOrdersByCustomerID(query:String): OrdersResponse{
+        return productService.getOrdersByCustomerId(query)
     }
 
 

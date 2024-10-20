@@ -76,4 +76,7 @@
     <string name="prouductDetails">Product Details</string>
     <string name="fragmentSearch">Search</string>
     <string name="fragmentProuductInfo">Product Details</string>
+    <string name="my_orders">MY ORDERS</string>
+    <string name="price_order">Price:</string>
+    <string name="creation_date">Creation Date:</string>
 </resources>

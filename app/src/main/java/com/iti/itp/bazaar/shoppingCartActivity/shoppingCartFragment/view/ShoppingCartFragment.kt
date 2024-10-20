@@ -17,12 +17,10 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.iti.itp.bazaar.databinding.FragmentShoppingCartBinding
 import com.iti.itp.bazaar.dto.AppliedDiscount
-import com.iti.itp.bazaar.dto.Customer
+import com.iti.itp.bazaar.dto.order.Customer
 import com.iti.itp.bazaar.dto.DraftOrder
-import com.iti.itp.bazaar.dto.LineItem
-import com.iti.itp.bazaar.dto.UpdateDraftOrder
+import com.iti.itp.bazaar.dto.order.LineItem
 import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
-import com.iti.itp.bazaar.dto.UpdateLineItem
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj

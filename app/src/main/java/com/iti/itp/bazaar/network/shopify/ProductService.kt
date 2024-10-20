@@ -14,6 +14,7 @@ import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
 import com.iti.itp.bazaar.dto.cutomerResponce.CustomerResponse
 import com.iti.itp.bazaar.network.responses.CouponsCountResponse
 import com.iti.itp.bazaar.network.responses.DiscountCodesResponse
+import com.iti.itp.bazaar.network.responses.OrdersResponse
 import com.iti.itp.bazaar.network.responses.PriceRulesCountResponse
 import com.iti.itp.bazaar.network.responses.PriceRulesResponse
 import com.iti.itp.bazaar.network.responses.ProductResponse
@@ -107,5 +108,10 @@ interface ProductService {
         @Path("customer_id") customerId: Long,
         @Path("address_id") addressId: Long
     )
+
+    @GET("admin/api/2022-01/orders.json")
+    suspend fun getOrdersByCustomerId(
+        @Query("query") query: String
+    ): OrdersResponse
 
 }

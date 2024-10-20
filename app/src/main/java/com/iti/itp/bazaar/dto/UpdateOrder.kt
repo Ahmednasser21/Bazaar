@@ -1,5 +1,7 @@
 package com.iti.itp.bazaar.dto
 
+import com.iti.itp.bazaar.dto.order.LineItem
+
 data class UpdateDraftOrderRequest(
     val draft_order: DraftOrder
 )

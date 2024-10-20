@@ -2,7 +2,6 @@ package com.iti.itp.bazaar.mainActivity.ui.notifications
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +9,7 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.Navigation
 import com.iti.itp.bazaar.databinding.FragmentNotificationsBinding
 import com.iti.itp.bazaar.dto.SingleCustomerResponse
 import com.iti.itp.bazaar.mainActivity.ui.DataState
@@ -20,15 +20,13 @@ import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
 import com.iti.itp.bazaar.repo.CurrencyRepository
 import com.iti.itp.bazaar.repo.Repository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class NotificationsFragment : Fragment() {
     private lateinit var notificationsViewModel:NotificationsViewModel
     private lateinit var factory:NotificationViewModelFactory
-
+    private lateinit var moreOrders:TextView
     private lateinit var binding:FragmentNotificationsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,6 +72,13 @@ class NotificationsFragment : Fragment() {
             }
         }
 
+        moreOrders = binding.moreOrders
+        moreOrders.setOnClickListener{
+            val action = NotificationsFragmentDirections.actionNavMeToOrderFragment("customer_id:8220771418416")
+            Navigation.findNavController(it).navigate(action)
+        }
+
     }
+
 
 }

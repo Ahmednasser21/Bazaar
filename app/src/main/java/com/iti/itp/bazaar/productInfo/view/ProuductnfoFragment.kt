@@ -14,7 +14,6 @@ import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.denzcoskun.imageslider.constants.ScaleTypes
 import com.denzcoskun.imageslider.models.SlideModel
 import com.example.productinfoform_commerce.productInfo.viewModel.ProuductIfonViewModelFactory
@@ -22,20 +21,17 @@ import com.example.productinfoform_commerce.productInfo.viewModel.prouductInfoVi
 import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.databinding.FragmentProuductnfoBinding
 import com.iti.itp.bazaar.dto.AppliedDiscount
-import com.iti.itp.bazaar.dto.Customer
+import com.iti.itp.bazaar.dto.order.Customer
 import com.iti.itp.bazaar.dto.DraftOrder
 import com.iti.itp.bazaar.dto.DraftOrderRequest
-import com.iti.itp.bazaar.dto.LineItem
-import com.iti.itp.bazaar.dto.UpdateDraftOrder
+import com.iti.itp.bazaar.dto.order.LineItem
 import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
-import com.iti.itp.bazaar.dto.UpdateLineItem
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.network.exchangeCurrencyApi.CurrencyRemoteDataSource
 import com.iti.itp.bazaar.network.exchangeCurrencyApi.ExchangeRetrofitObj
 import com.iti.itp.bazaar.network.products.Option
 import com.iti.itp.bazaar.network.products.Products
 import com.iti.itp.bazaar.network.responses.ExchangeRateResponse
-import com.iti.itp.bazaar.network.responses.PriceRulesResponse
 import com.iti.itp.bazaar.network.responses.ProductResponse
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
@@ -44,10 +40,8 @@ import com.iti.itp.bazaar.productInfo.OnColorClickListner
 import com.iti.itp.bazaar.repo.CurrencyRepository
 import com.iti.itp.bazaar.repo.Repository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlin.random.Random
 
 
