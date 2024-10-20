@@ -57,29 +57,30 @@ class NewAddressFragment : Fragment() {
 //        )
 //        val address = AddedAddressRequest(customerAddress)
 
-        val address = AddAddressResponse(
-            CustomerAddress(
-                id = 8220771418416,
-                customer_id = 8220771418416,
-                first_name = "ahmed",
-                last_name = "samy",
-                company = "ahmed's company",
-                address1 = "elmsaken eleqtsadya",
-                address2 = "building number 8",
-                city = "fayed",
-                province = "",
-                country = "egypt",
-                zip = "",
-                phone = "01010095281",
-                name = "ahmed samy",
-                province_code = "",
-                country_code = "EG",
-                country_name = "Egypt",
-                default = false,
-            )
-        )
+
 
         binding.btnAddAddress.setOnClickListener {
+            val address = AddAddressResponse(
+                CustomerAddress(
+                    id = 8220771418416,
+                    customer_id = 8220771418416,
+                    first_name = "ahmed",
+                    last_name = "samy",
+                    company = "ahmed's company",
+                    address1 = binding.etCity.text.toString(),
+                    address2 = null,
+                    city = binding.etCity.text.toString(),
+                    province = null,
+                    country = binding.governorate.text.toString(),
+                    zip = "11511",
+                    phone = binding.etPhone.text.toString(),
+                    name = "ahmed samy",
+                    province_code = null,
+                    country_code = "EG",
+                    country_name = binding.nonEditable.text.toString(),
+                    default = false,
+                )
+            )
             newAddressViewModel.addNewAddress(8220771418416,address)
         }
     }
