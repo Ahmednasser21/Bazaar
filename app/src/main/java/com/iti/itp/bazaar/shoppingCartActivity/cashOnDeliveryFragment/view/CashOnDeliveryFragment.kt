@@ -5,6 +5,7 @@ import ReceivedDraftOrder
 import ReceivedLineItem
 import ReceivedOrdersResponse
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -457,6 +458,10 @@ class CashOnDeliveryFragment : Fragment() {
                     is DataState.OnFailed -> {}
                     is DataState.OnSuccess<*> -> {
                         clearingDraftOrderAfterPlacingOrder()
+                        withContext(Dispatchers.Main){
+                            showOrderSuccessDialog()
+                        }
+
 
                     }
                 }
@@ -506,12 +511,25 @@ class CashOnDeliveryFragment : Fragment() {
                         )
                         Log.i("draftItem", "clearingDraftOrderAfterPlacingOrder: ${draftOrderItem}")
                         cashOnDeliveryViewModel.updateDraftOrder(
-                            draftOrderId?.toLong()?: 0,
+                            draftOrderId?.toLong() ?: 0,
                             UpdateDraftOrderRequest(draftOrderItem)
                         )
                     }
                 }
             }
         }
+    }
+
+    private fun showOrderSuccessDialog() {
+
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("Successful Order")
+        builder.setMessage("Order placed successfully")
+        builder.setPositiveButton("OK") { dialog, _ ->
+            dialog.dismiss()
+            requireActivity().finish()
+        }
+        builder.create().show()
+
     }
 }
