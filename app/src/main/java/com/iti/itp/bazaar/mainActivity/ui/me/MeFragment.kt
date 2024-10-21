@@ -18,6 +18,7 @@ import androidx.navigation.Navigation
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.iti.itp.bazaar.auth.AuthActivity
+import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.databinding.FragmentMeBinding
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.mainActivity.ui.order.OrderViewModel
@@ -29,19 +30,24 @@ import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
 import com.iti.itp.bazaar.repo.CurrencyRepository
 import com.iti.itp.bazaar.repo.Repository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MeFragment : Fragment() {
     private lateinit var orderViewModel: OrderViewModel
-    private lateinit var meViewModel:MeViewModel
-    private lateinit var meFactory:MeViewModelFactory
-    private lateinit var currencySharePrefs:SharedPreferences
-    private lateinit var binding:FragmentMeBinding
-    private lateinit var moreOrders:TextView
+    private lateinit var meViewModel: MeViewModel
+    private lateinit var meFactory: MeViewModelFactory
+    private lateinit var currencySharePrefs: SharedPreferences
+    private lateinit var binding: FragmentMeBinding
+    private lateinit var moreOrders: TextView
     private lateinit var priceValue: TextView
-    private lateinit var createdAt:TextView
+    private lateinit var createdAt: TextView
     lateinit var mAuth: FirebaseAuth
+    private lateinit var userDataSharedPreferences: SharedPreferences
+    private lateinit var customerID: String
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,10 +62,14 @@ class MeFragment : Fragment() {
                 ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
             )
         )
-        orderViewModel = ViewModelProvider(requireActivity(), orderFactory)[OrderViewModel::class.java]
-       // orderViewModel.getOrdersByCustomerID("customer_id:8220771418416")
+        orderViewModel =
+            ViewModelProvider(requireActivity(), orderFactory)[OrderViewModel::class.java]
+        userDataSharedPreferences = requireActivity().getSharedPreferences(
+            MyConstants.MY_SHARED_PREFERANCE,
+            Context.MODE_PRIVATE
+        )
+        customerID = userDataSharedPreferences.getString(MyConstants.CUSOMER_ID, "0").toString()
     }
-
 
 
     override fun onCreateView(
@@ -67,7 +77,10 @@ class MeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        currencySharePrefs = requireActivity().applicationContext.getSharedPreferences("currencySharedPrefs", Context.MODE_PRIVATE)
+        currencySharePrefs = requireActivity().applicationContext.getSharedPreferences(
+            "currencySharedPrefs",
+            Context.MODE_PRIVATE
+        )
         binding = FragmentMeBinding.inflate(inflater, container, false)
         val root: View = binding.root
         return root
@@ -76,15 +89,15 @@ class MeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
+        orderViewModel.getOrdersByCustomerID(customerID)
+        getOrderItem()
         moreOrders = binding.moreOrders
-        moreOrders.setOnClickListener{
-            val action = MeFragmentDirections.actionNavMeToOrderFragment("customer_id:8220771418416")
+        moreOrders.setOnClickListener {
+            val action = MeFragmentDirections.actionNavMeToOrderFragment(customerID)
             Navigation.findNavController(it).navigate(action)
         }
         priceValue = binding.priceValue
         createdAt = binding.createdAt
-        getOrderItem()
 
         mAuth = FirebaseAuth.getInstance()
         mAuth.addAuthStateListener { firebaseAuth ->
@@ -96,7 +109,7 @@ class MeFragment : Fragment() {
                 } ?: Log.e("AccountFragment", "Context is null")
             }
         }
-        binding.btnLogout.setOnClickListener{
+        binding.btnLogout.setOnClickListener {
 
             AlertDialog.Builder(context)
                 .setTitle("Confirm Sign out")
@@ -108,7 +121,6 @@ class MeFragment : Fragment() {
                     dialog.dismiss()
                 }
                 .show()
-
 
 
         }
@@ -123,8 +135,11 @@ class MeFragment : Fragment() {
                     is DataState.OnSuccess<*> -> {
                         val ordersResponse = result.data as OrdersResponse
                         val firstOrder = ordersResponse.orders[0]
-                        priceValue.text ="${firstOrder.totalPrice} EGP"
-                        createdAt.text = formatOrderDate(firstOrder.createdAt)
+                        withContext(Dispatchers.Main) {
+                            priceValue.text = "${firstOrder.totalPrice} EGP"
+                            createdAt.text = formatOrderDate(firstOrder.createdAt)
+                        }
+
                     }
 
                     is DataState.OnFailed -> {
@@ -147,7 +162,6 @@ class MeFragment : Fragment() {
         return readableDateFormat.format(date ?: "Unknown date")
 
     }
-
 
 
     @SuppressLint("SetTextI18n", "DefaultLocale")
