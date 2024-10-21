@@ -242,6 +242,7 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
             if (IS_Liked) { // kda el button pressed >> ezan ha3ml delete
                 Log.d("TAG", "onViewCreated: prouductInfo case en el product da is liked (case if ) w hamsa7 ${IS_Liked}  ")
 
+
                  lifecycleScope.launch {
                      binding.ivAddProuductToFavorite.setColorFilter(Color.BLACK)
                      var currentDraftOrderItems: MutableList<LineItem> =
