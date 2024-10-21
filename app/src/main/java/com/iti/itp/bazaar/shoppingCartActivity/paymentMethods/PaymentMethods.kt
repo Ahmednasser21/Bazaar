@@ -8,12 +8,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.iti.itp.bazaar.R
 import com.iti.itp.bazaar.databinding.FragmentPaymentMethodsBinding
+import com.iti.itp.bazaar.mainActivity.ui.order.SharedOrderViewModel
 import com.stripe.android.PaymentConfiguration
 import com.stripe.android.paymentsheet.PaymentSheet
 import com.stripe.android.paymentsheet.PaymentSheetResult
@@ -32,6 +34,7 @@ class PaymentMethods : Fragment() {
     private var ephemeralKey: String? = null
     private var clientSecret: String? = null
     private lateinit var paymentSheet: PaymentSheet
+    private val sharedOrderViewModel by activityViewModels<SharedOrderViewModel> ()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -69,9 +72,11 @@ class PaymentMethods : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.continueToPayment.setOnClickListener {
-            if (binding.paypal.isChecked) {
+            if (binding.paymob.isChecked) {
                 startPayWithStripe()
+                sharedOrderViewModel.updatePaymentGateway(listOf("Credit Card"))
             } else if (binding.cashOnDelivery.isChecked) {
+                sharedOrderViewModel.updatePaymentGateway(listOf("Cash On Delivery"))
                 val action = PaymentMethodsDirections.actionPaymentMethodsToCashOnDeliveryFragment()
                 Navigation.findNavController(view).navigate(action)
             }

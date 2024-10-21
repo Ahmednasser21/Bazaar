@@ -9,11 +9,14 @@ import com.iti.itp.bazaar.dto.AddedCustomerAddressResponse
 import com.iti.itp.bazaar.dto.CustomerRequest
 import com.iti.itp.bazaar.dto.DraftOrderRequest
 import com.iti.itp.bazaar.dto.ListOfAddresses
+import com.iti.itp.bazaar.dto.PartialOrder
+import com.iti.itp.bazaar.dto.PartialOrder2
 import com.iti.itp.bazaar.dto.SingleCustomerResponse
 import com.iti.itp.bazaar.dto.UpdateCustomerRequest
 import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
 import com.iti.itp.bazaar.dto.cutomerResponce.CustomerByEmailResponce
 import com.iti.itp.bazaar.dto.cutomerResponce.CustomerResponse
+import com.iti.itp.bazaar.dto.order.Order
 import com.iti.itp.bazaar.network.responses.CouponsCountResponse
 import com.iti.itp.bazaar.network.responses.DiscountCodesResponse
 import com.iti.itp.bazaar.network.responses.OrdersResponse
@@ -133,5 +136,6 @@ interface ProductService {
         @Body updateCustomerRequest: UpdateCustomerRequest
     ): CustomerResponse
 
-
+    @POST("/admin/api/2024-10/orders.json")
+    suspend fun createOrder(@Body partialOrder2: PartialOrder2): Order
 }

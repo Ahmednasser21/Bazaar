@@ -17,10 +17,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
+import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.databinding.FragmentShoppingCartBinding
 import com.iti.itp.bazaar.dto.AppliedDiscount
 import com.iti.itp.bazaar.dto.Customer
 import com.iti.itp.bazaar.dto.DraftOrder
+import com.iti.itp.bazaar.dto.DraftOrderRequest
 import com.iti.itp.bazaar.dto.LineItem
 import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
 import com.iti.itp.bazaar.mainActivity.ui.DataState
@@ -29,6 +32,7 @@ import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
 import com.iti.itp.bazaar.repo.Repository
 import com.iti.itp.bazaar.shoppingCartActivity.shoppingCartFragment.viewModel.ShoppingCartFragmentViewModel
 import com.iti.itp.bazaar.shoppingCartActivity.shoppingCartFragment.viewModel.ShoppingCartFragmentViewModelFactory
+import com.stripe.param.CreditNoteCreateParams.Line
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -39,10 +43,13 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
     private lateinit var binding: FragmentShoppingCartBinding
     private lateinit var factory: ShoppingCartFragmentViewModelFactory
     private lateinit var shoppingCartViewModel: ShoppingCartFragmentViewModel
-    private lateinit var firstDraftOrder: ReceivedDraftOrder
+    private lateinit var firstDraftOrder: DraftOrder
     private lateinit var adapter: ItemAdapter
     private val currencyFormatter = NumberFormat.getCurrencyInstance(Locale.US)
     private lateinit var currencySharedPreferences:SharedPreferences
+    private lateinit var draftOrderSharedPreferences: SharedPreferences
+    private var customerId:String? = null
+    private var draftOrderId:String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,6 +63,7 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        draftOrderSharedPreferences = requireActivity().getSharedPreferences(MyConstants.MY_SHARED_PREFERANCE, Context.MODE_PRIVATE)
         currencySharedPreferences = requireActivity().applicationContext.getSharedPreferences("currencySharedPrefs", Context.MODE_PRIVATE)
         binding = FragmentShoppingCartBinding.inflate(inflater, container, false)
         return binding.root
@@ -63,13 +71,19 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        draftOrderId = draftOrderSharedPreferences.getString(MyConstants.CART_DRAFT_ORDER_ID, "0")
+        customerId = draftOrderSharedPreferences.getString(MyConstants.CUSOMER_ID, "0")
         setupUI()
         observeCartData()
     }
 
     private fun setupUI() {
         binding.btnProceedToCheckout.setOnClickListener {
-            updateDraftOrderToAPI()
+            if (firstDraftOrder.line_items.size <= 1) {
+                Snackbar.make(requireView(),"Your cart is empty", 2000).show()
+            }else{
+                updateDraftOrderToAPI()
+            }
         }
 
         adapter = ItemAdapter(this)
@@ -81,8 +95,8 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
 
     private fun observeCartData() {
         lifecycleScope.launch(Dispatchers.IO) {
-            shoppingCartViewModel.getAllDraftOrders()
-            shoppingCartViewModel.allDraftOrders.collect { state ->
+            shoppingCartViewModel.getSpecificDraftOrder(draftOrderId?.toLong()?:0)
+            shoppingCartViewModel.specificDraftOrder.collect { state ->
                 withContext(Dispatchers.Main) {
                     handleCartState(state)
                 }
@@ -94,7 +108,7 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
         when (state) {
             is DataState.Loading -> showLoading()
             is DataState.OnFailed -> handleError(state.msg.message)
-            is DataState.OnSuccess<*> -> handleSuccess(state.data as ReceivedOrdersResponse)
+            is DataState.OnSuccess<*> -> handleSuccess(state.data as DraftOrderRequest)
         }
     }
 
@@ -117,14 +131,14 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
         Toast.makeText(requireContext(), message ?: "Failed to load cart", Toast.LENGTH_SHORT).show()
     }
 
-    private fun handleSuccess(data: ReceivedOrdersResponse) {
+    private fun handleSuccess(data: DraftOrderRequest) {
         binding.apply {
             progressBar.visibility = View.GONE
-            if (data.draft_orders.isNotEmpty()) {
+            if (data.draft_order.line_items.isNotEmpty()) {
                 itemsRv.visibility = View.VISIBLE
                 tvTotalPriceValue.visibility = View.VISIBLE
                 btnProceedToCheckout.visibility = View.VISIBLE
-                firstDraftOrder = data.draft_orders[0]
+                firstDraftOrder = data.draft_order
                 updateCartUI()
             } else {
                 showEmptyCart()
@@ -144,7 +158,31 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
     private fun updateCartUI() {
         val totalPrice = calculateTotalPrice()
         binding.tvTotalPriceValue.text = currencyFormatter.format(totalPrice)
-        adapter.submitList(firstDraftOrder.line_items?.toMutableList())
+        val newList = firstDraftOrder.line_items?.map { oldItem ->
+            LineItem(
+                id = oldItem.id,
+                variant_id = oldItem.variant_id,
+                product_id = oldItem.product_id,
+                title = oldItem.title,
+                variant_title = oldItem.variant_title,
+                sku = oldItem.sku,
+                vendor = oldItem.vendor,
+                quantity = oldItem.quantity,
+                requires_shipping = oldItem.requires_shipping,
+                taxable = oldItem.taxable,
+                gift_card = oldItem.gift_card,
+                fulfillment_service = oldItem.fulfillment_service,
+                grams = oldItem.grams,
+                tax_lines = oldItem.tax_lines,
+                applied_discount = oldItem.applied_discount,
+                name = oldItem.name,
+                properties = oldItem.properties,
+                custom = oldItem.custom,
+                price = oldItem.price,
+                admin_graphql_api_id = oldItem.admin_graphql_api_id,
+            )
+        }
+        adapter.submitList(newList)
 
         val swipeToDeleteCallback = SwipeToDelete(
             adapter = adapter,
@@ -171,23 +209,14 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
                     try {
                         val updateRequest = UpdateDraftOrderRequest(
                             DraftOrder(
-                                line_items = updatedLineItems.map { item ->
-                                    LineItem(
-                                        id = item.id,
-                                        product_id = item.product_id,
-                                        title = item.title ?: "",
-                                        price = item.price,
-                                        quantity = item.quantity ?: 1,
-                                        sku = item.sku
-                                    )
-                                },
-                                applied_discount = AppliedDiscount(null),
-                                customer = Customer(firstDraftOrder.customer?.id ?: 0),
-                                use_customer_default_address = true
+                                line_items = updatedLineItems,
+                                applied_discount = firstDraftOrder.applied_discount,
+                                customer = firstDraftOrder.customer,
+                                use_customer_default_address = firstDraftOrder.use_customer_default_address
                             )
                         )
 
-                        shoppingCartViewModel.updateDraftOrder(firstDraftOrder.id, updateRequest)
+                        shoppingCartViewModel.updateDraftOrder(draftOrderId?.toLong() ?: 0, updateRequest)
 
                         withContext(Dispatchers.Main) {
                             Toast.makeText(requireContext(), "Item deleted successfully", Toast.LENGTH_SHORT).show()
@@ -218,19 +247,19 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
         } ?: 0.0
     }
 
-    override fun onQuantityChanged(item: ReceivedLineItem, newQuantity: Int, newPrice: Double) {
-        val updatedLineItems = firstDraftOrder.line_items?.map {
-            if (it.id == item.id) {
-                it.copy(
+    override fun onQuantityChanged(item: LineItem, newQuantity: Int, newPrice: Double) {
+        val updatedLineItems = firstDraftOrder.line_items?.map { lineItem ->
+            if (lineItem.id == item.id) {
+                lineItem.copy(
                     quantity = newQuantity,
                     price = newPrice.toString()
                 )
             } else {
-                it
+                lineItem
             }
-        }?.toMutableList()
+        }
 
-        firstDraftOrder = firstDraftOrder.copy(line_items = updatedLineItems)
+        firstDraftOrder = firstDraftOrder.copy(line_items = updatedLineItems?: listOf())
         updateCartUI()
     }
 
@@ -287,7 +316,7 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                shoppingCartViewModel.updateDraftOrder(firstDraftOrder.id, updateRequest!!)
+                shoppingCartViewModel.updateDraftOrder(draftOrderId?.toLong()?:0, updateRequest!!)
 
                 withContext(Dispatchers.Main) {
                     handleUpdateSuccess()

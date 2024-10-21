@@ -17,7 +17,7 @@
 
 
         <RadioButton
-            android:id="@+id/paypal"
+            android:id="@+id/paymob"
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:text="@string/paypal"
