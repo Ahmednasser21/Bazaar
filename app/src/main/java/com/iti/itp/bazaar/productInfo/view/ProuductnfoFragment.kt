@@ -60,7 +60,7 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
     lateinit var CurrencySharedPreferences: SharedPreferences
     lateinit var mySharedPrefrence: SharedPreferences
     lateinit var draftOrderRequest: DraftOrderRequest
-    lateinit var IsGuestMode : String
+    lateinit var IsGuestMode: String
     var conversionRate: Double? = 0.0
     var choosenSize: String? = null
     var choosenColor: String? = null
@@ -68,7 +68,7 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
     var productTitle: String = ""
     lateinit var proudct: Products
     var IS_Liked = false
-     var Currentcurrency: Float ? = 1F
+    var Currentcurrency: Float? = 1F
     private val ratingList = listOf(2.5f, 3.0f, 3.5f, 4.0f, 4.5f, 5.0f)
     private val reviewList = listOf(
         "Excellent product, highly recommend!",
@@ -77,6 +77,7 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
         "Amazing! Exceeded my expectations.",
         "Wouldn't recommend, not worth the price."
     )
+    private var cartDraftOrderId:String?= null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -98,7 +99,7 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
         )
         Currentcurrency = CurrencySharedPreferences.getFloat("currency", 1F) ?: 1F
         Log.d("TAG", "onViewCreated: ek currency rate is :$Currentcurrency ")
-        IsGuestMode = mySharedPrefrence.getString(MyConstants.IS_GUEST , "false")?:"false"
+        IsGuestMode = mySharedPrefrence.getString(MyConstants.IS_GUEST, "false") ?: "false"
 
         binding = FragmentProuductnfoBinding.inflate(inflater, container, false)
         return binding.root
@@ -108,7 +109,8 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-         FavDraftOrderId = mySharedPrefrence.getString(MyConstants.FAV_DRAFT_ORDERS_ID, "") ?: ""
+        FavDraftOrderId = mySharedPrefrence.getString(MyConstants.FAV_DRAFT_ORDERS_ID, "") ?: ""
+        cartDraftOrderId = mySharedPrefrence.getString(MyConstants.CART_DRAFT_ORDER_ID, "0")
         Log.d("TAG", "onViewCreated fav draft order id : ${FavDraftOrderId} ")
         vmFActory = ProuductIfonViewModelFactory(
             Repository.getInstance(
@@ -138,102 +140,109 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
         }
 
 // handel btn_addToCart
-        // handel btn_addToCart
-        binding.btnAddToCart.setOnClickListener {
-            when {
-                choosenSize.isNullOrBlank() -> {
-                    Snackbar.make(
-                        requireView(),
-                        "You must choose a size to proceed with this action",
-                        Snackbar.LENGTH_SHORT
-                    ).show()
-                }
+                // handel btn_addToCart
+                binding.btnAddToCart.setOnClickListener {
+                    when {
+                        choosenSize.isNullOrBlank() -> {
+                            Snackbar.make(
+                                requireView(),
+                                "You must choose a size to proceed with this action",
+                                Snackbar.LENGTH_SHORT
+                            ).show()
+                        }
 
-                choosenColor.isNullOrBlank() -> {
-                    Snackbar.make(
-                        requireView(),
-                        "You must choose a color to proceed with this action",
-                        Snackbar.LENGTH_SHORT
-                    ).show()
-                }
+                        choosenColor.isNullOrBlank() -> {
+                            Snackbar.make(
+                                requireView(),
+                                "You must choose a color to proceed with this action",
+                                Snackbar.LENGTH_SHORT
+                            ).show()
+                        }
 
-                else -> {
-                    // samy's work
-                    // chosenSize, chosenColor, product (global variable taken its value when success in getProductDetails())
-                    viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                        ProductInfoViewModel.getPriceRules()
-                        ProductInfoViewModel.getAllDraftOrders()
-                        ProductInfoViewModel.allDraftOrders.collect { state ->
-                            when (state) {
-                                is DataState.Loading -> {}
-                                is DataState.OnFailed -> {}
-                                is DataState.OnSuccess<*> -> {
-                                    val data = state.data as ReceivedOrdersResponse
-                                    if (data.draft_orders.isEmpty()) {
-                                        ProductInfoViewModel.createOrder(draftOrderRequest())
-                                    } else {
-                                        // Use the first existing draft order
-                                        val existingOrder = data.draft_orders.first()
-                                        Log.i(
-                                            "TAG",
-                                            "product id is: ${
-                                                ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId
-                                            }"
-                                        )
-                                        val updatedLineItems = (existingOrder.line_items
-                                            ?: emptyList()).toMutableList()
-                                        updatedLineItems.add(
-                                            ReceivedLineItem(
-                                                sku = ProuductnfoFragmentArgs.fromBundle(
-                                                    requireArguments()
-                                                ).productId.toString(),
-                                                id = ProuductnfoFragmentArgs.fromBundle(
-                                                    requireArguments()
-                                                ).productId,
-                                                variant_title = "dgldsjglk",
-                                                product_id = ProuductnfoFragmentArgs.fromBundle(
-                                                    requireArguments()
-                                                ).productId,
-                                                title = proudct.title,
-                                                price = proudct.variants[0].price,
-                                                quantity = 1
+                        else -> {
+                            // samy's work
+                            // chosenSize, chosenColor, product (global variable taken its value when success in getProductDetails())
+                            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                                ProductInfoViewModel.getPriceRules()
+                                ProductInfoViewModel.getSpecificDraftOrder(cartDraftOrderId?.toLong()!!)
+                                ProductInfoViewModel.specificDraftOrders.collect { state ->
+                                    when (state) {
+                                        is DataState.Loading -> {}
+                                        is DataState.OnFailed -> {}
+                                        is DataState.OnSuccess<*> -> {
+                                            val data = state.data as DraftOrderRequest
+                                            // Use the first existing draft order
+                                            val existingOrder = data.draft_order
+                                            Log.i(
+                                                "TAG",
+                                                "product id is: ${
+                                                    ProuductnfoFragmentArgs.fromBundle(
+                                                        requireArguments()
+                                                    ).productId
+                                                }"
                                             )
-                                        )
-                                        ProductInfoViewModel.updateDraftOrder(
-                                            existingOrder.id,
-                                            UpdateDraftOrderRequest(
-                                                DraftOrder(
-                                                    applied_discount = AppliedDiscount(null),
-                                                    customer = Customer(8220771418416),
-                                                    use_customer_default_address = true,
-                                                    line_items = updatedLineItems.map {
-                                                        LineItem(
-                                                            sku = it.sku
-                                                                ?: ProuductnfoFragmentArgs.fromBundle(
-                                                                    requireArguments()
-                                                                ).productId.toString(),  // Use existing SKU or new one
-                                                            product_id = it.product_id
-                                                                ?: ProuductnfoFragmentArgs.fromBundle(
-                                                                    requireArguments()
-                                                                ).productId,
-                                                            title = it.title!!,
-                                                            price = it.price,
-                                                            quantity = it.quantity ?: 1
-                                                        )
-                                                    }
+                                            val updatedLineItems = (existingOrder.line_items
+                                                ?: emptyList()).toMutableList()
+                                            updatedLineItems.add(
+                                                LineItem(
+                                                    sku = ProuductnfoFragmentArgs.fromBundle(
+                                                        requireArguments()
+                                                    ).productId.toString(),
+                                                    id = ProuductnfoFragmentArgs.fromBundle(
+                                                        requireArguments()
+                                                    ).productId,
+                                                    variant_title = "dgldsjglk",
+                                                    product_id = ProuductnfoFragmentArgs.fromBundle(
+                                                        requireArguments()
+                                                    ).productId,
+                                                    title = proudct.title,
+                                                    price = proudct.variants[0].price,
+                                                    quantity = 1
                                                 )
                                             )
-                                        )
+                                            ProductInfoViewModel.updateDraftOrder(
+                                                cartDraftOrderId?.toLong()?:0,
+                                                UpdateDraftOrderRequest(
+                                                    DraftOrder(
+                                                        applied_discount = AppliedDiscount(null),
+                                                        customer = Customer(8220771418416),
+                                                        use_customer_default_address = true,
+                                                        line_items = updatedLineItems.map {
+                                                            LineItem(
+                                                                sku = it.sku
+                                                                    ?: ProuductnfoFragmentArgs.fromBundle(
+                                                                        requireArguments()
+                                                                    ).productId.toString(),  // Use existing SKU or new one
+                                                                product_id = it.product_id
+                                                                    ?: ProuductnfoFragmentArgs.fromBundle(
+                                                                        requireArguments()
+                                                                    ).productId,
+                                                                title = it.title!!,
+                                                                price = it.price,
+                                                                quantity = it.quantity ?: 1
+                                                            )
+                                                        }
+                                                    )
+                                                )
+                                            )
+
+                                        }
+                                    }
+
+                                    withContext(Dispatchers.Main) {
+                                        Snackbar.make(
+                                            requireView(),
+                                            "Product is added to your cart",
+                                            2000
+                                        ).show()
                                     }
                                 }
                             }
                         }
                     }
                 }
-            }
-        }
 
-        // getting the specificFavDraftOrder
+    // getting the specificFavDraftOrder
 
         getSpecificDraftOrderById(FavDraftOrderId.toLong())
         //handel btn add to favourite
