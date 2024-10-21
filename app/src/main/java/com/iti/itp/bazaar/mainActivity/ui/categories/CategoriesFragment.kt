@@ -46,7 +46,7 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteProduc
     private lateinit var searchViewModel: SearchViewModel
     private lateinit var fabMain: FloatingActionButton
     private lateinit var fabAccessories: FloatingActionButton
-    private lateinit var fabTshirt: FloatingActionButton
+    private lateinit var fabTShirt: FloatingActionButton
     private lateinit var fabShoes: FloatingActionButton
     private lateinit var categoryProductsAdapter: CategoryProductsAdapter
     private lateinit var categoriesProg: ProgressBar
@@ -125,7 +125,7 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteProduc
             categoryProductsAdapter.submitList(filteredProducts)
         }
 
-        fabTshirt.setOnClickListener {
+        fabTShirt.setOnClickListener {
             val filteredProducts = products.filter { it.productType == "T-SHIRTS" }
             if (filteredProducts.isEmpty()) {
                 setAnimationVisible()
@@ -141,7 +141,7 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteProduc
     private fun initialiseUI() {
         fabMain = binding.fabMain
         fabShoes = binding.fabShoes
-        fabTshirt = binding.fabTshirt
+        fabTShirt = binding.fabTshirt
         fabAccessories = binding.fabAccessories
         categoryGroup = binding.collectionGroup
         womenChip = binding.women
@@ -166,7 +166,7 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteProduc
     private fun openFabMenu() {
         isFabOpen = true
         fabAccessories.show()
-        fabTshirt.show()
+        fabTShirt.show()
         fabShoes.show()
         fabMain.animate().rotation(45f)
         fabMain.setImageResource(R.drawable.close)
@@ -175,7 +175,7 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteProduc
     private fun closeFabMenu() {
         isFabOpen = false
         fabAccessories.hide()
-        fabTshirt.hide()
+        fabTShirt.hide()
         fabShoes.hide()
         fabMain.animate().rotation(0f)
         fabMain.setImageResource(R.drawable.filter)

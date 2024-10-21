@@ -1,7 +1,6 @@
 package com.iti.itp.bazaar.dto
 
 
-
 data class CustomerRequest(
     var customer: PostedCustomer
 )

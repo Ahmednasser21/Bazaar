@@ -24,9 +24,7 @@ import com.iti.itp.bazaar.dto.Customer
 import com.iti.itp.bazaar.dto.DraftOrder
 import com.iti.itp.bazaar.dto.DraftOrderRequest
 import com.iti.itp.bazaar.dto.LineItem
-import com.iti.itp.bazaar.dto.UpdateDraftOrder
 import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
-import com.iti.itp.bazaar.dto.UpdateLineItem
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.network.exchangeCurrencyApi.CurrencyRemoteDataSource
 import com.iti.itp.bazaar.network.exchangeCurrencyApi.ExchangeRetrofitObj
@@ -34,7 +32,6 @@ import com.iti.itp.bazaar.network.products.Products
 import com.iti.itp.bazaar.network.responses.ProductResponse
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
-import com.iti.itp.bazaar.productInfo.view.ProuductnfoFragmentArgs
 import com.iti.itp.bazaar.repo.CurrencyRepository
 import com.iti.itp.bazaar.repo.Repository
 import com.iti.itp.bazaar.search.OnCardClickListner

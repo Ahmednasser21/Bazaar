@@ -1,4 +1,4 @@
-package com.iti.itp.bazaar.mainActivity.ui.notifications
+package com.iti.itp.bazaar.mainActivity.ui.me
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
-class NotificationsViewModel(private val currencyRepository: CurrencyRepository,private val repository: Repository) : ViewModel() {
+class MeViewModel(private val currencyRepository: CurrencyRepository, private val repository: Repository) : ViewModel() {
 
     companion object{
         private const val TAG = "NotificationsViewModel"

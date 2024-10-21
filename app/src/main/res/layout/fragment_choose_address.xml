@@ -62,13 +62,15 @@
                 android:id="@+id/countryValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="12dp"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:textColor="@color/black"
                 android:textSize="24sp"
                 android:textStyle="bold"
-                android:maxLines="1"
-                android:ellipsize="end"
                 app:layout_constraintBottom_toBottomOf="@+id/country"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toEndOf="@+id/country"
                 app:layout_constraintTop_toTopOf="@+id/country"
                 app:layout_constraintVertical_bias="0.0" />
@@ -83,8 +85,11 @@
                 android:textSize="24sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="@+id/city"
-                app:layout_constraintStart_toStartOf="@+id/countryValue"
-                app:layout_constraintTop_toTopOf="@+id/city" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.031"
+                app:layout_constraintStart_toEndOf="@+id/city"
+                app:layout_constraintTop_toTopOf="@+id/city"
+                app:layout_constraintVertical_bias="0.0" />
 
             <TextView
                 android:id="@+id/phoneValue"
@@ -96,19 +101,23 @@
                 android:textSize="24sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="@+id/phone"
-                app:layout_constraintStart_toStartOf="@+id/cityValue"
-                app:layout_constraintTop_toTopOf="@+id/phone" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.027"
+                app:layout_constraintStart_toEndOf="@+id/phone"
+                app:layout_constraintTop_toTopOf="@+id/phone"
+                app:layout_constraintVertical_bias="0.0" />
 
             <TextView
                 android:id="@+id/city"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="44dp"
                 android:layout_marginTop="16dp"
                 android:text="@string/city_text"
                 android:textColor="@color/brown"
                 android:textSize="24sp"
                 android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="@+id/country"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/country" />
 
             <TextView
@@ -120,8 +129,10 @@
                 android:textColor="@color/brown"
                 android:textSize="24sp"
                 android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="@+id/city"
-                app:layout_constraintTop_toBottomOf="@+id/city" />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/city"
+                app:layout_constraintTop_toBottomOf="@+id/city"
+                app:layout_constraintVertical_bias="0.0" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

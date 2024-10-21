@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    tools:context=".mainActivity.ui.notifications.NotificationsFragment">
+    tools:context=".mainActivity.ui.me.MeFragment">
 
 
     <TextView
@@ -61,12 +61,16 @@
         android:id="@+id/cardView"
         android:layout_width="match_parent"
         android:layout_height="150dp"
-        android:layout_marginTop="124dp"
-        android:backgroundTint="#EDE0DB"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:backgroundTint="@color/white"
+        android:elevation="4dp"
+        app:cardCornerRadius="20dp"
         app:layout_constraintEnd_toEndOf="@+id/moreOrders"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/orders"
-        app:layout_constraintTop_toBottomOf="@+id/nameOfUser">
+        app:layout_constraintTop_toBottomOf="@+id/orders">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -89,8 +93,7 @@
                 android:id="@+id/priceValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:text="478.0"
+                android:layout_marginStart="8dp"
                 android:textColor="@color/black"
                 android:textSize="20sp"
                 app:layout_constraintBottom_toBottomOf="@+id/textView7"
@@ -112,17 +115,17 @@
 
             <TextView
                 android:id="@+id/createdAt"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:text="2024-6-15"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="32dp"
+                android:textAlignment="center"
                 android:textColor="@color/black"
                 android:textSize="20sp"
-                app:layout_constraintBottom_toBottomOf="@+id/textView2"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toEndOf="@+id/textView2"
-                app:layout_constraintTop_toTopOf="@+id/textView2" />
+                app:layout_constraintTop_toBottomOf="@+id/textView7" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
@@ -131,7 +134,7 @@
         android:id="@+id/textView8"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="72dp"
+        android:layout_marginTop="32dp"
         android:text="@string/wishlist"
         android:textColor="@color/black"
         android:textSize="24sp"
@@ -155,11 +158,11 @@
         android:id="@+id/recyclerView"
         android:layout_width="387dp"
         android:layout_height="146dp"
-        android:layout_marginTop="136dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardView" />
+        app:layout_constraintTop_toBottomOf="@+id/textView8" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:layout_width="match_parent"

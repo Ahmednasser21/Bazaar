@@ -143,9 +143,24 @@ class AddressFragment : Fragment(), OnAddressClickListener {
     }
 
     override fun onAddressClick(customerAddress: CustomerAddress) {
-        val newAddress = customerAddress.copy(default = true)
-        val customerAddressResponse = CustomerAddressResponse(newAddress)
-        addressViewModel.updateAddress(customerAddress.customer_id!!, customerAddress.id!!, customerAddressResponse)
+        lifecycleScope.launch {
+            try {
+                val newAddress = customerAddress.copy(default = true)
+                val customerAddressResponse = CustomerAddressResponse(newAddress)
+                addressViewModel.updateAddress(
+                    customerAddress.customer_id!!,
+                    customerAddress.id!!,
+                    customerAddressResponse
+                )
+
+                // After successful update, navigate back
+                view?.let { view ->
+                    Navigation.findNavController(view).navigateUp()
+                }
+            } catch (e: Exception) {
+                showMessage("Failed to update address: ${e.message}")
+            }
+        }
     }
 
     override fun onStart() {

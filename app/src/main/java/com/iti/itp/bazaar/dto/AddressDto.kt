@@ -1,5 +1,7 @@
 package com.iti.itp.bazaar.dto
 
+import com.iti.itp.bazaar.dto.Address
+
 
 data class CustomerAddress(
     val id: Long,

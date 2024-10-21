@@ -3,6 +3,8 @@ package com.iti.itp.bazaar.shoppingCartActivity.shoppingCartFragment.view
 import ReceivedDraftOrder
 import ReceivedLineItem
 import ReceivedOrdersResponse
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -20,9 +22,7 @@ import com.iti.itp.bazaar.dto.AppliedDiscount
 import com.iti.itp.bazaar.dto.Customer
 import com.iti.itp.bazaar.dto.DraftOrder
 import com.iti.itp.bazaar.dto.LineItem
-import com.iti.itp.bazaar.dto.UpdateDraftOrder
 import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
-import com.iti.itp.bazaar.dto.UpdateLineItem
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
@@ -42,6 +42,7 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
     private lateinit var firstDraftOrder: ReceivedDraftOrder
     private lateinit var adapter: ItemAdapter
     private val currencyFormatter = NumberFormat.getCurrencyInstance(Locale.US)
+    private lateinit var currencySharedPreferences:SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +56,7 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        currencySharedPreferences = requireActivity().applicationContext.getSharedPreferences("currencySharedPrefs", Context.MODE_PRIVATE)
         binding = FragmentShoppingCartBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -211,7 +213,7 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
 
     private fun calculateTotalPrice(): Double {
         return firstDraftOrder.line_items?.sumOf { item ->
-            val unitPrice = item.price.toDouble()
+            val unitPrice = item.price.toDouble() * currencySharedPreferences.getFloat("currency", 1F)
             unitPrice * (item.quantity ?: 1)
         } ?: 0.0
     }
@@ -240,7 +242,7 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
 
         val updatedLineItems = firstDraftOrder.line_items?.map { item ->
             // Calculate the updated price based on quantity
-            val basePrice = item.price.toDouble()
+            val basePrice = item.price.toDouble() * currencySharedPreferences.getFloat("currency", 1F)
             val quantity = item.quantity ?: 1
             val totalPrice = (basePrice * quantity).toString()
 

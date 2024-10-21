@@ -26,21 +26,26 @@ import com.iti.itp.bazaar.settings.SettingsActivity
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var navController:NavController
+    private lateinit var navController: NavController
+    private lateinit var appBarConfiguration: AppBarConfiguration
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val toolbar:Toolbar = findViewById(R.id.toolbar)
+        val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
         val navView: BottomNavigationView = binding.navView
         navController = findNavController(R.id.nav_host_fragment_activity_main)
-        val appBarConfiguration = AppBarConfiguration(
-            setOf(R.id.nav_home, R.id.nav_categories, R.id.nav_me)
+        appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.nav_home, R.id.nav_categories, R.id.nav_me, R.id.nav_brand_products,
+                R.id.prouductnfoFragment, R.id.searchFragment, R.id.orderFragment,
+                R.id.favoriteProductsFragment
+            )
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
@@ -57,7 +62,8 @@ class MainActivity : AppCompatActivity() {
             val searchIcon = findViewById<ImageView>(androidx.appcompat.R.id.search_button)
             searchIcon.setColorFilter(Color.WHITE)
 
-            val searchEditText: EditText = this.findViewById(androidx.appcompat.R.id.search_src_text)
+            val searchEditText: EditText =
+                this.findViewById(androidx.appcompat.R.id.search_src_text)
             searchEditText.setTextColor(Color.WHITE)
             searchEditText.textSize = 20f
 
@@ -65,12 +71,14 @@ class MainActivity : AppCompatActivity() {
             closeIcon.setColorFilter(Color.WHITE)
         }
 
+        searchView.setOnSearchClickListener {
+            navController.navigate(R.id.searchFragment)
+        }
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
 
                 return false
             }
-
 
             override fun onQueryTextChange(newText: String?): Boolean {
 
@@ -79,22 +87,25 @@ class MainActivity : AppCompatActivity() {
 
         })
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            when(destination.id){
-                R.id.nav_me->{
+            when (destination.id) {
+                R.id.nav_me -> {
                     val toolbarTitle: TextView = findViewById(R.id.toolbar_title)
                     toolbarTitle.text = destination.label
                     searchView.visibility = View.INVISIBLE
                     invalidateOptionsMenu()
                 }
-                R.id.nav_home->{
+
+                R.id.nav_home -> {
                     searchView.visibility = View.VISIBLE
                 }
-                R.id.nav_categories->{
+
+                R.id.nav_categories -> {
                     searchView.visibility = View.VISIBLE
                 }
             }
         }
     }
+
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         val isNavMe = navController.currentDestination?.id == R.id.nav_me
         menu.findItem(R.id.nav_settings)?.isVisible = isNavMe
@@ -102,7 +113,7 @@ class MainActivity : AppCompatActivity() {
         return super.onPrepareOptionsMenu(menu)
     }
 
-        override fun onCreateOptionsMenu(menu: Menu): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.action_menu, menu)
         return true
     }
@@ -116,16 +127,19 @@ class MainActivity : AppCompatActivity() {
             }
 
             R.id.nav_favourite -> {
-
+                navController.navigate(R.id.favoriteProductsFragment)
                 true
             }
-            R.id.nav_settings->{
+
+            R.id.nav_settings -> {
                 val intent = Intent(this, SettingsActivity::class.java)
                 startActivity(intent)
                 true
             }
+
             else -> super.onOptionsItemSelected(item)
 
         }
     }
+
 }

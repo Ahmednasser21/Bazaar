@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
@@ -18,6 +17,7 @@ import com.iti.itp.bazaar.dto.AppliedDiscount
 import com.iti.itp.bazaar.dto.Customer
 import com.iti.itp.bazaar.dto.DraftOrder
 import com.iti.itp.bazaar.dto.LineItem
+import com.iti.itp.bazaar.dto.PriceRuleDto
 import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.network.exchangeCurrencyApi.CurrencyRemoteDataSource
@@ -40,6 +40,8 @@ class CashOnDeliveryFragment : Fragment() {
     private lateinit var factory: CashOnDeliveryViewModelFactory
     private lateinit var cashOnDeliveryViewModel: CashOnDeliveryViewModel
     private lateinit var currencySharedPreferences: SharedPreferences
+    private var isApplyingDiscount = false
+    private var currentConversionRate = 1.0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -55,7 +57,6 @@ class CashOnDeliveryFragment : Fragment() {
         return binding.root
     }
 
-    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupUI()
@@ -88,17 +89,20 @@ class CashOnDeliveryFragment : Fragment() {
                 is DataState.Loading -> {
                     binding.tvValidate.isEnabled = false
                     binding.etCoupons.isEnabled = false
-                    Snackbar.make(requireView(), "Loading coupons", Snackbar.LENGTH_SHORT).show()
+                    if (!isApplyingDiscount) {
+                        Snackbar.make(requireView(), "Loading coupons", Snackbar.LENGTH_SHORT).show()
+                    }
                 }
                 is DataState.OnFailed -> {
                     binding.tvValidate.isEnabled = true
                     binding.etCoupons.isEnabled = true
-                    Snackbar.make(requireView(), "Failed to fetch coupons", Snackbar.LENGTH_SHORT).show()
+                    if (!isApplyingDiscount) {
+                        Snackbar.make(requireView(), "Failed to fetch coupons", Snackbar.LENGTH_SHORT).show()
+                    }
                 }
                 is DataState.OnSuccess<*> -> {
                     binding.tvValidate.isEnabled = true
                     binding.etCoupons.isEnabled = true
-                    // Price rules are now stored in the StateFlow, no need for additional storage
                 }
             }
         }
@@ -108,12 +112,24 @@ class CashOnDeliveryFragment : Fragment() {
         cashOnDeliveryViewModel.getAllDraftOrders()
         cashOnDeliveryViewModel.draftOrders.collect { state ->
             when (state) {
-                is DataState.Loading -> Snackbar.make(requireView(), "Loading orders", Snackbar.LENGTH_SHORT).show()
-                is DataState.OnFailed -> Snackbar.make(requireView(), "Failed to fetch orders", Snackbar.LENGTH_SHORT).show()
+                is DataState.Loading -> {
+                    if (!isApplyingDiscount) {
+                        Snackbar.make(requireView(), "Loading orders", Snackbar.LENGTH_SHORT).show()
+                    }
+                }
+                is DataState.OnFailed -> {
+                    if (!isApplyingDiscount) {
+                        Snackbar.make(requireView(), "Failed to fetch orders", Snackbar.LENGTH_SHORT).show()
+                    }
+                }
                 is DataState.OnSuccess<*> -> {
                     val orderResponse = state.data as ReceivedOrdersResponse
                     if (orderResponse.draft_orders.isNotEmpty()) {
-                        updateUIWithDraftOrder(orderResponse)
+                        if (!isApplyingDiscount) {
+                            updateUIWithDraftOrder(orderResponse)
+                        } else {
+                            isApplyingDiscount = false
+                        }
                     }
                 }
             }
@@ -131,7 +147,10 @@ class CashOnDeliveryFragment : Fragment() {
                 is DataState.OnFailed -> {}
                 is DataState.OnSuccess<*> -> {
                     val data = state.data as ExchangeRateResponse
-                    changeAllTextViewsCurrency(data.conversion_rate)
+                    currentConversionRate = data.conversion_rate
+                    if (!isApplyingDiscount) {
+                        changeAllTextViewsCurrency(data.conversion_rate)
+                    }
                 }
             }
         }
@@ -144,7 +163,7 @@ class CashOnDeliveryFragment : Fragment() {
                 val matchingPriceRule = priceRules.priceRules.find { it.title == couponCode }
 
                 if (matchingPriceRule != null) {
-                    applyCoupon(priceRules)
+                    applyCoupon(matchingPriceRule)
                 } else {
                     Snackbar.make(requireView(), "Invalid coupon code", Snackbar.LENGTH_SHORT).show()
                 }
@@ -154,58 +173,85 @@ class CashOnDeliveryFragment : Fragment() {
             }
             is DataState.OnFailed -> {
                 Snackbar.make(requireView(), "Failed to validate coupon. Please try again", Snackbar.LENGTH_SHORT).show()
-                // Optionally retry loading coupons
                 cashOnDeliveryViewModel.getCoupons()
             }
         }
     }
-    private fun applyCoupon(priceRule: PriceRulesResponse) {
+
+    private fun applyCoupon(priceRule: PriceRuleDto) {
         val subTotalPrice = binding.tvSubTotalPrice.text.toString().toDoubleOrNull() ?: 0.0
-        val discountAmount = when (priceRule.priceRules[0].valueType) {
-            "percentage" -> subTotalPrice * abs(priceRule.priceRules[0].value.toDouble()) / 100
-            "fixed_amount" -> abs(priceRule.priceRules[0].value.toDouble())
+        val baseSubTotalPrice = subTotalPrice / currentConversionRate
+
+        val baseDiscountAmount = when (priceRule.valueType) {
+            "percentage" -> {
+                val percentage = abs(priceRule.value.toDouble())
+                if (percentage > 100) {
+                    Snackbar.make(requireView(), "Invalid discount percentage", Snackbar.LENGTH_SHORT).show()
+                    return
+                }
+                baseSubTotalPrice * percentage / 100
+            }
+            "fixed_amount" -> {
+                val amount = abs(priceRule.value.toDouble())
+                if (amount > baseSubTotalPrice) {
+                    Snackbar.make(requireView(), "Discount amount exceeds total", Snackbar.LENGTH_SHORT).show()
+                    return
+                }
+                amount
+            }
             else -> 0.0
         }
 
-        updatePricesAfterDiscount(discountAmount)
-        updateDraftOrderWithDiscount(priceRule.priceRules[0].title, discountAmount)
+        if (baseDiscountAmount <= 0) {
+            Snackbar.make(requireView(), "Invalid discount amount", Snackbar.LENGTH_SHORT).show()
+            return
+        }
+
+        isApplyingDiscount = true
+        updatePricesAfterDiscount(baseDiscountAmount)
+        updateDraftOrderWithDiscount(priceRule.title, baseDiscountAmount)
     }
 
-    private fun updatePricesAfterDiscount(discountAmount: Double) {
+    private fun updatePricesAfterDiscount(baseDiscountAmount: Double) {
         val subTotalPrice = binding.tvSubTotalPrice.text.toString().toDoubleOrNull() ?: 0.0
-        val shippingFees = binding.tvShippingFees.text.toString().toDoubleOrNull() ?: 0.0
+        val baseSubTotalPrice = subTotalPrice / currentConversionRate
 
-        val totalSubPriceAfterDiscount = subTotalPrice - discountAmount
-        val totalGrandPriceAfterDiscount = totalSubPriceAfterDiscount + shippingFees
+        val totalSubPriceAfterDiscount = baseSubTotalPrice - baseDiscountAmount
+        val totalGrandPriceAfterDiscount = totalSubPriceAfterDiscount
 
-        binding.tvDiscountValue.text = String.format("%.2f", discountAmount)
-        binding.tvSubTotalPrice.text = String.format("%.2f", totalSubPriceAfterDiscount)
-        binding.tvGrandTotal.text = String.format("%.2f", totalGrandPriceAfterDiscount)
+        binding.tvDiscountValue.text = String.format("%.2f", baseDiscountAmount * currentConversionRate)
+        binding.tvSubTotalPrice.text = String.format("%.2f", totalSubPriceAfterDiscount * currentConversionRate)
+        binding.tvGrandTotal.text = String.format("%.2f", totalGrandPriceAfterDiscount * currentConversionRate)
 
         binding.tvValidate.isClickable = false
         binding.etCoupons.isEnabled = false
     }
 
-    private fun updateDraftOrderWithDiscount(couponCode: String, discountAmount: Double) {
+    private fun updateDraftOrderWithDiscount(couponCode: String, baseDiscountAmount: Double) {
         val currentDraftOrderState = (cashOnDeliveryViewModel.draftOrders.value as? DataState.OnSuccess<*>)?.data as? ReceivedOrdersResponse
         val currentDraftOrder = currentDraftOrderState?.draft_orders?.firstOrNull()
 
         if (currentDraftOrder != null) {
             val updatedLineItems = currentDraftOrder.line_items?.map { item ->
+                val itemPrice = item.price?.toDoubleOrNull() ?: 0.0
+                val quantity = item.quantity ?: 1
+                val itemTotal = itemPrice * quantity
+                val itemDiscountShare = (itemTotal / (currentDraftOrder.subtotal_price?.toDoubleOrNull() ?: 1.0)) * baseDiscountAmount
+
                 LineItem(
                     product_id = item.product_id,
                     title = item.title,
                     price = item.price,
                     quantity = item.quantity,
                     sku = item.sku,
-                    applied_discount = AppliedDiscount(couponCode, discountAmount.toString())
+                    applied_discount = AppliedDiscount(couponCode, itemDiscountShare.toString())
                 )
             }
 
             val updateRequest = UpdateDraftOrderRequest(
                 DraftOrder(
                     line_items = updatedLineItems!!,
-                    applied_discount = AppliedDiscount(couponCode, discountAmount.toString()),
+                    applied_discount = AppliedDiscount(couponCode, baseDiscountAmount.toString()),
                     customer = Customer(currentDraftOrder.customer?.id ?: 0),
                     use_customer_default_address = true
                 )
@@ -216,31 +262,28 @@ class CashOnDeliveryFragment : Fragment() {
                     cashOnDeliveryViewModel.updateDraftOrder(currentDraftOrder.id, updateRequest)
                     withContext(Dispatchers.Main) {
                         Snackbar.make(requireView(), "Discount applied successfully", Snackbar.LENGTH_SHORT).show()
-                        // Refresh the draft orders to reflect the changes
-                        cashOnDeliveryViewModel.getAllDraftOrders()
                     }
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
+                        isApplyingDiscount = false
                         Snackbar.make(requireView(), "Failed to apply discount: ${e.message}", Snackbar.LENGTH_SHORT).show()
                     }
                 }
             }
         } else {
+            isApplyingDiscount = false
             Snackbar.make(requireView(), "No draft order available", Snackbar.LENGTH_SHORT).show()
         }
     }
 
     private fun updateUIWithDraftOrder(draftOrder: ReceivedOrdersResponse) {
-        // Update UI with draft order details
         val subTotal = draftOrder.draft_orders[0].subtotal_price?.toDoubleOrNull() ?: 0.0
         val total = draftOrder.draft_orders[0].total_price?.toDoubleOrNull() ?: 0.0
         val discount = draftOrder.draft_orders[0].applied_discount?.amount?.toDoubleOrNull() ?: 0.0
-        val shippingFee = total - subTotal + discount
 
-        binding.tvSubTotalPrice.text = String.format("%.2f", subTotal)
-        binding.tvShippingFees.text = String.format("%.2f", shippingFee)
-        binding.tvDiscountValue.text = String.format("%.2f", discount)
-        binding.tvGrandTotal.text = String.format("%.2f", total)
+        binding.tvSubTotalPrice.text = String.format("%.2f", subTotal * currentConversionRate)
+        binding.tvDiscountValue.text = String.format("%.2f", discount * currentConversionRate)
+        binding.tvGrandTotal.text = String.format("%.2f", total * currentConversionRate)
 
         if (discount > 0) {
             binding.tvValidate.isClickable = false
@@ -251,9 +294,17 @@ class CashOnDeliveryFragment : Fragment() {
 
     @SuppressLint("SetTextI18n", "DefaultLocale")
     private fun changeAllTextViewsCurrency(conversionRate: Double) {
-        binding.tvSubTotalPrice.text = String.format("%.2f", (binding.tvSubTotalPrice.text.toString().toDouble() * conversionRate))
-        binding.tvShippingFees.text = String.format("%.2f", (binding.tvShippingFees.text.toString().toDouble() * conversionRate))
-        binding.tvDiscountValue.text = String.format("%.2f", (binding.tvDiscountValue.text.toString().toDouble() * conversionRate))
-        binding.tvGrandTotal.text = String.format("%.2f", (binding.tvGrandTotal.text.toString().toDouble() * conversionRate))
+        val subTotal = binding.tvSubTotalPrice.text.toString().toDoubleOrNull() ?: 0.0
+        val discount = binding.tvDiscountValue.text.toString().toDoubleOrNull() ?: 0.0
+        val grandTotal = binding.tvGrandTotal.text.toString().toDoubleOrNull() ?: 0.0
+
+        // Convert from current rate to base rate, then to new rate
+        val baseSubTotal = subTotal / currentConversionRate
+        val baseDiscount = discount / currentConversionRate
+        val baseGrandTotal = grandTotal / currentConversionRate
+
+        binding.tvSubTotalPrice.text = String.format("%.2f", baseSubTotal * conversionRate)
+        binding.tvDiscountValue.text = String.format("%.2f", baseDiscount * conversionRate)
+        binding.tvGrandTotal.text = String.format("%.2f", baseGrandTotal * conversionRate)
     }
 }
