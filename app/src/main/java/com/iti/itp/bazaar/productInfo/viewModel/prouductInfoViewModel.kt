@@ -45,6 +45,13 @@ class prouductInfoViewModel (private val repo: Repository , private val currency
     private val _specificDraftOrders = MutableStateFlow<DataState>(DataState.Loading)
     val specificDraftOrders = _specificDraftOrders.asStateFlow()
 
+    private val _createdFavDraftOrder = MutableStateFlow<DataState>(DataState.Loading)
+    val createdFavDraftOrder = _createdFavDraftOrder.asStateFlow()
+
+    private val _allDraftOrdersFav = MutableStateFlow<DataState>(DataState.Loading)
+    val allDraftOrdersFav = _allDraftOrdersFav.asStateFlow()
+
+
     fun getProductDetails(id: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             repo.getProductDetails (id)
@@ -85,6 +92,8 @@ class prouductInfoViewModel (private val repo: Repository , private val currency
             }
         }
     }
+
+
 
 
     fun getPriceRules(){
@@ -144,6 +153,31 @@ class prouductInfoViewModel (private val repo: Repository , private val currency
             repo.deleteSpecificDraftOrder(draftOrderId)
         }
 
+    }
+
+    fun createFavDraftOrder(draftOrderRequest: DraftOrderRequest){
+        viewModelScope.launch(Dispatchers.IO){
+            repo.createDraftOrder(draftOrderRequest).catch {
+                _createdFavDraftOrder.value = DataState.OnFailed(it)
+                Log.e("TAG", "there was error while creating error: ${it.message}")
+            }.collect{
+                _createdFavDraftOrder.value = DataState.OnSuccess(it)
+                Log.i("TAG", "created the Order successfully")
+            }
+        }
+    }
+
+
+    fun getAllDraftOrdersForFav(){
+        viewModelScope.launch(Dispatchers.IO){
+            repo.getAllDraftOrders().catch {
+                _allDraftOrdersFav.value = DataState.OnFailed(it)
+                Log.e(TAG, "error getAllDraftOrdersForFav: ${it.message}")
+            }.collect{
+                _allDraftOrdersFav.value = DataState.OnSuccess(it)
+                Log.i(TAG, "success getAllDraftOrdersForFav")
+            }
+        }
     }
 
 

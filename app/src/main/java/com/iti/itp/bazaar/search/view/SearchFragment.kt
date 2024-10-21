@@ -219,7 +219,7 @@ lateinit var searshAdapter: SearchAdapter
     }
 
 
-private fun draftOrderRequest(prduct: Products):DraftOrderRequest{
+private fun draftOrderRequest(prduct: Products ):DraftOrderRequest{
     val draftOrderRequest = DraftOrderRequest(
         draft_order = DraftOrder(
             line_items = listOf(

@@ -49,9 +49,15 @@ class ChooseAddressFragment : Fragment(), OnAddressClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+
+    }
+
+    override fun onStart() {
+        super.onStart()
         binding.continueToPayment.setOnClickListener {
             val action = ChooseAddressFragmentDirections.actionChooseAddressFragmentToPaymentMethods()
-            Navigation.findNavController(view).navigate(action)
+            Navigation.findNavController(requireView()).navigate(action)
         }
 
         lifecycleScope.launch(Dispatchers.IO){
@@ -77,7 +83,6 @@ class ChooseAddressFragment : Fragment(), OnAddressClickListener {
 
             }
         }
-
     }
 
     override fun onAddressClick(customerAddress: CustomerAddress) {

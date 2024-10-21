@@ -1,29 +1,42 @@
 package com.iti.itp.bazaar.auth.view
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import com.google.android.material.snackbar.Snackbar
 
 import com.google.firebase.auth.FirebaseAuth
 import com.iti.itp.bazaar.R
+import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.auth.firebase.FirebaseRemotDataSource
 import com.iti.itp.bazaar.auth.firebase.FirebaseReposatory
 import com.iti.itp.bazaar.auth.viewModel.AuthViewModel
 import com.iti.itp.bazaar.auth.viewModel.AuthViewModelFactory
 import com.iti.itp.bazaar.databinding.FragmentSignUpBinding
+import com.iti.itp.bazaar.dto.Address
+import com.iti.itp.bazaar.dto.Customer
+import com.iti.itp.bazaar.dto.CustomerRequest
+import com.iti.itp.bazaar.dto.PostedCustomer
+import com.iti.itp.bazaar.dto.cutomerResponce.CustomerResponse
+import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.network.shopify.ProductService
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
 import com.iti.itp.bazaar.repo.Repository
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import java.util.regex.Pattern
 
 
@@ -33,6 +46,33 @@ class SignUpFragment : Fragment() {
     lateinit var vmFactory : AuthViewModelFactory
     lateinit var authViewModel : AuthViewModel
     lateinit var mAuth : FirebaseAuth
+    lateinit var sharedPreferences: SharedPreferences
+
+
+    val newCustomer = PostedCustomer(
+        first_name = "",
+        last_name = "",
+        email = "",
+        phone = "01090313390",
+        verified_email = true,
+        addresses = listOf(
+            Address(
+                address1 = "",
+                city = "",
+                province = "",
+                phone = "",
+                zip = "",
+                last_name = "",
+                first_name = "",
+                country = ""
+            )
+        ),
+        password = "",
+        password_confirmation = "",
+        send_email_welcome = false
+    )
+    var customerRequest: CustomerRequest = CustomerRequest(newCustomer)
+
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
@@ -50,6 +90,9 @@ class SignUpFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        sharedPreferences =
+            requireContext().getSharedPreferences(MyConstants.MY_SHARED_PREFERANCE, Context.MODE_PRIVATE)
         mAuth = FirebaseAuth.getInstance()
         vmFactory = AuthViewModelFactory(FirebaseReposatory.getInstance(FirebaseRemotDataSource(mAuth)) ,
             Repository.getInstance(ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)))
@@ -155,6 +198,15 @@ class SignUpFragment : Fragment() {
                     // FirebaseUser user = mAuth.getCurrentUser();
                     Snackbar.make(requireView(), "Authentication success .. Please Verfiy this Email", 2000)
                         .show()
+                    //navigateToLogin()
+
+                    customerRequest.customer.email = email
+                    customerRequest.customer.password=password
+                    customerRequest.customer.password_confirmation=password
+                    customerRequest.customer.phone= ""
+
+                    ObserveOnPostingCustomer(customerRequest)
+
                     authViewModel.sendVerificationEmail(mAuth.currentUser)
                         ?.addOnCompleteListener { task ->
                             if (task.isSuccessful) {
@@ -164,6 +216,7 @@ class SignUpFragment : Fragment() {
                                 Snackbar.make(requireView(), "Failed to send verification email.", 2000).show()
                             }
                         }
+
                 } else {
                     Snackbar.make(requireView(), "Authentication failed.", 2000)
                         .show()
@@ -175,6 +228,38 @@ class SignUpFragment : Fragment() {
 
 
     }
+    fun navigateToLogin (){
+        val action = SignUpFragmentDirections.actionSignUpFragmentToLoginFragment()
+        Navigation.findNavController(binding.root).navigate(action)
+    }
+
+    fun ObserveOnPostingCustomer(customerRequest: CustomerRequest) {
+        lifecycleScope.launch {
+            authViewModel.postCustomer(customerRequest)
+            authViewModel.customerStateFlow.collectLatest { result ->
+                when (result) {
+                    is DataState.Loading -> {
+                        Log.d("TAG", "postCustomer: Loading")
+                    }
+
+                    is DataState.OnFailed -> {
+                        Log.d("TAG", "postCustomer faliour and error msg is ->: ${result.msg}")
+                    }
+
+                    is DataState.OnSuccess<*> -> {
+                        val customerPostResponse = result.data as CustomerResponse
+                        val productsList = customerPostResponse.customer
+                        Log.d("TAG", "postCustomer success w da el id bta3 el new customer->:${productsList.id} ")
+                        sharedPreferences.edit().putString(MyConstants.CUSOMER_ID ,productsList.id.toString() )
+                    }
+                }
+
+
+            }
+
+        }
+    }
+
 
 
 }

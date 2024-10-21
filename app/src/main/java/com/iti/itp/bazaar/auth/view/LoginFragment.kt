@@ -1,5 +1,6 @@
 package com.iti.itp.bazaar.auth.view
 
+import ReceivedOrdersResponse
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -12,6 +13,8 @@ import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
+import com.example.productinfoform_commerce.productInfo.viewModel.ProuductIfonViewModelFactory
+import com.example.productinfoform_commerce.productInfo.viewModel.prouductInfoViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.iti.itp.bazaar.auth.MyConstants
@@ -21,16 +24,30 @@ import com.iti.itp.bazaar.auth.viewModel.AuthViewModel
 import com.iti.itp.bazaar.auth.viewModel.AuthViewModelFactory
 import com.iti.itp.bazaar.databinding.FragmentLoginBinding
 import com.iti.itp.bazaar.dto.Address
+import com.iti.itp.bazaar.dto.AppliedDiscount
+import com.iti.itp.bazaar.dto.Customer
 import com.iti.itp.bazaar.dto.CustomerRequest
+import com.iti.itp.bazaar.dto.CustomerUpdate
+import com.iti.itp.bazaar.dto.DraftOrder
+import com.iti.itp.bazaar.dto.DraftOrderRequest
+import com.iti.itp.bazaar.dto.LineItem
 
 
 import com.iti.itp.bazaar.dto.PostedCustomer
+import com.iti.itp.bazaar.dto.UpdateCustomerRequest
+import com.iti.itp.bazaar.dto.cutomerResponce.CustomerByEmailResponce
+
 import com.iti.itp.bazaar.dto.cutomerResponce.CustomerResponse
 import com.iti.itp.bazaar.mainActivity.MainActivity
 import com.iti.itp.bazaar.mainActivity.ui.DataState
+import com.iti.itp.bazaar.network.exchangeCurrencyApi.CurrencyRemoteDataSource
+import com.iti.itp.bazaar.network.exchangeCurrencyApi.ExchangeRetrofitObj
+import com.iti.itp.bazaar.network.products.Products
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
+import com.iti.itp.bazaar.repo.CurrencyRepository
 import com.iti.itp.bazaar.repo.Repository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -41,6 +58,17 @@ class LoginFragment : Fragment() {
     lateinit var authViewModel: AuthViewModel
     lateinit var mAuth: FirebaseAuth
     lateinit var sharedPreferences: SharedPreferences
+    lateinit var ProductInfoViewModel : prouductInfoViewModel
+    lateinit var DraftvmFActory : ProuductIfonViewModelFactory
+
+
+    val updateCustomerRequest = UpdateCustomerRequest(
+        customer = CustomerUpdate(
+            id = 0L,
+            first_name = "",
+            last_name = ""
+        )
+    )
     val address = Address(
         last_name = "alaa",
         first_name = "eisa",
@@ -66,7 +94,8 @@ class LoginFragment : Fragment() {
     val customerRequest = CustomerRequest(customer)
     override fun onStart() {
         super.onStart()
-        checkIfEmailVerified()
+        // dont forget to chech on the logged in user
+       // checkIfEmailVerified()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,6 +112,12 @@ class LoginFragment : Fragment() {
                 MyConstants.MY_SHARED_PREFERANCE,
                 Context.MODE_PRIVATE
             )
+        DraftvmFActory = ProuductIfonViewModelFactory( Repository.getInstance(
+            ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
+        ) , CurrencyRepository(CurrencyRemoteDataSource(ExchangeRetrofitObj.service))
+        )
+        ProductInfoViewModel = ViewModelProvider(this , DraftvmFActory).get(prouductInfoViewModel::class.java)
+
 
         binding = FragmentLoginBinding.inflate(inflater, container, false)
         // Inflate the layout for this fragment
@@ -131,7 +166,7 @@ class LoginFragment : Fragment() {
         authViewModel.logIn(email, password)
             .addOnCompleteListener(requireActivity()) { task ->
                 if (task.isSuccessful) {
-                    checkIfEmailVerified()
+                    checkIfEmailVerified(email)
                 } else {
                     Snackbar.make(requireView(), "Authentication failed.", 2000)
                         .show()
@@ -140,16 +175,15 @@ class LoginFragment : Fragment() {
             }
     }
 
-    private fun checkIfEmailVerified() {
+    private fun checkIfEmailVerified(email : String) {
         val user = authViewModel.checkIfEmailVerified()
         if (user != null) {
             if (user.isEmailVerified) {
                 // here also navigate to home screen
-                authViewModel.postCustomer(customerRequest)
-                ObserveOnPostingCustomer()
-                startActivity(Intent(requireActivity(), MainActivity::class.java))
 
-                Snackbar.make(requireView(), "Authentication success.", 2000).show()
+                ObserveOnGettingCustomerByEmail(email)
+
+
             } else {
                 Snackbar.make(requireView(), "checkIfEmailVerified: Email is not verified", 2000)
                     .show()
@@ -158,24 +192,73 @@ class LoginFragment : Fragment() {
 
         }
     }
-
-    fun ObserveOnPostingCustomer() {
+////////////////// wa2ef hena ya lol
+    fun ObserveOnGettingCustomerByEmail(email : String) {
         lifecycleScope.launch {
-            authViewModel.customerStateFlow.collectLatest { result ->
+
+            authViewModel.getCustomerByEmail(email)
+            authViewModel.customerByEmailStateFlow .collectLatest { result ->
                 when (result) {
                     is DataState.Loading -> {
-                        Log.d("TAG", "postCustomer: Loading")
+                        Log.d("TAG", "ObserveOnGettingCustomerByEmail: Loading")
                     }
 
                     is DataState.OnFailed -> {
-                        Log.d("TAG", "postCustomer faliour and error msg is ->: ${result.msg}")
+                        Log.d("TAG", "ObserveOnGettingCustomerByEmail faliour and error msg is ->: ${result.msg}")
                     }
 
                     is DataState.OnSuccess<*> -> {
-                        val customerPostResponse = result.data as CustomerResponse
-                        val productsList = customerPostResponse.customers
-                        Log.d("TAG", "postCustomer success:${productsList.get(0).id} ")
-                    }
+                        val customerPostResponse = result.data as CustomerByEmailResponce
+                        val customerByEmail = customerPostResponse.customers/*.id*/
+                        if (customerByEmail.isNullOrEmpty())
+                        {
+                            Snackbar.make(requireView(), "Email wasn't found 1", 2000).show()
+                        }
+                        else {
+                            Snackbar.make(requireView(), "Authentication success.", 2000).show()
+
+
+                            Log.d("TAG", "ObserveOnGettingCustomerByEmail success w da el object kamel ->:${customerByEmail.get(0).id} ")
+                            //saving customer id i shared pref
+                            sharedPreferences.edit().putString(MyConstants.CUSOMER_ID,customerByEmail.get(0).id.toString())
+                            if (customerByEmail.get(0).first_name.isNullOrBlank()&&customerByEmail.get(0).last_name.isNullOrBlank())
+                            {
+                                updateCustomerRequest.customer.id=customerByEmail.get(0).id
+                                CreatCartDraftOrder(customerByEmail.get(0).id)
+
+                                delay(2000)
+                                CreatFavDraftOrder(customerByEmail.get(0).id)
+
+                                delay(3000)
+
+                                // to update the customer details with his draft orders idS
+                                updateCustomerById(customerByEmail.get(0).id,updateCustomerRequest)
+
+                                startActivity(Intent(requireActivity(), MainActivity::class.java))
+                            }else
+                            {
+                                sharedPreferences.edit().putString(MyConstants.CART_DRAFT_ORDER_ID,"${customerByEmail.get(0).first_name}").apply()
+                                sharedPreferences.edit().putString(MyConstants.FAV_DRAFT_ORDERS_ID,"${customerByEmail.get(0).last_name}").apply()
+
+                                startActivity(Intent(requireActivity(), MainActivity::class.java))
+
+                            }
+
+
+
+
+
+
+
+                            // now i want to create a method for creating to draft orders (Fav And Cart ) and then post thier id to this customer again
+
+
+
+
+
+
+                        }
+                         }
                 }
 
 
@@ -183,6 +266,109 @@ class LoginFragment : Fragment() {
 
         }
     }
+
+    fun CreatCartDraftOrder(customerId : Long){
+        lifecycleScope.launch {
+            ProductInfoViewModel.createOrder(creatDraftOrderRequest(customerId))
+            delay(2000) // tb be able to retrive my draftOrderId
+            ProductInfoViewModel.getAllDraftOrders()
+            ProductInfoViewModel.allDraftOrders.collectLatest { result->
+                when(result){
+                    DataState.Loading -> {
+                        Log.d("TAG", "CreatCartDraftOrder: loading ")
+                    }
+                    is DataState.OnFailed ->{
+                        Log.d("TAG", "CreatCartDraftOrder: failure ")
+                    }
+                    is DataState.OnSuccess<*> ->{
+
+                        val draftOrder = (result.data as ReceivedOrdersResponse)
+                        val draftOrderId =draftOrder.draft_orders.get(draftOrder.draft_orders.size-1).id
+                        sharedPreferences.edit().putString(MyConstants.CART_DRAFT_ORDER_ID,"$draftOrderId").apply()
+                        Log.d("TAG", "CreatCartDraftOrder: success wel draftorder id is ->${draftOrderId} ")
+                        updateCustomerRequest.customer.first_name=draftOrderId.toString()
+                    }
+                }
+
+            }
+        }
+
+    }
+
+    fun CreatFavDraftOrder(customerId : Long){
+        lifecycleScope.launch {
+            ProductInfoViewModel.createFavDraftOrder(creatDraftOrderRequest(customerId))
+            delay(2000) // tb be able to retrive my draftOrderId
+            // el moshkela momken tkon hena 3shan b observ b wa7da bs 3al etnen
+            ProductInfoViewModel.getAllDraftOrdersForFav()
+            ProductInfoViewModel.allDraftOrdersFav .collectLatest { result->
+                when(result){
+                    DataState.Loading -> {
+                        Log.d("TAG", "CreatFavDraftOrder: loading ")
+                    }
+                    is DataState.OnFailed ->{
+                        Log.d("TAG", "CreatFavDraftOrder:  success")
+                    }
+                    is DataState.OnSuccess<*> ->{
+                        val draftOrder = (result.data as ReceivedOrdersResponse)
+                        val draftOrderId =draftOrder.draft_orders.get(draftOrder.draft_orders.size-1).id
+                        sharedPreferences.edit().putString(MyConstants.FAV_DRAFT_ORDERS_ID,"$draftOrderId").apply()
+                        Log.d("TAG", "CreatFavDraftOrder:  success wel id hwa $draftOrderId")
+                        updateCustomerRequest.customer.last_name=draftOrderId.toString()
+                    }
+                }
+
+            }
+        }
+
+    }
+
+    private fun creatDraftOrderRequest(customerId : Long): DraftOrderRequest {
+        val draftOrderRequest = DraftOrderRequest(
+            draft_order = DraftOrder(
+                line_items = listOf(
+                    LineItem(
+
+                        product_id = 0L,
+                        sku = "emptySKU",
+                        title = "asdasda", price = "", quantity = 1)
+                ),
+                use_customer_default_address = true,
+                applied_discount = AppliedDiscount(),
+                customer = Customer(customerId)
+            )
+
+        )
+        return draftOrderRequest
+    }
+
+    fun updateCustomerById (customerId : Long , updateCustomerRequest: UpdateCustomerRequest){
+        lifecycleScope.launch {
+            authViewModel.updateCustomerById(customerId,updateCustomerRequest)
+            delay(2000)
+
+            authViewModel.updateCustomerByIdStateFlow.collectLatest { result->
+                when (result){
+                    DataState.Loading -> {
+                    }
+
+                    is DataState.OnFailed -> {
+                    }
+
+                    is DataState.OnSuccess<*> -> {
+
+                    }
+                }
+
+
+            }
+
+        }
+
+    }
+
+
+
 
 
 }
