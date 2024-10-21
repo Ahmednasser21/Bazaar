@@ -86,8 +86,8 @@ class ShopifyRemoteDataSource(private val productService: ProductService) {
         return productService.createDraftOrder(draftOrderRequest)
     }
 
-    suspend fun updateDraftOrder(customerId: Long, updateDraftOrderRequest:UpdateDraftOrderRequest):UpdateDraftOrderRequest{
-        return productService.updateDraftOrder(customerId, updateDraftOrderRequest)
+    suspend fun updateDraftOrder(draftOrderId: Long, updateDraftOrderRequest:UpdateDraftOrderRequest):UpdateDraftOrderRequest{
+        return productService.updateDraftOrder(draftOrderId, updateDraftOrderRequest)
     }
 
     suspend fun getAllDraftOrders():ReceivedOrdersResponse{

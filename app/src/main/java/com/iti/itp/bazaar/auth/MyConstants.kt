@@ -7,6 +7,8 @@ object MyConstants {
     const val CUSOMER_ID = "customerId"
     const val CART_DRAFT_ORDER_ID = "cartDraftOrder"
     const val EMPTY_SKU = "emptySKU"
+    const val CURRENCY_SHARED_PREFS = "currencySharedPrefs"
+    const val CURRENCY = "currency"
 
 
 }

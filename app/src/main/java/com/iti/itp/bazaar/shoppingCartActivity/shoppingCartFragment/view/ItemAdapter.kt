@@ -34,6 +34,7 @@ class ItemAdapter(
     private lateinit var repository: Repository
     private lateinit var context: Context
     private lateinit var currencySharedPreferences: SharedPreferences
+    private var availableTotalAmountInStock: Int? = null
 
     class ItemViewHolder(val binding: ShoppingCartItemBinding) : ViewHolder(binding.root)
 
@@ -46,14 +47,16 @@ class ItemAdapter(
         return ItemViewHolder(binding)
     }
 
-    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val currentItem = getItem(position)
         if (currentItem.sku != "emptySKU") {
             makeNetWorkCallForImage(currentItem.sku?.toLong() ?: 0, position, holder)
 
             val unitPrice = currentItem.price.toDouble() / (currentItem.quantity ?: 1)
-            val formatter = NumberFormat.getCurrencyInstance(Locale.US)
+            val formatter = NumberFormat.getNumberInstance(Locale.US).apply {
+                minimumFractionDigits = 2
+                minimumFractionDigits = 2
+            }
 
             holder.binding.apply {
                 tvTitle.text = currentItem.title
@@ -64,6 +67,10 @@ class ItemAdapter(
 
                 ivIncrease.setOnClickListener {
                     val newQuantity = currentQuantity + 1
+                    if (availableTotalAmountInStock != null && newQuantity > availableTotalAmountInStock!!) {
+                        // Do not increase the quantity if it exceeds the available total amount in stock
+                        return@setOnClickListener
+                    }
                     val newPrice = unitPrice * newQuantity
                     onQuantityChangeListener.onQuantityChanged(currentItem, newQuantity, newPrice)
                 }
@@ -78,7 +85,6 @@ class ItemAdapter(
             }
         }
     }
-
     override fun submitList(list: List<LineItem>?) {
         // Filter the list to exclude items with SKU "emptySKU"
         val filteredList = list?.filter { it.sku != "emptySKU" }
@@ -92,6 +98,7 @@ class ItemAdapter(
                     Log.e(TAG, "makeNetWorkCallForImage: failed to get productInfo", e)
                 }.collect { response ->
                     withContext(Dispatchers.Main) {
+                        availableTotalAmountInStock = response.products[0].variants.get(0).inventoryQuantity
                         response.products.firstOrNull()?.let { product ->
                             val imageUrl = product.image?.src
                             imageUrl?.let {

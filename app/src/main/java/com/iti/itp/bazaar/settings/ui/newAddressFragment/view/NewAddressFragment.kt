@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.databinding.FragmentNewAddressBinding
 import com.iti.itp.bazaar.dto.AddAddressResponse
@@ -90,6 +91,12 @@ class NewAddressFragment : Fragment() {
                 )
             )
             newAddressViewModel.addNewAddress(customerId?.toLong()?:0,address)
+            binding.etCity.text.clear()
+            binding.governorate.text.clear()
+            binding.etPhone.text.clear()
+            Snackbar.make(requireView(),"Address is added", 2000).show()
         }
+
+
     }
 }

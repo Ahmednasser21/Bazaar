@@ -109,9 +109,9 @@ class prouductInfoViewModel (private val repo: Repository , private val currency
     }
 
 
-    fun updateDraftOrder(customerId:Long, updateDraftOrderRequest: UpdateDraftOrderRequest){
+    fun updateDraftOrder(draftOrderId:Long, updateDraftOrderRequest: UpdateDraftOrderRequest){
         viewModelScope.launch(Dispatchers.IO){
-            repo.updateDraftOrderRequest(customerId, updateDraftOrderRequest).catch {
+            repo.updateDraftOrderRequest(draftOrderId, updateDraftOrderRequest).catch {
                 _updatedOrder.value = DataState.OnFailed(it)
                 Log.e(TAG, "error updateDraftOrder: ${it.message}")
             }.collect{

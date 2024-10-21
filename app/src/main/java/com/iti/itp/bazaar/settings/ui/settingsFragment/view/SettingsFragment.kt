@@ -15,6 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.R
+import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.databinding.FragmentSettingsBinding
 import com.iti.itp.bazaar.dto.ListOfAddresses
 import com.iti.itp.bazaar.mainActivity.ui.DataState
@@ -37,6 +38,8 @@ class SettingsFragment : Fragment() {
     private lateinit var factory: SettingsViewModelFactory
     private lateinit var settingsViewModel: SettingsViewModel
     private lateinit var currencySharedPreferences: SharedPreferences
+    private lateinit var draftOrderSharedPreferences: SharedPreferences
+    private var customerId:String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,14 +51,16 @@ class SettingsFragment : Fragment() {
             ),
             CurrencyRepository(CurrencyRemoteDataSource(ExchangeRetrofitObj.service))
         )
+        draftOrderSharedPreferences = requireActivity().getSharedPreferences(MyConstants.MY_SHARED_PREFERANCE, Context.MODE_PRIVATE)
         settingsViewModel = ViewModelProvider(this, factory)[SettingsViewModel::class.java]
-        currencySharedPreferences = requireActivity().applicationContext.getSharedPreferences("currencySharedPrefs", Context.MODE_PRIVATE)
+        currencySharedPreferences = requireActivity().applicationContext.getSharedPreferences(MyConstants.CURRENCY_SHARED_PREFS, Context.MODE_PRIVATE)
         binding = FragmentSettingsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        customerId = draftOrderSharedPreferences.getString(MyConstants.CUSOMER_ID, "0")
         setupNavigationListeners()
     }
 
@@ -79,13 +84,13 @@ class SettingsFragment : Fragment() {
     }
 
     private fun updateCurrencyDisplay() {
-        val currency = currencySharedPreferences.getFloat("currency", 1F)
+        val currency = currencySharedPreferences.getFloat(MyConstants.CURRENCY, 1F)
         binding.currency.text = if (currency == 1.0f) "EGP" else "USD"
     }
 
     private fun fetchAndDisplayDefaultAddress() {
         lifecycleScope.launch(Dispatchers.IO) {
-            settingsViewModel.getAddressesForCustomer(8220771385648)
+            settingsViewModel.getAddressesForCustomer(customerId?.toLong()?:0)
             withContext(Dispatchers.Main) {
                 settingsViewModel.addresses.collect { state ->
                     when (state) {
@@ -122,7 +127,7 @@ class SettingsFragment : Fragment() {
                         binding.currency.text = "USD"
                     }
                     R.id.radioButtonEGP -> {
-                        currencySharedPreferences.edit().putFloat("currency", 1F).apply()
+                        currencySharedPreferences.edit().putFloat(MyConstants.CURRENCY, 1F).apply()
                         binding.currency.text = "EGP"
                     }
                 }

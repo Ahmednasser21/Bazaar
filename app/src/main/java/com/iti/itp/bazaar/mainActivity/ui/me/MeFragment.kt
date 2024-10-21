@@ -34,6 +34,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.concurrent.fixedRateTimer
 
 class MeFragment : Fragment() {
     private lateinit var orderViewModel: OrderViewModel
@@ -134,10 +135,13 @@ class MeFragment : Fragment() {
 
                     is DataState.OnSuccess<*> -> {
                         val ordersResponse = result.data as OrdersResponse
-                        val firstOrder = ordersResponse.orders[0]
-                        withContext(Dispatchers.Main) {
-                            priceValue.text = "${firstOrder.totalPrice} EGP"
-                            createdAt.text = formatOrderDate(firstOrder.createdAt)
+                        if (ordersResponse.orders.isNotEmpty()){
+                            val firstOrder = ordersResponse.orders[0]
+                            withContext(Dispatchers.Main) {
+                                priceValue.text = "${firstOrder.totalPrice} EGP"
+                                createdAt.text = formatOrderDate(firstOrder.createdAt)
+                            }
+
                         }
 
                     }

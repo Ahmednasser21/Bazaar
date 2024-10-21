@@ -41,9 +41,9 @@ class ShoppingCartFragmentViewModel(val repository: Repository):ViewModel() {
     }
 
 
-    fun updateDraftOrder(customerId:Long, updateDraftOrderRequest: UpdateDraftOrderRequest){
+    fun updateDraftOrder(draftOrderId:Long, updateDraftOrderRequest: UpdateDraftOrderRequest){
         viewModelScope.launch(Dispatchers.IO){
-            repository.updateDraftOrderRequest(customerId, updateDraftOrderRequest).catch {
+            repository.updateDraftOrderRequest(draftOrderId, updateDraftOrderRequest).catch {
                 _updatedOrder.value = DataState.OnFailed(it)
                 Log.e(TAG, "error updateDraftOrder: ${it.message}")
             }.collect{
