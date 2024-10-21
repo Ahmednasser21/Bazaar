@@ -17,6 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.databinding.FragmentShoppingCartBinding
 import com.iti.itp.bazaar.dto.AppliedDiscount
@@ -78,7 +79,11 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
 
     private fun setupUI() {
         binding.btnProceedToCheckout.setOnClickListener {
-            updateDraftOrderToAPI()
+            if (firstDraftOrder.line_items.size <= 1) {
+                Snackbar.make(requireView(),"Your cart is empty", 2000).show()
+            }else{
+                updateDraftOrderToAPI()
+            }
         }
 
         adapter = ItemAdapter(this)
