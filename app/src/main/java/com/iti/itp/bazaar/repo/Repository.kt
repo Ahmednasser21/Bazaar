@@ -145,11 +145,11 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
     }
 
     fun updateDraftOrderRequest(
-        customerId: Long,
+        draftOrderId: Long,
         updateDraftOrderRequest: UpdateDraftOrderRequest
     ): Flow<UpdateDraftOrderRequest> {
         return flow {
-            emit(remoteDataSource.updateDraftOrder(customerId, updateDraftOrderRequest))
+            emit(remoteDataSource.updateDraftOrder(draftOrderId, updateDraftOrderRequest))
         }
     }
 

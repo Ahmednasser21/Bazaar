@@ -45,7 +45,7 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
     private lateinit var shoppingCartViewModel: ShoppingCartFragmentViewModel
     private lateinit var firstDraftOrder: DraftOrder
     private lateinit var adapter: ItemAdapter
-    private val currencyFormatter = NumberFormat.getCurrencyInstance(Locale.US)
+    private val currencyFormatter = NumberFormat.getNumberInstance(Locale.US)
     private lateinit var currencySharedPreferences:SharedPreferences
     private lateinit var draftOrderSharedPreferences: SharedPreferences
     private var customerId:String? = null
@@ -279,7 +279,7 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
                 variant_id = item.variant_id,
                 product_id = item.product_id,
                 quantity = quantity,
-                price = totalPrice,  // Use the calculated total price
+                price = totalPrice,
                 title = item.title ?: "",
                 variant_title = item.variant_title,
                 sku = item.sku,

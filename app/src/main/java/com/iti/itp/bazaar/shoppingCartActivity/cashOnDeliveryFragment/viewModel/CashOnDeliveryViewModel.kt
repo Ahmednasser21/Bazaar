@@ -69,9 +69,9 @@ class CashOnDeliveryViewModel(val repository: Repository, val currencyRepository
         }
     }
 
-    fun updateDraftOrder(customerId:Long,updateDraftOrderRequest: UpdateDraftOrderRequest){
+    fun updateDraftOrder(draftOrderId:Long,updateDraftOrderRequest: UpdateDraftOrderRequest){
         viewModelScope.launch(Dispatchers.IO){
-            repository.updateDraftOrderRequest(customerId, updateDraftOrderRequest).catch {
+            repository.updateDraftOrderRequest(draftOrderId, updateDraftOrderRequest).catch {
                 Log.e(TAG, "failed to apply the discount: ${it.message}")
             }.collect{
                 Log.i(TAG, "updateDraftOrder: success to apply the discount")
