@@ -11,9 +11,11 @@ import com.iti.itp.bazaar.dto.CustomerAddressResponse
 import com.iti.itp.bazaar.dto.CustomerRequest
 import com.iti.itp.bazaar.dto.DraftOrderRequest
 import com.iti.itp.bazaar.dto.ListOfAddresses
+import com.iti.itp.bazaar.dto.PartialOrder
 import com.iti.itp.bazaar.dto.SingleCustomerResponse
 import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
 import com.iti.itp.bazaar.dto.cutomerResponce.CustomerResponse
+import com.iti.itp.bazaar.dto.order.Order
 import com.iti.itp.bazaar.network.responses.CouponsCountResponse
 import com.iti.itp.bazaar.network.responses.DiscountCodesResponse
 import com.iti.itp.bazaar.network.responses.OrdersResponse
@@ -184,6 +186,12 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
         return flow {
             val ordersResponse = remoteDataSource.getOrdersByCustomerID(query)
             emit(ordersResponse)
+            delay(100)
+        }
+    }
+    fun createOrder(partialOrder: PartialOrder):Flow<Order>{
+        return flow {
+            emit(remoteDataSource.createOrder(partialOrder))
             delay(100)
         }
     }

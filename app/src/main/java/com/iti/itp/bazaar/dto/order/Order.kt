@@ -1,9 +1,6 @@
 package com.iti.itp.bazaar.dto.order
 
 import com.google.gson.annotations.SerializedName
-import com.iti.itp.bazaar.dto.Address
-import com.iti.itp.bazaar.dto.Customer
-import com.iti.itp.bazaar.dto.LineItem
 
 data class Order(
     val id: Long,
