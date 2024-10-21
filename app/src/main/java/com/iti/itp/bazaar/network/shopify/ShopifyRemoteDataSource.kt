@@ -18,6 +18,7 @@ import com.iti.itp.bazaar.dto.cutomerResponce.CustomerByEmailResponce
 import com.iti.itp.bazaar.dto.cutomerResponce.CustomerResponse
 import com.iti.itp.bazaar.network.responses.CouponsCountResponse
 import com.iti.itp.bazaar.network.responses.DiscountCodesResponse
+import com.iti.itp.bazaar.network.responses.OrdersResponse
 import com.iti.itp.bazaar.network.responses.PriceRulesCountResponse
 import com.iti.itp.bazaar.network.responses.PriceRulesResponse
 import com.iti.itp.bazaar.network.responses.ProductResponse
@@ -112,6 +113,11 @@ class ShopifyRemoteDataSource(private val productService: ProductService) {
 
         return productService.updateCustomerById(customerId,updateCustomerRequest)
     }
+
+    suspend fun getOrdersByCustomerID(query:String): OrdersResponse {
+        return productService.getOrdersByCustomerId(query)
+    }
+
 
 
 }
