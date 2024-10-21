@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
@@ -13,7 +14,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.iti.itp.bazaar.databinding.FragmentChooseAddressBinding
 import com.iti.itp.bazaar.dto.CustomerAddress
 import com.iti.itp.bazaar.dto.ListOfAddresses
+import com.iti.itp.bazaar.dto.OrderAddress
 import com.iti.itp.bazaar.mainActivity.ui.DataState
+import com.iti.itp.bazaar.mainActivity.ui.order.SharedOrderViewModel
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
 import com.iti.itp.bazaar.repo.Repository
@@ -33,6 +36,7 @@ class ChooseAddressFragment : Fragment(), OnAddressClickListener {
     private lateinit var binding:FragmentChooseAddressBinding
     private lateinit var chooseAddressViewModel: ChooseAddressViewModel
     private lateinit var factory: ChooseAddressViewModelFactory
+    private val sharedOrderViewModel by activityViewModels<SharedOrderViewModel> ()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,6 +86,19 @@ class ChooseAddressFragment : Fragment(), OnAddressClickListener {
                             val defaultAddress = data.addresses.find {
                                 it.default == true
                             }
+                            val orderAddress = OrderAddress(
+                                first_name = defaultAddress?.first_name?:"",
+                                last_name = defaultAddress?.last_name?:"",
+                                address1 = defaultAddress?.address1?:"",
+                                address2 = defaultAddress?.address2?:"",
+                                city = defaultAddress?.city?:"",
+                                province = defaultAddress?.province?:"",
+                                country = defaultAddress?.country?:"",
+                                zip = defaultAddress?.zip?:"",
+                                phone = defaultAddress?.phone?:""
+                            )
+                            sharedOrderViewModel.updateBillingAddress(orderAddress)
+                            sharedOrderViewModel.updateShippingAddress(orderAddress)
                             binding.countryValue.text = defaultAddress?.country?:"unknown country"
                             binding.cityValue.text = defaultAddress?.city?: "unknown city"
                             binding.phoneValue.text = defaultAddress?.phone?: "unknown phone"

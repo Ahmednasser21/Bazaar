@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
@@ -23,9 +24,17 @@ import com.iti.itp.bazaar.dto.Customer
 import com.iti.itp.bazaar.dto.DraftOrder
 import com.iti.itp.bazaar.dto.DraftOrderRequest
 import com.iti.itp.bazaar.dto.LineItem
+import com.iti.itp.bazaar.dto.OrderAddress
+import com.iti.itp.bazaar.dto.OrderAppliedDiscount
+import com.iti.itp.bazaar.dto.OrderCustomer
+import com.iti.itp.bazaar.dto.OrderLineItem
+import com.iti.itp.bazaar.dto.PartialOrder
+import com.iti.itp.bazaar.dto.PartialOrder2
 import com.iti.itp.bazaar.dto.PriceRuleDto
 import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
+import com.iti.itp.bazaar.dto.order.Order
 import com.iti.itp.bazaar.mainActivity.ui.DataState
+import com.iti.itp.bazaar.mainActivity.ui.order.SharedOrderViewModel
 import com.iti.itp.bazaar.network.exchangeCurrencyApi.CurrencyRemoteDataSource
 import com.iti.itp.bazaar.network.exchangeCurrencyApi.ExchangeRetrofitObj
 import com.iti.itp.bazaar.network.responses.ExchangeRateResponse
@@ -38,6 +47,7 @@ import com.iti.itp.bazaar.shoppingCartActivity.cashOnDeliveryFragment.viewModel.
 import com.iti.itp.bazaar.shoppingCartActivity.cashOnDeliveryFragment.viewModel.CashOnDeliveryViewModelFactory
 import com.stripe.param.CreditNoteCreateParams.Line
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.abs
@@ -50,6 +60,7 @@ class CashOnDeliveryFragment : Fragment() {
     private var isApplyingDiscount = false
     private var currentConversionRate = 1.0
     private lateinit var draftOrderSharedPreferences: SharedPreferences
+    private val sharedOrderViewModel by activityViewModels<SharedOrderViewModel>()
     private var customerId:String?= null
     private var draftOrderId:String?= null
 
@@ -71,9 +82,14 @@ class CashOnDeliveryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         customerId = draftOrderSharedPreferences.getString(MyConstants.CUSOMER_ID, "0")
+        sharedOrderViewModel.updateCustomer(OrderCustomer(customerId?.toLong()?:0))
         draftOrderId = draftOrderSharedPreferences.getString(MyConstants.CART_DRAFT_ORDER_ID, "0")
         setupUI()
         observeData()
+        binding.btnPlaceOrder.setOnClickListener{
+            createOrder()
+            observeOrderResult()
+        }
     }
 
     private fun setupUI() {
@@ -144,7 +160,6 @@ class CashOnDeliveryFragment : Fragment() {
                                 price * (lineItem.quantity ?: 1)
                             } ?: 0.0
                         }
-
                         // Assuming applied_discount is a ReceivedDiscount that contains the discount value
                         val discountAmount = orderResponse.draft_order.applied_discount?.amount?.toDoubleOrNull() ?: 0.0
                         val total = subtotal - discountAmount
@@ -175,6 +190,23 @@ class CashOnDeliveryFragment : Fragment() {
                             isApplyingDiscount = false
                         }
                     }
+                    val draft = orderResponse.draft_order
+                    sharedOrderViewModel.updateLineItems(draft.line_items.map {
+                        OrderLineItem(
+                            variant_id = it.variant_id?:0,
+                            quantity = it.quantity?:0,
+                            name = it.name?:"",
+                            title = it.title?:"",
+                            price = it.price?:""
+                        )
+                    })
+                    sharedOrderViewModel.updateAppliedDiscount(OrderAppliedDiscount(
+                        description = draft.applied_discount?.description?:"",
+                        value = draft.applied_discount?.value?:"",
+                        value_type = draft.applied_discount?.value_type?:"",
+                        amount = draft.applied_discount?.amount?:"",
+                        title = draft.applied_discount?.title?:""
+                    ))
                 }
             }
         }
@@ -322,6 +354,46 @@ class CashOnDeliveryFragment : Fragment() {
     }
 
     private fun updateUIWithDraftOrder(draftOrder: ReceivedDraftOrder) {
+
+//        sharedOrderViewModel.updateShippingAddress(OrderAddress(
+//            first_name =draftOrder.shipping_address?.first_name?:"" ,
+//            last_name = draftOrder.shipping_address?.last_name?:"",
+//            address1 = draftOrder.shipping_address?.address1?:"",
+//            address2 = draftOrder.shipping_address?.address2?:"",
+//            city = draftOrder.shipping_address?.city?:"",
+//            province = draftOrder.shipping_address?.province?:"",
+//            country = draftOrder.shipping_address?.country?:"",
+//            zip = draftOrder.shipping_address?.zip?:"",
+//            phone = draftOrder.shipping_address?.phone?:""
+//        ))
+//        sharedOrderViewModel.updateBillingAddress(
+//            OrderAddress(
+//                first_name =draftOrder.billing_address?.first_name?:"" ,
+//                last_name = draftOrder.billing_address?.last_name?:"",
+//                address1 = draftOrder.billing_address?.address1?:"",
+//                address2 = draftOrder.billing_address?.address2?:"",
+//                city = draftOrder.billing_address?.city?:"",
+//                province = draftOrder.billing_address?.province?:"",
+//                country = draftOrder.billing_address?.country?:"",
+//                zip = draftOrder.billing_address?.zip?:"",
+//                phone = draftOrder.billing_address?.phone?:""
+//        ))
+//        sharedOrderViewModel.updateLineItems(draftOrder.line_items!!.map {
+//            OrderLineItem(
+//                variant_id = it.variant_id?:0,
+//                quantity = it.quantity?:0,
+//                name = it.name?:"",
+//                title = it.title?:"",
+//                price = it.price?:""
+//            )
+//        })
+//        sharedOrderViewModel.updateAppliedDiscount(OrderAppliedDiscount(
+//            description = draftOrder.applied_discount?.description?:"",
+//            value = draftOrder.applied_discount?.value?:"",
+//            value_type = draftOrder.applied_discount?.value_type?:"",
+//            amount = draftOrder.applied_discount?.amount?:"",
+//            title = draftOrder.applied_discount?.title?:""
+//        ))
         val subTotal = draftOrder.subtotal_price?.toDoubleOrNull() ?: 0.0
         val total = draftOrder.subtotal_price?.toDoubleOrNull() ?: 0.0
         val discount = draftOrder.applied_discount?.amount?.toDoubleOrNull() ?: 0.0
@@ -351,5 +423,43 @@ class CashOnDeliveryFragment : Fragment() {
         binding.tvSubTotalPrice.text = String.format("%.2f", baseSubTotal * conversionRate)
         binding.tvDiscountValue.text = String.format("%.2f", baseDiscount * conversionRate)
         binding.tvGrandTotal.text = String.format("%.2f", baseGrandTotal * conversionRate)
+    }
+
+    private fun observeOrderResult(){
+        lifecycleScope.launch {
+            cashOnDeliveryViewModel.placedOrder.collect{
+                when(it){
+                    DataState.Loading -> {}
+                    is DataState.OnFailed -> {}
+                    is DataState.OnSuccess<*> ->{}
+                }
+            }
+        }
+    }
+    private fun createOrder(){
+        lifecycleScope.launch {
+//            cashOnDeliveryViewModel.createOrder(PartialOrder(
+//                customer = sharedOrderViewModel.partialOrder.value.customer,
+//                payment_gateway_names = sharedOrderViewModel.partialOrder.value.payment_gateway_names,
+//                applied_discount = sharedOrderViewModel.partialOrder.value.applied_discount,
+//                shipping_address = sharedOrderViewModel.partialOrder.value.shipping_address,
+//                fulfillment_status = sharedOrderViewModel.partialOrder.value.fulfillment_status,
+//                billing_address = sharedOrderViewModel.partialOrder.value.billing_address,
+//                line_items = sharedOrderViewModel.partialOrder.value.line_items
+//            ))
+            sharedOrderViewModel.partialOrder.collect{
+                Log.i("input", "createOrder: $it")
+                cashOnDeliveryViewModel.createOrder(
+                    PartialOrder2( PartialOrder(
+                customer = it.customer,
+                payment_gateway_names = it.payment_gateway_names,
+                applied_discount = it.applied_discount,
+                shipping_address = it.shipping_address,
+                fulfillment_status = it.fulfillment_status,
+                billing_address = it.billing_address,
+                line_items = it.line_items
+            )))
+            }
+        }
     }
 }

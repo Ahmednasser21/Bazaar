@@ -3,6 +3,8 @@ package com.iti.itp.bazaar.shoppingCartActivity.cashOnDeliveryFragment.viewModel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.iti.itp.bazaar.dto.PartialOrder
+import com.iti.itp.bazaar.dto.PartialOrder2
 import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.network.responses.ExchangeRateResponse
@@ -30,6 +32,9 @@ class CashOnDeliveryViewModel(val repository: Repository, val currencyRepository
 
     private val _specificDraftOrder = MutableStateFlow<DataState>(DataState.Loading)
     val specificDraftOrder = _specificDraftOrder.asStateFlow()
+
+    private val _placedOrder = MutableStateFlow<DataState>(DataState.Loading)
+    val placedOrder = _placedOrder.asStateFlow()
 
 
     fun getCoupons(){
@@ -83,6 +88,18 @@ class CashOnDeliveryViewModel(val repository: Repository, val currencyRepository
             }.collect{
                 Log.i(TAG, "success to getSpecificDraftOrder: ")
                 _specificDraftOrder.value = DataState.OnSuccess(it)
+            }
+        }
+    }
+
+    fun createOrder(partialOrder2: PartialOrder2){
+        viewModelScope.launch {
+            repository.createOrder(partialOrder2).catch {
+                Log.e(TAG, "Failed placeOrder: ${it.message}")
+                _placedOrder.value = DataState.OnFailed(it)
+            }.collect{
+                Log.i(TAG, "placeOrder: Success")
+                _placedOrder.value = DataState.OnSuccess(it)
             }
         }
     }

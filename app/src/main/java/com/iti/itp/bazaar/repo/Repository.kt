@@ -3,19 +3,18 @@ package com.iti.itp.bazaar.repo
 import ReceivedDraftOrder
 import ReceivedOrdersResponse
 import com.iti.itp.bazaar.dto.AddAddressResponse
-import com.iti.itp.bazaar.dto.AddedAddressRequest
-import com.iti.itp.bazaar.dto.AddedCustomerAddressResponse
-import com.iti.itp.bazaar.dto.AddressRequest
-import com.iti.itp.bazaar.dto.CustomerAddress
 import com.iti.itp.bazaar.dto.CustomerAddressResponse
 import com.iti.itp.bazaar.dto.CustomerRequest
 import com.iti.itp.bazaar.dto.DraftOrderRequest
 import com.iti.itp.bazaar.dto.ListOfAddresses
+import com.iti.itp.bazaar.dto.PartialOrder
+import com.iti.itp.bazaar.dto.PartialOrder2
 import com.iti.itp.bazaar.dto.SingleCustomerResponse
 import com.iti.itp.bazaar.dto.UpdateCustomerRequest
 import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
 import com.iti.itp.bazaar.dto.cutomerResponce.CustomerByEmailResponce
 import com.iti.itp.bazaar.dto.cutomerResponce.CustomerResponse
+import com.iti.itp.bazaar.dto.order.Order
 import com.iti.itp.bazaar.network.responses.CouponsCountResponse
 import com.iti.itp.bazaar.network.responses.DiscountCodesResponse
 import com.iti.itp.bazaar.network.responses.OrdersResponse
@@ -42,15 +41,16 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
             }
         }
     }
-    fun getVendors():Flow<SmartCollectionsResponse>{
-        return flow{
+
+    fun getVendors(): Flow<SmartCollectionsResponse> {
+        return flow {
             val vendorList = remoteDataSource.getVendors()
             emit(vendorList)
             delay(100)
         }
     }
 
-    fun getVendorProducts(vendorName:String):Flow<ProductResponse>{
+    fun getVendorProducts(vendorName: String): Flow<ProductResponse> {
         return flow {
             val vendorProducts = remoteDataSource.getVendorProducts(vendorName)
             emit(vendorProducts)
@@ -66,7 +66,7 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
     }
 
 
-    fun getPriceRules():Flow<PriceRulesResponse>{
+    fun getPriceRules(): Flow<PriceRulesResponse> {
         return flow {
             val priceRulesResponse = remoteDataSource.getPriceRules()
             emit(priceRulesResponse)
@@ -74,7 +74,7 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
         }
     }
 
-    fun getPriceRulesCount():Flow<PriceRulesCountResponse>{
+    fun getPriceRulesCount(): Flow<PriceRulesCountResponse> {
         return flow {
             val priceRulesCount = remoteDataSource.getPriceRulesCount()
             emit(priceRulesCount)
@@ -82,7 +82,7 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
         }
     }
 
-    fun getCouponsCount():Flow<CouponsCountResponse>{
+    fun getCouponsCount(): Flow<CouponsCountResponse> {
         return flow {
             val couponsCount = remoteDataSource.getCouponsCount()
             emit(couponsCount)
@@ -90,68 +90,76 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
         }
     }
 
-    fun getCoupons(priceRuleId:Long):Flow<DiscountCodesResponse>{
+    fun getCoupons(priceRuleId: Long): Flow<DiscountCodesResponse> {
         return flow {
             val coupons = remoteDataSource.getCoupons(priceRuleId)
             emit(coupons)
             delay(100)
         }
     }
-    fun getCollectionProducts(id:Long):Flow<ProductResponse>{
-        return flow{
+
+    fun getCollectionProducts(id: Long): Flow<ProductResponse> {
+        return flow {
             val collectionProductList = remoteDataSource.getCollectionProducts(id)
             emit(collectionProductList)
             delay(100)
         }
     }
 
-    fun getAddressForCustomer(customerId:Long):Flow<ListOfAddresses>{
+    fun getAddressForCustomer(customerId: Long): Flow<ListOfAddresses> {
         return flow {
             emit(remoteDataSource.getAddressForCustomer(customerId))
         }
     }
 
-    fun getProductDetails (id: Long): Flow<ProductResponse> {
+    fun getProductDetails(id: Long): Flow<ProductResponse> {
         return flow {
-            val ProductDetails = remoteDataSource.getProductDetails (id)
+            val ProductDetails = remoteDataSource.getProductDetails(id)
             emit(ProductDetails)
             delay(100)
         }
     }
 
-    fun postCustomer (customer : CustomerRequest ): Flow<CustomerResponse> {
+    fun postCustomer(customer: CustomerRequest): Flow<CustomerResponse> {
         return flow {
-            val customerResponce = remoteDataSource.postCustomer (customer)
+            val customerResponce = remoteDataSource.postCustomer(customer)
             emit(customerResponce)
             delay(100)
         }
     }
 
-    fun updateCustomerAddress(customerId:Long, addressId:Long, customerAddress: CustomerAddressResponse):Flow<CustomerAddressResponse>{
+    fun updateCustomerAddress(
+        customerId: Long,
+        addressId: Long,
+        customerAddress: CustomerAddressResponse
+    ): Flow<CustomerAddressResponse> {
         return flow {
-            emit(remoteDataSource.updateCustomerAddress(customerId,addressId,customerAddress))
+            emit(remoteDataSource.updateCustomerAddress(customerId, addressId, customerAddress))
         }
     }
 
-    fun createDraftOrder(draftOrderRequest: DraftOrderRequest):Flow<ReceivedDraftOrder>{
+    fun createDraftOrder(draftOrderRequest: DraftOrderRequest): Flow<ReceivedDraftOrder> {
         return flow {
             emit(remoteDataSource.createDraftOrder(draftOrderRequest))
         }
     }
 
-    fun updateDraftOrderRequest(customerId: Long, updateDraftOrderRequest: UpdateDraftOrderRequest):Flow<UpdateDraftOrderRequest>{
+    fun updateDraftOrderRequest(
+        customerId: Long,
+        updateDraftOrderRequest: UpdateDraftOrderRequest
+    ): Flow<UpdateDraftOrderRequest> {
         return flow {
             emit(remoteDataSource.updateDraftOrder(customerId, updateDraftOrderRequest))
         }
     }
 
-    fun getAllDraftOrders():Flow<ReceivedOrdersResponse>{
+    fun getAllDraftOrders(): Flow<ReceivedOrdersResponse> {
         return flow {
             emit(remoteDataSource.getAllDraftOrders())
         }
     }
 
-    fun getAllProuducts () :Flow<ProductResponse>{
+    fun getAllProuducts(): Flow<ProductResponse> {
         return flow {
             val AllProduct = remoteDataSource.getAllProducts()
             emit(AllProduct)
@@ -159,7 +167,7 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
         }
     }
 
-    fun getSpecificDraftOrder (draftOrderId: Long) :Flow<DraftOrderRequest>{
+    fun getSpecificDraftOrder(draftOrderId: Long): Flow<DraftOrderRequest> {
         return flow {
             val draftOrder = remoteDataSource.getSpecificDraftOrder(draftOrderId)
             emit(draftOrder)
@@ -167,36 +175,40 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
         }
     }
 
-    fun getCustomerById(customerId: Long):Flow<SingleCustomerResponse>{
+    fun getCustomerById(customerId: Long): Flow<SingleCustomerResponse> {
         return flow {
             emit(remoteDataSource.getCustomerById(customerId))
             delay(100)
         }
     }
 
-    suspend fun deleteAddressOfSpecificCustomer(customerId: Long, addressId: Long){
-        return remoteDataSource.deleteAddressOfSpecificCustomer(customerId,addressId)
+    suspend fun deleteAddressOfSpecificCustomer(customerId: Long, addressId: Long) {
+        return remoteDataSource.deleteAddressOfSpecificCustomer(customerId, addressId)
     }
-    suspend fun deleteSpecificDraftOrder (draftOrderId: Long){
+
+    suspend fun deleteSpecificDraftOrder(draftOrderId: Long) {
 
         remoteDataSource.deleteSpecificDraftOrder(draftOrderId)
     }
 
-    fun getCustomerByEmail(email: String):Flow<CustomerByEmailResponce>{
+    fun getCustomerByEmail(email: String): Flow<CustomerByEmailResponce> {
         return flow {
-            emit(remoteDataSource.getCustomerByEmail (email))
+            emit(remoteDataSource.getCustomerByEmail(email))
             delay(100)
         }
     }
 
-     fun updateCustomerById (customerId : Long , updateCustomerRequest: UpdateCustomerRequest) :Flow<CustomerResponse>{
-         return flow {
-             emit (remoteDataSource.updateCustomerById(customerId,updateCustomerRequest))
-             delay(100)
-         }
-     }
+    fun updateCustomerById(
+        customerId: Long,
+        updateCustomerRequest: UpdateCustomerRequest
+    ): Flow<CustomerResponse> {
+        return flow {
+            emit(remoteDataSource.updateCustomerById(customerId, updateCustomerRequest))
+            delay(100)
+        }
+    }
 
-    fun getOrdersByCustomerID (query:String) :Flow<OrdersResponse>{
+    fun getOrdersByCustomerID(query: String): Flow<OrdersResponse> {
         return flow {
             val ordersResponse = remoteDataSource.getOrdersByCustomerID(query)
             emit(ordersResponse)
@@ -204,5 +216,12 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
         }
     }
 
+    fun createOrder(partialOrder2: PartialOrder2): Flow<Order> {
+        return flow {
+            emit(remoteDataSource.createOrder(partialOrder2))
+            delay(100)
+        }
 
+
+    }
 }

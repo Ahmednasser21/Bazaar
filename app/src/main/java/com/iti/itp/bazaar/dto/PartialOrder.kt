@@ -1,5 +1,7 @@
 package com.iti.itp.bazaar.dto
-
+data class PartialOrder2(
+    val order:PartialOrder
+)
 data class PartialOrder(
     var customer: OrderCustomer? = null,
     var line_items: List<OrderLineItem>? = null,

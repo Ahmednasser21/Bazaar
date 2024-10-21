@@ -12,6 +12,7 @@ import com.iti.itp.bazaar.dto.CustomerRequest
 import com.iti.itp.bazaar.dto.DraftOrderRequest
 import com.iti.itp.bazaar.dto.ListOfAddresses
 import com.iti.itp.bazaar.dto.PartialOrder
+import com.iti.itp.bazaar.dto.PartialOrder2
 import com.iti.itp.bazaar.dto.SingleCustomerResponse
 import com.iti.itp.bazaar.dto.UpdateCustomerRequest
 import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
@@ -120,8 +121,8 @@ class ShopifyRemoteDataSource(private val productService: ProductService) {
         return productService.getOrdersByCustomerId(query)
     }
 
-    suspend fun createOrder(partialOrder: PartialOrder):Order{
-        return productService.createOrder(partialOrder)
+    suspend fun createOrder(partialOrder2: PartialOrder2):Order{
+        return productService.createOrder(partialOrder2)
     }
 
 
