@@ -1,7 +1,9 @@
 package com.iti.itp.bazaar.mainActivity.ui.me
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
@@ -14,6 +16,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
+import com.iti.itp.bazaar.auth.AuthActivity
 import com.iti.itp.bazaar.databinding.FragmentMeBinding
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.mainActivity.ui.order.OrderViewModel
@@ -37,6 +41,7 @@ class MeFragment : Fragment() {
     private lateinit var moreOrders:TextView
     private lateinit var priceValue: TextView
     private lateinit var createdAt:TextView
+    lateinit var mAuth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,6 +76,7 @@ class MeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
         moreOrders = binding.moreOrders
         moreOrders.setOnClickListener{
             val action = MeFragmentDirections.actionNavMeToOrderFragment("customer_id:8220771418416")
@@ -79,6 +85,33 @@ class MeFragment : Fragment() {
         priceValue = binding.priceValue
         createdAt = binding.createdAt
         getOrderItem()
+
+        mAuth = FirebaseAuth.getInstance()
+        mAuth.addAuthStateListener { firebaseAuth ->
+            if (mAuth.currentUser == null) {
+                context?.let {
+                    val intent = Intent(it, AuthActivity::class.java)
+                    startActivity(intent)
+                    activity?.finish()
+                } ?: Log.e("AccountFragment", "Context is null")
+            }
+        }
+        binding.btnLogout.setOnClickListener{
+
+            AlertDialog.Builder(context)
+                .setTitle("Confirm Sign out")
+                .setMessage("Are you sure that you want to Sign Out?")
+                .setPositiveButton("Yes") { dialog, _ ->
+                    mAuth.signOut()
+                }
+                .setNegativeButton("No") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
+
+
+
+        }
     }
 
     private fun getOrderItem() {

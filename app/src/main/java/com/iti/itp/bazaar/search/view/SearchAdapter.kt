@@ -36,6 +36,7 @@ class SearchAdapter ( var  onClick : OnCardClickListner , var onFavClick : OnSea
 
     override fun onBindViewHolder(holder: SearchViewHolder, position: Int) {
         val currentProduct = getItem(position)
+
         binding.tvSearchProductName.text = currentProduct.title
         holder.binding.cdSearchProduct.setOnClickListener{
             onClick.onCardClick(currentProduct)

@@ -1,5 +1,6 @@
 package com.iti.itp.bazaar.favoriteProducts.view
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -8,6 +9,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
@@ -96,7 +98,7 @@ class FavoriteProductsFragment : Fragment() , OnFavProductCardClick , OnFavProdu
                         // print this list here ASAP
                         var lineItems : MutableList <LineItem> = mutableListOf()
                         FavDraftOrder.draft_order.line_items.forEach{
-                            if (it.sku != "Aa")
+                            if (it.sku != "emptySKU")
                             {
                                 lineItems.add(it) // containes every eleemnts exepts the last item which is updated sku to Aa
                                 // tb be able to delete it
@@ -123,54 +125,58 @@ class FavoriteProductsFragment : Fragment() , OnFavProductCardClick , OnFavProdu
     }
 
     override fun onFavDelete(lineItem: LineItem) {
-        lifecycleScope.launch {
-            if (FavDraftOrder.draft_order.line_items.size > 1) {
-                Log.d("TAG", "onFavDelete: just came ")
-                var currentDraftOrderItems: MutableList<LineItem> = mutableListOf()
-                FavDraftOrder.draft_order.line_items.forEach {
 
-                    currentDraftOrderItems.add(it)
-                    Log.d("TAG", "onFavDelete: 3mlt add ${currentDraftOrderItems.size} ")
-                    if (it == lineItem) {
-                        Log.d(
-                            "TAG",
-                            "onFavDelete: d5alt el if >- ezan el it == pressed line item  "
+        AlertDialog.Builder(context)
+            .setTitle("Confirm item Delete")
+            .setMessage("Are you sure that you want to delete this Item from your favourites?")
+            .setPositiveButton("Yes") { dialog, _ ->
+                lifecycleScope.launch {
+                    if (FavDraftOrder.draft_order.line_items.size > 1) {
+                        Log.d("TAG", "onFavDelete: just came ")
+                        var currentDraftOrderItems: MutableList<LineItem> = mutableListOf()
+                        FavDraftOrder.draft_order.line_items.forEach {
+
+                            currentDraftOrderItems.add(it)
+                            Log.d("TAG", "onFavDelete: 3mlt add ${currentDraftOrderItems.size} ")
+                            if (it == lineItem) {
+                                Log.d("TAG", "onFavDelete: d5alt el if >- ezan el it == pressed line item  ")
+                                currentDraftOrderItems.remove(it)// kda 3addelt el list of line items
+                                Log.d("TAG", "onFavDelete: hal 3mlt delete walla la2? new size ->> ${currentDraftOrderItems.size} ")
+                            } else {
+                                Log.d("TAG", "onFavDelete: d5alt el else  >- ezan el it != pressed line item  ")
+                            }
+
+
+                        }
+                        FavDraftOrder.draft_order.line_items = currentDraftOrderItems
+                        ProductInfoViewModel.updateDraftOrder(
+                            favDraftOrderId,
+                            UpdateDraftOrderRequest(FavDraftOrder.draft_order)
                         )
-                        currentDraftOrderItems.remove(it)// kda 3addelt el list of line items
-                        Log.d(
-                            "TAG",
-                            "onFavDelete: hal 3mlt delete walla la2? new size ->> ${currentDraftOrderItems.size} "
-                        )
-                    } else {
-                        Log.d(
-                            "TAG",
-                            "onFavDelete: d5alt el else  >- ezan el it != pressed line item  "
-                        )
+                        delay(1000) // to give time for changes ( delating and updating the list ) to take action
+                        // to call the list again after its modified
+                        ProductInfoViewModel.getSpecificDraftOrder(favDraftOrderId)
                     }
+                    else {
 
+                        FavDraftOrder.draft_order.line_items.get(0).sku="emptySKU" // make sku of remainig item to be Aa
+                        ProductInfoViewModel.updateDraftOrder(
+                            favDraftOrderId,
+                            UpdateDraftOrderRequest(FavDraftOrder.draft_order)
+                        )
 
+                        delay(1000)
+                        ProductInfoViewModel.getSpecificDraftOrder(favDraftOrderId)
+                    }
                 }
-                FavDraftOrder.draft_order.line_items = currentDraftOrderItems
-                ProductInfoViewModel.updateDraftOrder(
-                    favDraftOrderId,
-                    UpdateDraftOrderRequest(FavDraftOrder.draft_order)
-                )
-                delay(1000) // to give time for changes ( delating and updating the list ) to take action
-                // to call the list again after its modified
-                ProductInfoViewModel.getSpecificDraftOrder(favDraftOrderId)
             }
-            else {
-
-                FavDraftOrder.draft_order.line_items.get(0).sku="Aa" // make sku of remainig item to be Aa
-                ProductInfoViewModel.updateDraftOrder(
-                    favDraftOrderId,
-                    UpdateDraftOrderRequest(FavDraftOrder.draft_order)
-                )
-
-                delay(1000)
-                ProductInfoViewModel.getSpecificDraftOrder(favDraftOrderId)
+            .setNegativeButton("No") { dialog, _ ->
+                dialog.dismiss()
             }
-        }
+            .show()
+
+
+
 
 
     }

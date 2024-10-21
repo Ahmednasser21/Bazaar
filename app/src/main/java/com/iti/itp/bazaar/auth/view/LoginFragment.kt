@@ -60,7 +60,8 @@ class LoginFragment : Fragment() {
     lateinit var sharedPreferences: SharedPreferences
     lateinit var ProductInfoViewModel : prouductInfoViewModel
     lateinit var DraftvmFActory : ProuductIfonViewModelFactory
-
+var email:String?=null
+var password:String?=null
 
     val updateCustomerRequest = UpdateCustomerRequest(
         customer = CustomerUpdate(
@@ -94,8 +95,17 @@ class LoginFragment : Fragment() {
     val customerRequest = CustomerRequest(customer)
     override fun onStart() {
         super.onStart()
-        // dont forget to chech on the logged in user
+        // don't forget to check on the logged in user
        // checkIfEmailVerified()
+        Log.d("TAG", "onStart: ")
+        if (mAuth.currentUser != null)
+        {
+            if (mAuth.currentUser!!.isEmailVerified)
+            {
+                startActivity(Intent(requireActivity(), MainActivity::class.java))
+            }
+
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -142,11 +152,11 @@ class LoginFragment : Fragment() {
 
         binding.btnLogIn.setOnClickListener {
 
-            val email = binding.etEmailLogIn.text.toString()
-            val password = binding.etPassLogIn.text.toString()
+             email = binding.etEmailLogIn.text.toString()
+             password = binding.etPassLogIn.text.toString()
             if (!email.isNullOrBlank() || !password.isNullOrBlank()) {
 
-                logIn(email, password)
+                logIn(email!!, password!!)
             } else {
                 Snackbar.make(requireView(), "Please Enter Your Full Credintial", 2000).show()
 
@@ -166,7 +176,7 @@ class LoginFragment : Fragment() {
         authViewModel.logIn(email, password)
             .addOnCompleteListener(requireActivity()) { task ->
                 if (task.isSuccessful) {
-                    checkIfEmailVerified(email)
+                    checkIfEmailVerified()
                 } else {
                     Snackbar.make(requireView(), "Authentication failed.", 2000)
                         .show()
@@ -175,13 +185,13 @@ class LoginFragment : Fragment() {
             }
     }
 
-    private fun checkIfEmailVerified(email : String) {
+    private fun checkIfEmailVerified() {
         val user = authViewModel.checkIfEmailVerified()
         if (user != null) {
             if (user.isEmailVerified) {
                 // here also navigate to home screen
-
-                ObserveOnGettingCustomerByEmail(email)
+// to ckeck if he is verfird on shopufi
+                email?.let { ObserveOnGettingCustomerByEmail(it) }
 
 
             } else {
@@ -221,6 +231,7 @@ class LoginFragment : Fragment() {
                             Log.d("TAG", "ObserveOnGettingCustomerByEmail success w da el object kamel ->:${customerByEmail.get(0).id} ")
                             //saving customer id i shared pref
                             sharedPreferences.edit().putString(MyConstants.CUSOMER_ID,customerByEmail.get(0).id.toString()).apply()
+                            // now i want to create a method for creating to draft orders (Fav And Cart ) and then post thier id to this customer again
                             if (customerByEmail.get(0).first_name.isNullOrBlank()&&customerByEmail.get(0).last_name.isNullOrBlank())
                             {
                                 updateCustomerRequest.customer.id=customerByEmail.get(0).id
@@ -243,17 +254,6 @@ class LoginFragment : Fragment() {
                                 startActivity(Intent(requireActivity(), MainActivity::class.java))
 
                             }
-
-
-
-
-
-
-
-                            // now i want to create a method for creating to draft orders (Fav And Cart ) and then post thier id to this customer again
-
-
-
 
 
 
