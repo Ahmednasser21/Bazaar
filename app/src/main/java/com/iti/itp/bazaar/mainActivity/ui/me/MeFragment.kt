@@ -52,7 +52,7 @@ class MeFragment : Fragment() {
             )
         )
         orderViewModel = ViewModelProvider(requireActivity(), orderFactory)[OrderViewModel::class.java]
-        orderViewModel.getOrdersByCustomerID("customer_id:8220771418416")
+       // orderViewModel.getOrdersByCustomerID("customer_id:8220771418416")
     }
 
 
