@@ -7,29 +7,15 @@
     android:padding="16dp"
     tools:context=".shoppingCartActivity.ChooseAdressFragment.view.ChooseAddressFragment">
 
-<!--    <TextView-->
-<!--        android:id="@+id/textView4"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginTop="44dp"-->
-<!--        android:text="Choose Address"-->
-<!--        android:textColor="@color/black"-->
-<!--        android:textSize="24sp"-->
-<!--        android:textStyle="bold"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintHorizontal_bias="0.497"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent" />-->
 
-<!--    <androidx.recyclerview.widget.RecyclerView-->
-<!--        android:id="@+id/addressRecyclerview"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="0dp"-->
-<!--        android:layout_marginVertical="28dp"-->
-<!--        app:layout_constraintBottom_toTopOf="@+id/continueToPayment"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/textView4" />-->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/addressCardView"
@@ -37,11 +23,13 @@
         android:layout_height="200dp"
         android:backgroundTint="#F0D0BC"
         app:cardCornerRadius="40dp"
+        android:layout_marginHorizontal="3dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" >
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraintAddress"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -141,16 +129,33 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/continueToPayment"
-        android:text="@string/continue_to_payment"
-        android:layout_width="match_parent"
-        android:textColor="@color/white"
-        android:textSize="16sp"
+        android:layout_width="0dp"
         android:layout_height="50dp"
         android:layout_marginBottom="24dp"
         android:background="@drawable/custom_button_background"
+        android:text="@string/continue_to_payment"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:textAllCaps="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/chooseAntoherAddress" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/chooseAntoherAddress"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:background="@drawable/custom_button_background"
+        android:text="Choose another address"
+        android:textAllCaps="false"
+        android:layout_marginEnd="20dp"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@+id/continueToPayment"
+        app:layout_constraintEnd_toStartOf="@+id/continueToPayment"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/continueToPayment" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

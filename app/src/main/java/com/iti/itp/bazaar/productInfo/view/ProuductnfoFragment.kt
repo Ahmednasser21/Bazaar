@@ -19,6 +19,7 @@ import com.denzcoskun.imageslider.models.SlideModel
 import com.example.productinfoform_commerce.productInfo.viewModel.ProuductIfonViewModelFactory
 import com.example.productinfoform_commerce.productInfo.viewModel.prouductInfoViewModel
 import com.google.android.material.snackbar.Snackbar
+import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.databinding.FragmentProuductnfoBinding
 import com.iti.itp.bazaar.dto.AppliedDiscount
 import com.iti.itp.bazaar.dto.Customer
@@ -56,6 +57,8 @@ class ProuductnfoFragment : Fragment() , OnClickListner<AvailableSizes> , OnColo
     var conversionRate : Double? = 0.0
     var choosenSize : String? = null
     var choosenColor : String?= null
+    private lateinit var draftOrderSharedPreferences: SharedPreferences
+
 
     lateinit var proudct :Products
     lateinit var Currentcurrency : String
@@ -77,7 +80,7 @@ class ProuductnfoFragment : Fragment() , OnClickListner<AvailableSizes> , OnColo
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-
+        draftOrderSharedPreferences = requireActivity().getSharedPreferences(MyConstants.MY_SHARED_PREFERANCE, Context.MODE_PRIVATE)
         binding = FragmentProuductnfoBinding.inflate(inflater,container , false)
         return binding.root
     }
@@ -85,6 +88,7 @@ class ProuductnfoFragment : Fragment() , OnClickListner<AvailableSizes> , OnColo
     @SuppressLint("SuspiciousIndentation")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val orderId = draftOrderSharedPreferences.getString(MyConstants.CART_DRAFT_ORDER_ID, "0")
 
         sharedPreferences = requireActivity().getSharedPreferences(
             "currencySharedPrefs",
@@ -129,21 +133,18 @@ class ProuductnfoFragment : Fragment() , OnClickListner<AvailableSizes> , OnColo
                     // chosenSize, chosenColor, product (global variable taken its value when success in getProductDetails())
                     viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                         ProductInfoViewModel.getPriceRules()
-                        ProductInfoViewModel.getAllDraftOrders()
-                        ProductInfoViewModel.allDraftOrders.collect { state ->
+                        ProductInfoViewModel.getSpecificDraftOrder(orderId?.toLong()!!)
+                        ProductInfoViewModel.specificDraftOrders.collect { state ->
                             when (state) {
                                 is DataState.Loading -> {}
                                 is DataState.OnFailed -> {}
                                 is DataState.OnSuccess<*> -> {
-                                    val data = state.data as ReceivedOrdersResponse
-                                    if (data.draft_orders.isEmpty()) {
-                                        ProductInfoViewModel.createOrder(draftOrderRequest())
-                                    } else {
+                                    val data = state.data as  DraftOrderRequest
                                         // Use the first existing draft order
-                                        val existingOrder = data.draft_orders.first()
+                                        val existingOrder = data.draft_order
                                         Log.i("TAG", "product id is: ${ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId}")
                                         val updatedLineItems = (existingOrder.line_items ?: emptyList()).toMutableList()
-                                            updatedLineItems.add(ReceivedLineItem(
+                                            updatedLineItems.add(LineItem(
                                             sku = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId.toString(),
                                             id = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
                                             variant_title = "dgldsjglk",
@@ -153,7 +154,7 @@ class ProuductnfoFragment : Fragment() , OnClickListner<AvailableSizes> , OnColo
                                             quantity = 1
                                         ))
                                         ProductInfoViewModel.updateDraftOrder(
-                                            existingOrder.id,
+                                            orderId.toLong(),
                                             UpdateDraftOrderRequest(
                                                 DraftOrder(
                                                     applied_discount = AppliedDiscount(null),
@@ -171,7 +172,7 @@ class ProuductnfoFragment : Fragment() , OnClickListner<AvailableSizes> , OnColo
                                                 )
                                             )
                                         )
-                                    }
+
                                 }
                             }
                         }

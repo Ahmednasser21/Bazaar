@@ -25,6 +25,9 @@ class ShoppingCartFragmentViewModel(val repository: Repository):ViewModel() {
     private val _updatedOrder = MutableStateFlow<DataState>(DataState.Loading)
     val updatedOrder = _updatedOrder.asStateFlow()
 
+    private val _specificDraftOrder = MutableStateFlow<DataState>(DataState.Loading)
+    val specificDraftOrder = _specificDraftOrder.asStateFlow()
+
     fun getAllDraftOrders(){
         viewModelScope.launch(Dispatchers.IO){
             repository.getAllDraftOrders().catch {
@@ -49,4 +52,16 @@ class ShoppingCartFragmentViewModel(val repository: Repository):ViewModel() {
             }
         }
 }
+
+    fun getSpecificDraftOrder(draftOrderId:Long){
+        viewModelScope.launch(Dispatchers.IO){
+            repository.getSpecificDraftOrder(draftOrderId).catch {
+                _specificDraftOrder.value = DataState.OnFailed(it)
+                Log.e(TAG, "failed to getSpecificDraftOrder: ")
+            }.collect{
+                _specificDraftOrder.value = DataState.OnSuccess(it)
+                Log.i(TAG, "success to getSpecificDraftOrder: ")
+            }
+        }
+    }
 }

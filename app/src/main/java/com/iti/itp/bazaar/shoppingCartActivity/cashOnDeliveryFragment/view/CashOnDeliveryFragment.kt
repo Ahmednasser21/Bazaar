@@ -1,10 +1,14 @@
 package com.iti.itp.bazaar.shoppingCartActivity.cashOnDeliveryFragment.view
 
+import ReceivedDiscount
+import ReceivedDraftOrder
+import ReceivedLineItem
 import ReceivedOrdersResponse
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -12,10 +16,12 @@ import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
+import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.databinding.FragmentCashOnDeliveryBinding
 import com.iti.itp.bazaar.dto.AppliedDiscount
 import com.iti.itp.bazaar.dto.Customer
 import com.iti.itp.bazaar.dto.DraftOrder
+import com.iti.itp.bazaar.dto.DraftOrderRequest
 import com.iti.itp.bazaar.dto.LineItem
 import com.iti.itp.bazaar.dto.PriceRuleDto
 import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
@@ -30,6 +36,7 @@ import com.iti.itp.bazaar.repo.CurrencyRepository
 import com.iti.itp.bazaar.repo.Repository
 import com.iti.itp.bazaar.shoppingCartActivity.cashOnDeliveryFragment.viewModel.CashOnDeliveryViewModel
 import com.iti.itp.bazaar.shoppingCartActivity.cashOnDeliveryFragment.viewModel.CashOnDeliveryViewModelFactory
+import com.stripe.param.CreditNoteCreateParams.Line
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -42,11 +49,15 @@ class CashOnDeliveryFragment : Fragment() {
     private lateinit var currencySharedPreferences: SharedPreferences
     private var isApplyingDiscount = false
     private var currentConversionRate = 1.0
+    private lateinit var draftOrderSharedPreferences: SharedPreferences
+    private var customerId:String?= null
+    private var draftOrderId:String?= null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        draftOrderSharedPreferences = requireActivity().getSharedPreferences(MyConstants.MY_SHARED_PREFERANCE, Context.MODE_PRIVATE)
         factory = CashOnDeliveryViewModelFactory(
             Repository.getInstance(ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)),
             CurrencyRepository(CurrencyRemoteDataSource(ExchangeRetrofitObj.service))
@@ -59,6 +70,8 @@ class CashOnDeliveryFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        customerId = draftOrderSharedPreferences.getString(MyConstants.CUSOMER_ID, "0")
+        draftOrderId = draftOrderSharedPreferences.getString(MyConstants.CART_DRAFT_ORDER_ID, "0")
         setupUI()
         observeData()
     }
@@ -109,8 +122,8 @@ class CashOnDeliveryFragment : Fragment() {
     }
 
     private suspend fun observeDraftOrders() {
-        cashOnDeliveryViewModel.getAllDraftOrders()
-        cashOnDeliveryViewModel.draftOrders.collect { state ->
+        cashOnDeliveryViewModel.getSpecificDraftOrder(draftOrderId?.toLong() ?: 0)
+        cashOnDeliveryViewModel.specificDraftOrder.collect { state ->
             when (state) {
                 is DataState.Loading -> {
                     if (!isApplyingDiscount) {
@@ -123,10 +136,41 @@ class CashOnDeliveryFragment : Fragment() {
                     }
                 }
                 is DataState.OnSuccess<*> -> {
-                    val orderResponse = state.data as ReceivedOrdersResponse
-                    if (orderResponse.draft_orders.isNotEmpty()) {
+                    val orderResponse = state.data as DraftOrderRequest
+                    if (orderResponse.draft_order.line_items.isNotEmpty()) {
+                        // Calculate subtotal and total
+                        val subtotal = orderResponse.draft_order.line_items.sumOf { lineItem ->
+                            lineItem.price.toDoubleOrNull()?.let { price ->
+                                price * (lineItem.quantity ?: 1)
+                            } ?: 0.0
+                        }
+
+                        // Assuming applied_discount is a ReceivedDiscount that contains the discount value
+                        val discountAmount = orderResponse.draft_order.applied_discount?.amount?.toDoubleOrNull() ?: 0.0
+                        val total = subtotal - discountAmount
+
+                        // Update UI with calculated values
+                        binding.tvSubTotalPrice.text = String.format("%.2f", subtotal * currentConversionRate)
+                        binding.tvGrandTotal.text = String.format("%.2f", total * currentConversionRate)
+
                         if (!isApplyingDiscount) {
-                            updateUIWithDraftOrder(orderResponse)
+                            updateUIWithDraftOrder(
+                                ReceivedDraftOrder(
+                                    id = draftOrderId?.toLong() ?: 0,
+                                    line_items = orderResponse.draft_order.line_items.map {
+                                        ReceivedLineItem(product_id = it.product_id, price = it.price)
+                                    },
+                                    subtotal_price = subtotal.toString(),
+                                    total_price = total.toString(),
+                                    applied_discount = ReceivedDiscount(
+                                        null,
+                                        value = null,
+                                        title = null,
+                                        amount = null,
+                                        value_type = null
+                                    )
+                                )
+                            )
                         } else {
                             isApplyingDiscount = false
                         }
@@ -135,6 +179,7 @@ class CashOnDeliveryFragment : Fragment() {
             }
         }
     }
+
 
     private suspend fun observeCurrency() {
         val currency = currencySharedPreferences.getString("currency", "EGP")
@@ -276,10 +321,10 @@ class CashOnDeliveryFragment : Fragment() {
         }
     }
 
-    private fun updateUIWithDraftOrder(draftOrder: ReceivedOrdersResponse) {
-        val subTotal = draftOrder.draft_orders[0].subtotal_price?.toDoubleOrNull() ?: 0.0
-        val total = draftOrder.draft_orders[0].total_price?.toDoubleOrNull() ?: 0.0
-        val discount = draftOrder.draft_orders[0].applied_discount?.amount?.toDoubleOrNull() ?: 0.0
+    private fun updateUIWithDraftOrder(draftOrder: ReceivedDraftOrder) {
+        val subTotal = draftOrder.subtotal_price?.toDoubleOrNull() ?: 0.0
+        val total = draftOrder.subtotal_price?.toDoubleOrNull() ?: 0.0
+        val discount = draftOrder.applied_discount?.amount?.toDoubleOrNull() ?: 0.0
 
         binding.tvSubTotalPrice.text = String.format("%.2f", subTotal * currentConversionRate)
         binding.tvDiscountValue.text = String.format("%.2f", discount * currentConversionRate)
@@ -288,7 +333,7 @@ class CashOnDeliveryFragment : Fragment() {
         if (discount > 0) {
             binding.tvValidate.isClickable = false
             binding.etCoupons.isEnabled = false
-            binding.etCoupons.setText(draftOrder.draft_orders[0].applied_discount?.description)
+            binding.etCoupons.setText(draftOrder.applied_discount?.description)
         }
     }
 

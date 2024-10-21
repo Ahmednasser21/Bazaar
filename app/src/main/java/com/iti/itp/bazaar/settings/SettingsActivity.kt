@@ -17,6 +17,7 @@ class SettingsActivity : AppCompatActivity() {
         // Initialize NavController
         navController = findNavController(R.id.nav_host_fragment_activity_settings)
 
+
     }
 
     override fun onSupportNavigateUp(): Boolean {

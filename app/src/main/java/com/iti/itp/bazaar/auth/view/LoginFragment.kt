@@ -220,7 +220,7 @@ class LoginFragment : Fragment() {
 
                             Log.d("TAG", "ObserveOnGettingCustomerByEmail success w da el object kamel ->:${customerByEmail.get(0).id} ")
                             //saving customer id i shared pref
-                            sharedPreferences.edit().putString(MyConstants.CUSOMER_ID,customerByEmail.get(0).id.toString())
+                            sharedPreferences.edit().putString(MyConstants.CUSOMER_ID,customerByEmail.get(0).id.toString()).apply()
                             if (customerByEmail.get(0).first_name.isNullOrBlank()&&customerByEmail.get(0).last_name.isNullOrBlank())
                             {
                                 updateCustomerRequest.customer.id=customerByEmail.get(0).id
