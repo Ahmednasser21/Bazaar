@@ -118,7 +118,7 @@ class ShopifyRemoteDataSource(private val productService: ProductService) {
     }
 
     suspend fun getOrdersByCustomerID(query:String): OrdersResponse {
-        return productService.getOrdersByCustomerId(query)
+        return productService.getOrdersByCustomerId("customer_id:${query}")
     }
 
     suspend fun createOrder(partialOrder2: PartialOrder2):Order{
