@@ -1,6 +1,8 @@
 package com.iti.itp.bazaar.shoppingCartActivity.ChooseAdressFragment.view
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -11,6 +13,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
+import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.databinding.FragmentChooseAddressBinding
 import com.iti.itp.bazaar.dto.CustomerAddress
 import com.iti.itp.bazaar.dto.ListOfAddresses
@@ -37,6 +41,9 @@ class ChooseAddressFragment : Fragment(), OnAddressClickListener {
     private lateinit var chooseAddressViewModel: ChooseAddressViewModel
     private lateinit var factory: ChooseAddressViewModelFactory
     private val sharedOrderViewModel by activityViewModels<SharedOrderViewModel> ()
+    private lateinit var draftOrderSharedPreferences: SharedPreferences
+    private var customerId:String?= null
+    private lateinit var listOfAddresses: ListOfAddresses
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +55,7 @@ class ChooseAddressFragment : Fragment(), OnAddressClickListener {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
+        draftOrderSharedPreferences = requireActivity().getSharedPreferences(MyConstants.MY_SHARED_PREFERANCE, Context.MODE_PRIVATE)
         factory = ChooseAddressViewModelFactory(Repository.getInstance(ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)))
         chooseAddressViewModel = ViewModelProvider(this,factory).get(ChooseAddressViewModel::class.java)
         binding = FragmentChooseAddressBinding.inflate(inflater,container,false)
@@ -56,16 +64,13 @@ class ChooseAddressFragment : Fragment(), OnAddressClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        customerId = draftOrderSharedPreferences.getString(MyConstants.CUSOMER_ID, "0")
 
     }
 
     override fun onStart() {
         super.onStart()
-        binding.continueToPayment.setOnClickListener {
-            val action = ChooseAddressFragmentDirections.actionChooseAddressFragmentToPaymentMethods()
-            Navigation.findNavController(requireView()).navigate(action)
-        }
+
 
         binding.chooseAntoherAddress.setOnClickListener {
             val intent = Intent(requireActivity(), SettingsActivity::class.java)
@@ -73,7 +78,7 @@ class ChooseAddressFragment : Fragment(), OnAddressClickListener {
         }
 
         lifecycleScope.launch(Dispatchers.IO){
-            chooseAddressViewModel.getAddressForCustomer(8220771418416)
+            chooseAddressViewModel.getAddressForCustomer(customerId?.toLong()?:0)
             delay(1500)
             chooseAddressViewModel.addressesOfCustomer.collect{state ->
                 when(state){
@@ -82,8 +87,8 @@ class ChooseAddressFragment : Fragment(), OnAddressClickListener {
                     is DataState.OnSuccess<*> -> {
                         withContext(Dispatchers.Main){
                         handleSuccess()
-                        val data = state.data as ListOfAddresses
-                            val defaultAddress = data.addresses.find {
+                        listOfAddresses = state.data as ListOfAddresses
+                            val defaultAddress = listOfAddresses.addresses.find {
                                 it.default == true
                             }
                             val orderAddress = OrderAddress(
@@ -105,8 +110,14 @@ class ChooseAddressFragment : Fragment(), OnAddressClickListener {
                         }
                     }
                 }
-
-
+                binding.continueToPayment.setOnClickListener {
+                    if (listOfAddresses.addresses.isNotEmpty()){
+                        val action = ChooseAddressFragmentDirections.actionChooseAddressFragmentToPaymentMethods()
+                        Navigation.findNavController(requireView()).navigate(action)
+                    }else{
+                        Snackbar.make(requireView(),"must be one address at least", 2000).show()
+                    }
+                }
             }
         }
     }

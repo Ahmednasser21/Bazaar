@@ -43,6 +43,7 @@ import com.iti.itp.bazaar.repo.Repository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.random.Random
 
 
@@ -174,6 +175,10 @@ class ProuductnfoFragment : Fragment() , OnClickListner<AvailableSizes> , OnColo
                                         )
 
                                 }
+                            }
+
+                            withContext(Dispatchers.Main){
+                                Snackbar.make(requireView(), "Product is added to your cart", 2000).show()
                             }
                         }
                     }
