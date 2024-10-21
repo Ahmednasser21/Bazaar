@@ -43,8 +43,6 @@ class MeFragment : Fragment() {
     private lateinit var currencySharePrefs: SharedPreferences
     private lateinit var binding: FragmentMeBinding
     private lateinit var moreOrders: TextView
-    private lateinit var priceValue: TextView
-    private lateinit var createdAt: TextView
     lateinit var mAuth: FirebaseAuth
     private lateinit var userDataSharedPreferences: SharedPreferences
     private lateinit var customerID: String
@@ -97,8 +95,6 @@ class MeFragment : Fragment() {
             val action = MeFragmentDirections.actionNavMeToOrderFragment(customerID)
             Navigation.findNavController(it).navigate(action)
         }
-        priceValue = binding.priceValue
-        createdAt = binding.createdAt
 
         mAuth = FirebaseAuth.getInstance()
         mAuth.addAuthStateListener { firebaseAuth ->
@@ -138,8 +134,8 @@ class MeFragment : Fragment() {
                         if (ordersResponse.orders.isNotEmpty()){
                             val firstOrder = ordersResponse.orders[0]
                             withContext(Dispatchers.Main) {
-                                priceValue.text = "${firstOrder.totalPrice} EGP"
-                                createdAt.text = formatOrderDate(firstOrder.createdAt)
+                                binding.priceValue.text = "${firstOrder.totalPrice} EGP"
+                                binding.createdAt.text = formatOrderDate(firstOrder.createdAt)
                             }
 
                         }

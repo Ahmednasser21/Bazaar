@@ -80,7 +80,7 @@ class CashOnDeliveryFragment : Fragment() {
             CurrencyRepository(CurrencyRemoteDataSource(ExchangeRetrofitObj.service))
         )
         cashOnDeliveryViewModel =
-            ViewModelProvider(this, factory)[CashOnDeliveryViewModel::class.java]
+            ViewModelProvider(requireActivity(), factory)[CashOnDeliveryViewModel::class.java]
         currencySharedPreferences =
             requireContext().getSharedPreferences("currencySharedPrefs", Context.MODE_PRIVATE)
         binding = FragmentCashOnDeliveryBinding.inflate(inflater, container, false)
@@ -226,7 +226,7 @@ class CashOnDeliveryFragment : Fragment() {
                             quantity = it.quantity ?: 0,
                             name = it.name ?: "",
                             title = it.title ?: "",
-                            price = it.price ?: ""
+                            price = it.price
                         )
                     })
                     sharedOrderViewModel.updateAppliedDiscount(
