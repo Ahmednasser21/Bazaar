@@ -28,9 +28,9 @@
 
     <fragment
         android:id="@+id/nav_me"
-        android:name="com.iti.itp.bazaar.mainActivity.ui.notifications.NotificationsFragment"
+        android:name="com.iti.itp.bazaar.mainActivity.ui.me.MeFragment"
         android:label="@string/me"
-        tools:layout="@layout/fragment_notifications" >
+        tools:layout="@layout/fragment_me" >
         <action
             android:id="@+id/action_nav_me_to_orderFragment"
             app:destination="@id/orderFragment" />

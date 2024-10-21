@@ -1,4 +1,4 @@
-package com.iti.itp.bazaar.mainActivity.ui.notifications
+package com.iti.itp.bazaar.mainActivity.ui.me
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -13,35 +13,46 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
-import com.iti.itp.bazaar.databinding.FragmentNotificationsBinding
-import com.iti.itp.bazaar.dto.SingleCustomerResponse
+import com.google.android.material.snackbar.Snackbar
+import com.iti.itp.bazaar.databinding.FragmentMeBinding
 import com.iti.itp.bazaar.mainActivity.ui.DataState
+import com.iti.itp.bazaar.mainActivity.ui.order.OrderViewModel
+import com.iti.itp.bazaar.mainActivity.ui.order.OrderViewModelFactory
 import com.iti.itp.bazaar.network.exchangeCurrencyApi.CurrencyRemoteDataSource
 import com.iti.itp.bazaar.network.exchangeCurrencyApi.ExchangeRetrofitObj
+import com.iti.itp.bazaar.network.responses.OrdersResponse
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
 import com.iti.itp.bazaar.repo.CurrencyRepository
 import com.iti.itp.bazaar.repo.Repository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
-class NotificationsFragment : Fragment() {
-    private lateinit var notificationsViewModel:NotificationsViewModel
-    private lateinit var factory:NotificationViewModelFactory
+class MeFragment : Fragment() {
+    private lateinit var orderViewModel: OrderViewModel
+    private lateinit var meViewModel:MeViewModel
+    private lateinit var meFactory:MeViewModelFactory
     private lateinit var currencySharePrefs:SharedPreferences
-    private lateinit var binding:FragmentNotificationsBinding
+    private lateinit var binding:FragmentMeBinding
     private lateinit var moreOrders:TextView
+    private lateinit var priceValue: TextView
+    private lateinit var createdAt:TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        factory = NotificationViewModelFactory(
+        meFactory = MeViewModelFactory(
             CurrencyRepository(CurrencyRemoteDataSource(ExchangeRetrofitObj.service)),
             repository = Repository.getInstance(ShopifyRemoteDataSource(ShopifyRetrofitObj.productService))
         )
-        notificationsViewModel = ViewModelProvider(this, factory)[NotificationsViewModel::class.java]
+        meViewModel = ViewModelProvider(this, meFactory)[MeViewModel::class.java]
+
+        val orderFactory = OrderViewModelFactory(
+            Repository.getInstance(
+                ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
+            )
+        )
+        orderViewModel = ViewModelProvider(requireActivity(), orderFactory)[OrderViewModel::class.java]
+        orderViewModel.getOrdersByCustomerID("customer_id:8220771418416")
     }
 
 
@@ -52,7 +63,7 @@ class NotificationsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         currencySharePrefs = requireActivity().applicationContext.getSharedPreferences("currencySharedPrefs", Context.MODE_PRIVATE)
-        binding = FragmentNotificationsBinding.inflate(inflater, container, false)
+        binding = FragmentMeBinding.inflate(inflater, container, false)
         val root: View = binding.root
         return root
     }
@@ -62,9 +73,46 @@ class NotificationsFragment : Fragment() {
 
         moreOrders = binding.moreOrders
         moreOrders.setOnClickListener{
-            val action = NotificationsFragmentDirections.actionNavMeToOrderFragment("customer_id:8220771418416")
+            val action = MeFragmentDirections.actionNavMeToOrderFragment("customer_id:8220771418416")
             Navigation.findNavController(it).navigate(action)
         }
+        priceValue = binding.priceValue
+        createdAt = binding.createdAt
+        getOrderItem()
+    }
+
+    private fun getOrderItem() {
+        lifecycleScope.launch {
+            orderViewModel.ordersStateFlow.collectLatest { result ->
+                when (result) {
+                    is DataState.Loading -> {}
+
+                    is DataState.OnSuccess<*> -> {
+                        val ordersResponse = result.data as OrdersResponse
+                        val firstOrder = ordersResponse.orders[0]
+                        priceValue.text ="${firstOrder.totalPrice} EGP"
+                        createdAt.text = formatOrderDate(firstOrder.createdAt)
+                    }
+
+                    is DataState.OnFailed -> {
+                        Snackbar.make(requireView(), "Failed to get data", Snackbar.LENGTH_SHORT)
+                            .show()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun formatOrderDate(apiDate: String): String {
+        val apiDateFormat =
+            java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", java.util.Locale.getDefault())
+        val readableDateFormat = java.text.SimpleDateFormat(
+            "MMMM dd, yyyy 'at' HH:mm a",
+            java.util.Locale.getDefault()
+        )
+        val date = apiDateFormat.parse(apiDate.replace("Z", "+0000"))
+        return readableDateFormat.format(date ?: "Unknown date")
+
     }
 
 

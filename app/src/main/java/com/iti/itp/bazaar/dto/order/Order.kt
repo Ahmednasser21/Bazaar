@@ -45,6 +45,7 @@ data class Order(
     val confirmationNumber: String,
     val confirmed: Boolean,
     val contactEmail: String,
+    @SerializedName("created_at")
     val createdAt: String,
     val currency: String,
 
@@ -106,7 +107,7 @@ data class Order(
 
     @SerializedName("total_discounts_set")
     val totalDiscountsSet: PriceSet,
-
+    @SerializedName("total_price")
     val totalPrice: String,
 
     @SerializedName("total_price_set")

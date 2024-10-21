@@ -19,10 +19,22 @@ class OrdersAdapter : ListAdapter<Order , OrdersAdapter.OrdersViewHolder> (Order
         holder.bindView(order)
     }
 
-    class  OrdersViewHolder(val binding:OrderItemBinding):RecyclerView.ViewHolder(binding.root){
-        fun bindView(order:Order){
-            binding.tvOrderPrice.text = order.totalPrice
-            binding.tvCreationDate.text = order.createdAt
+    class  OrdersViewHolder(val binding:OrderItemBinding):RecyclerView.ViewHolder(binding.root) {
+        fun bindView(order: Order) {
+            binding.tvOrderPrice.text = "${order.totalPrice} EGP"
+            binding.tvCreationDate.text = formatOrderDate(order.createdAt)
+        }
+
+        private fun formatOrderDate(apiDate: String): String {
+            val apiDateFormat =
+                java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", java.util.Locale.getDefault())
+            val readableDateFormat = java.text.SimpleDateFormat(
+                "MMMM dd, yyyy 'at' HH:mm a",
+                java.util.Locale.getDefault()
+            )
+            val date = apiDateFormat.parse(apiDate.replace("Z", "+0000"))
+            return readableDateFormat.format(date ?: "Unknown date")
+
         }
     }
 
