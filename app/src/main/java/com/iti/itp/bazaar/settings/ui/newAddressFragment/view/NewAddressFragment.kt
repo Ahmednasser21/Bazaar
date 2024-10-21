@@ -1,5 +1,7 @@
 package com.iti.itp.bazaar.settings.ui.newAddressFragment.view
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -9,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.databinding.FragmentNewAddressBinding
 import com.iti.itp.bazaar.dto.AddAddressResponse
 import com.iti.itp.bazaar.dto.AddedAddressRequest
@@ -27,6 +30,8 @@ import kotlinx.coroutines.launch
 class NewAddressFragment : Fragment() {
     private lateinit var binding: FragmentNewAddressBinding
     private lateinit var newAddressViewModel: NewAddressViewModel
+    private lateinit var draftOrderSharedPreferences: SharedPreferences
+    private var customerId:String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,6 +42,7 @@ class NewAddressFragment : Fragment() {
                 ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
             )
         )
+        draftOrderSharedPreferences = requireContext().getSharedPreferences(MyConstants.MY_SHARED_PREFERANCE, Context.MODE_PRIVATE)
         newAddressViewModel = ViewModelProvider(this, factory).get(NewAddressViewModel::class.java)
         binding = FragmentNewAddressBinding.inflate(inflater, container, false)
         return binding.root
@@ -44,6 +50,8 @@ class NewAddressFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        customerId = draftOrderSharedPreferences.getString(MyConstants.CUSOMER_ID, "0")
+        Log.i("TAG", "onViewCreated: $customerId")
 //        val customerAddress = AddedCustomerAddress(
 //            address1 = "${binding.governorate.text}",
 //            address2 = "${binding.etCity.text}",
@@ -62,8 +70,8 @@ class NewAddressFragment : Fragment() {
         binding.btnAddAddress.setOnClickListener {
             val address = AddAddressResponse(
                 CustomerAddress(
-                    id = 8220771418416,
-                    customer_id = 8220771418416,
+                    id = customerId?.toLong()?:0,
+                    customer_id = customerId?.toLong()?:0,
                     first_name = "ahmed",
                     last_name = "samy",
                     company = "ahmed's company",
@@ -81,7 +89,7 @@ class NewAddressFragment : Fragment() {
                     default = false,
                 )
             )
-            newAddressViewModel.addNewAddress(8220771418416,address)
+            newAddressViewModel.addNewAddress(customerId?.toLong()?:0,address)
         }
     }
 }

@@ -1,5 +1,7 @@
 package com.iti.itp.bazaar.settings.ui.addressFragment.view
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -11,7 +13,9 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.databinding.FragmentAddressBinding
 import com.iti.itp.bazaar.dto.CustomerAddress
 import com.iti.itp.bazaar.dto.CustomerAddressResponse
@@ -30,11 +34,14 @@ class AddressFragment : Fragment(), OnAddressClickListener {
     private lateinit var addressViewModel: AddressViewModel
     private lateinit var adapter: AddressAdapter
     private var isDeleting = false
+    private lateinit var draftOrderSharedPreferences: SharedPreferences
+    private var customerId:String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        draftOrderSharedPreferences = requireActivity().getSharedPreferences(MyConstants.MY_SHARED_PREFERANCE, Context.MODE_PRIVATE)
         factory = AddressViewModelFactory(Repository.getInstance(ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)))
         addressViewModel = ViewModelProvider(this, factory)[AddressViewModel::class.java]
         binding = FragmentAddressBinding.inflate(inflater, container, false)
@@ -43,6 +50,7 @@ class AddressFragment : Fragment(), OnAddressClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        customerId = draftOrderSharedPreferences.getString(MyConstants.CUSOMER_ID,"0")
         setupUI()
         setupSwipeToDelete()
         observeAddresses()
@@ -68,10 +76,29 @@ class AddressFragment : Fragment(), OnAddressClickListener {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val position = viewHolder.adapterPosition
                 val address = adapter.currentList[position] as CustomerAddress
-                deleteAddress(address)
+                showDeleteConfirmationDialog(address, position)
             }
         }
         ItemTouchHelper(swipeToDeleteCallback).attachToRecyclerView(binding.addressRv)
+    }
+
+    private fun showDeleteConfirmationDialog(address: CustomerAddress, position: Int) {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Delete Address")
+            .setMessage("Are you sure you want to delete this address?")
+            .setPositiveButton("Delete") { _, _ ->
+                deleteAddress(address)
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+                // Restore the swiped item
+                adapter.notifyItemChanged(position)
+            }
+            .setOnCancelListener {
+                // Restore the swiped item when dialog is dismissed
+                adapter.notifyItemChanged(position)
+            }
+            .show()
     }
 
     private fun deleteAddress(address: CustomerAddress) {
@@ -84,7 +111,7 @@ class AddressFragment : Fragment(), OnAddressClickListener {
         isDeleting = true
         lifecycleScope.launch {
             try {
-                addressViewModel.deleteAddressForSpecificCustomer(8220771418416, address.id)
+                addressViewModel.deleteAddressForSpecificCustomer(customerId?.toLong()?:0, address.id)
                 showMessage("Address deleted successfully")
             } catch (e: Exception) {
                 showMessage("Failed to delete address: ${e.message}")
@@ -97,7 +124,7 @@ class AddressFragment : Fragment(), OnAddressClickListener {
 
     private fun refreshAddressList() {
         lifecycleScope.launch {
-            addressViewModel.getAddressesForCustomer(8220771418416)
+            addressViewModel.getAddressesForCustomer(customerId?.toLong()?:0)
         }
     }
 
@@ -153,7 +180,6 @@ class AddressFragment : Fragment(), OnAddressClickListener {
                     customerAddressResponse
                 )
 
-                // After successful update, navigate back
                 view?.let { view ->
                     Navigation.findNavController(view).navigateUp()
                 }

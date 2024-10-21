@@ -13,7 +13,7 @@ data class ReceivedDraftOrder(
     val updated_at: String? = null,
     val tax_exempt: Boolean? = null,
     val completed_at: String? = null,
-    val name: String,
+    val name: String? ="",
     val status: String? = null,
     var line_items: List<ReceivedLineItem>? = null,
     val shipping_address: ReceivedAddress? = null,
@@ -85,10 +85,10 @@ data class ReceivedAddress(
 
 data class ReceivedDiscount(
     val description: String?,
-    val value: String,
+    val value: String?,
     val title: String?,
-    val amount: String,
-    val value_type: String
+    val amount: String?,
+    val value_type: String?
 )
 
 data class ReceivedShippingLine(

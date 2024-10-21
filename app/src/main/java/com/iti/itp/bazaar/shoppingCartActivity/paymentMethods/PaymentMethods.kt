@@ -69,7 +69,7 @@ class PaymentMethods : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.continueToPayment.setOnClickListener {
-            if (binding.paypal.isChecked) {
+            if (binding.paymob.isChecked) {
                 startPayWithStripe()
             } else if (binding.cashOnDelivery.isChecked) {
                 val action = PaymentMethodsDirections.actionPaymentMethodsToCashOnDeliveryFragment()

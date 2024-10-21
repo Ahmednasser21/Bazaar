@@ -1,5 +1,6 @@
 package com.iti.itp.bazaar.shoppingCartActivity.ChooseAdressFragment.view
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -16,7 +17,9 @@ import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
 import com.iti.itp.bazaar.repo.Repository
+import com.iti.itp.bazaar.settings.SettingsActivity
 import com.iti.itp.bazaar.settings.ui.addressFragment.view.AddressAdapter
+import com.iti.itp.bazaar.settings.ui.addressFragment.view.AddressFragment
 import com.iti.itp.bazaar.settings.ui.addressFragment.view.OnAddressClickListener
 import com.iti.itp.bazaar.shoppingCartActivity.ChooseAdressFragment.viewModel.ChooseAddressViewModel
 import com.iti.itp.bazaar.shoppingCartActivity.ChooseAdressFragment.viewModel.ChooseAddressViewModelFactory
@@ -60,16 +63,22 @@ class ChooseAddressFragment : Fragment(), OnAddressClickListener {
             Navigation.findNavController(requireView()).navigate(action)
         }
 
+        binding.chooseAntoherAddress.setOnClickListener {
+            val intent = Intent(requireActivity(), SettingsActivity::class.java)
+            startActivity(intent)
+        }
+
         lifecycleScope.launch(Dispatchers.IO){
             chooseAddressViewModel.getAddressForCustomer(8220771418416)
             delay(1500)
             chooseAddressViewModel.addressesOfCustomer.collect{state ->
                 when(state){
-                    DataState.Loading -> {}
+                    DataState.Loading -> handleLoading()
                     is DataState.OnFailed -> {}
                     is DataState.OnSuccess<*> -> {
-                        val data = state.data as ListOfAddresses
                         withContext(Dispatchers.Main){
+                        handleSuccess()
+                        val data = state.data as ListOfAddresses
                             val defaultAddress = data.addresses.find {
                                 it.default == true
                             }
@@ -85,7 +94,33 @@ class ChooseAddressFragment : Fragment(), OnAddressClickListener {
         }
     }
 
+    private fun handleLoading() {
+        binding.progressBar.visibility = View.VISIBLE
+        binding.addressCardView.visibility = View.GONE
+        binding.country.visibility = View.GONE
+        binding.city.visibility = View.GONE
+        binding.phone.visibility = View.GONE
+        binding.countryValue.visibility = View.GONE
+        binding.cityValue.visibility = View.GONE
+        binding.phoneValue.visibility = View.GONE
+        binding.constraintAddress.visibility = View.GONE
+    }
+
+    private fun handleSuccess(){
+        binding.progressBar.visibility = View.GONE
+        binding.addressCardView.visibility = View.VISIBLE
+        binding.country.visibility = View.VISIBLE
+        binding.city.visibility = View.VISIBLE
+        binding.phone.visibility = View.VISIBLE
+        binding.countryValue.visibility = View.VISIBLE
+        binding.cityValue.visibility = View.VISIBLE
+        binding.phoneValue.visibility = View.VISIBLE
+        binding.constraintAddress.visibility = View.VISIBLE
+    }
+
     override fun onAddressClick(customerAddress: CustomerAddress) {
 
     }
+
+
 }

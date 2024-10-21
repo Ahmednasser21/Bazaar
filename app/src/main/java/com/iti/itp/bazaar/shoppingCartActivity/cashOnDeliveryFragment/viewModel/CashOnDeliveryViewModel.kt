@@ -28,6 +28,9 @@ class CashOnDeliveryViewModel(val repository: Repository, val currencyRepository
     private val _draftOrders = MutableStateFlow<DataState>(DataState.Loading)
     val draftOrders = _draftOrders.asStateFlow()
 
+    private val _specificDraftOrder = MutableStateFlow<DataState>(DataState.Loading)
+    val specificDraftOrder = _specificDraftOrder.asStateFlow()
+
 
     fun getCoupons(){
         viewModelScope.launch(Dispatchers.IO){
@@ -67,6 +70,19 @@ class CashOnDeliveryViewModel(val repository: Repository, val currencyRepository
                 Log.e(TAG, "failed to apply the discount: ${it.message}")
             }.collect{
                 Log.i(TAG, "updateDraftOrder: success to apply the discount")
+            }
+        }
+    }
+
+
+    fun getSpecificDraftOrder(draftOrderId:Long){
+        viewModelScope.launch(Dispatchers.IO){
+            repository.getSpecificDraftOrder(draftOrderId).catch {
+                Log.e(TAG, "failed to getSpecificDraftOrder: ")
+                _specificDraftOrder.value = DataState.OnFailed(it)
+            }.collect{
+                Log.i(TAG, "success to getSpecificDraftOrder: ")
+                _specificDraftOrder.value = DataState.OnSuccess(it)
             }
         }
     }
