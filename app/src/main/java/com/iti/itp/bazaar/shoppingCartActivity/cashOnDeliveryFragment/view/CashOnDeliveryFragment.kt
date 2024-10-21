@@ -7,6 +7,7 @@ import ReceivedOrdersResponse
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
@@ -34,6 +35,7 @@ import com.iti.itp.bazaar.dto.PartialOrder2
 import com.iti.itp.bazaar.dto.PriceRuleDto
 import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
 import com.iti.itp.bazaar.dto.order.Order
+import com.iti.itp.bazaar.mainActivity.MainActivity
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.mainActivity.ui.order.SharedOrderViewModel
 import com.iti.itp.bazaar.network.exchangeCurrencyApi.CurrencyRemoteDataSource
@@ -457,12 +459,8 @@ class CashOnDeliveryFragment : Fragment() {
                     DataState.Loading -> {}
                     is DataState.OnFailed -> {}
                     is DataState.OnSuccess<*> -> {
+                        showOrderSuccessDialog()
                         clearingDraftOrderAfterPlacingOrder()
-                        withContext(Dispatchers.Main){
-                            showOrderSuccessDialog()
-                        }
-
-
                     }
                 }
             }
@@ -527,7 +525,9 @@ class CashOnDeliveryFragment : Fragment() {
         builder.setMessage("Order placed successfully")
         builder.setPositiveButton("OK") { dialog, _ ->
             dialog.dismiss()
-            requireActivity().finish()
+            val intent =Intent(requireActivity(),MainActivity::class.java)
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK )
+            startActivity(intent)
         }
         builder.create().show()
 
