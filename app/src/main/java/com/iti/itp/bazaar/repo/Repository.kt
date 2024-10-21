@@ -12,7 +12,9 @@ import com.iti.itp.bazaar.dto.CustomerRequest
 import com.iti.itp.bazaar.dto.DraftOrderRequest
 import com.iti.itp.bazaar.dto.ListOfAddresses
 import com.iti.itp.bazaar.dto.SingleCustomerResponse
+import com.iti.itp.bazaar.dto.UpdateCustomerRequest
 import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
+import com.iti.itp.bazaar.dto.cutomerResponce.CustomerByEmailResponce
 import com.iti.itp.bazaar.dto.cutomerResponce.CustomerResponse
 import com.iti.itp.bazaar.network.responses.CouponsCountResponse
 import com.iti.itp.bazaar.network.responses.DiscountCodesResponse
@@ -178,4 +180,19 @@ class Repository private constructor(private val remoteDataSource: ShopifyRemote
 
         remoteDataSource.deleteSpecificDraftOrder(draftOrderId)
     }
+
+    fun getCustomerByEmail(email: String):Flow<CustomerByEmailResponce>{
+        return flow {
+            emit(remoteDataSource.getCustomerByEmail (email))
+            delay(100)
+        }
+    }
+
+     fun updateCustomerById (customerId : Long , updateCustomerRequest: UpdateCustomerRequest) :Flow<CustomerResponse>{
+         return flow {
+             emit (remoteDataSource.updateCustomerById(customerId,updateCustomerRequest))
+             delay(100)
+         }
+     }
+
 }

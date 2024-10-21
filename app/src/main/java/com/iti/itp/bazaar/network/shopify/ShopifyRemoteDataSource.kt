@@ -12,7 +12,9 @@ import com.iti.itp.bazaar.dto.CustomerRequest
 import com.iti.itp.bazaar.dto.DraftOrderRequest
 import com.iti.itp.bazaar.dto.ListOfAddresses
 import com.iti.itp.bazaar.dto.SingleCustomerResponse
+import com.iti.itp.bazaar.dto.UpdateCustomerRequest
 import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
+import com.iti.itp.bazaar.dto.cutomerResponce.CustomerByEmailResponce
 import com.iti.itp.bazaar.dto.cutomerResponce.CustomerResponse
 import com.iti.itp.bazaar.network.responses.CouponsCountResponse
 import com.iti.itp.bazaar.network.responses.DiscountCodesResponse
@@ -100,6 +102,15 @@ class ShopifyRemoteDataSource(private val productService: ProductService) {
 
     suspend fun deleteAddressOfSpecificCustomer(customerId: Long, addressId: Long){
         return productService.deleteAddressOfSpecificCustomer(customerId, addressId)
+    }
+
+    suspend fun getCustomerByEmail(email : String) : CustomerByEmailResponce{
+        return productService.getCustomerByEmail (email)
+    }
+    suspend fun updateCustomerById (customerId : Long , updateCustomerRequest: UpdateCustomerRequest) :
+            CustomerResponse{
+
+        return productService.updateCustomerById(customerId,updateCustomerRequest)
     }
 
 
