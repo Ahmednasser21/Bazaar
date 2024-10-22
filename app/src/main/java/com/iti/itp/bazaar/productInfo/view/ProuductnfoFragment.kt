@@ -559,6 +559,7 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
                         )
                     }
 
+
                     is DataState.OnSuccess<*> -> {
                         Log.d("TAG", "getSpecificDraftOrderById: prouductInfo success")
                         draftOrderRequest = result.data as DraftOrderRequest
