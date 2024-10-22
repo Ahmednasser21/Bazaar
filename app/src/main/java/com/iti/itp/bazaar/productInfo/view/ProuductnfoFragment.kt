@@ -54,7 +54,7 @@ import kotlin.random.Random
 
 class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorClickListner {
 
-    lateinit var binding: FragmentProuductnfoBinding
+    var binding: FragmentProuductnfoBinding? = null
     lateinit var ProductInfoViewModel: prouductInfoViewModel
     lateinit var vmFActory: ProuductIfonViewModelFactory
     lateinit var availableSizesAdapter: AvailableSizesAdapter
@@ -105,7 +105,7 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
         IsGuestMode = mySharedPrefrence.getString(MyConstants.IS_GUEST, "false") ?: "false"
 
         binding = FragmentProuductnfoBinding.inflate(inflater, container, false)
-        return binding.root
+        return binding!!.root
     }
 
     @SuppressLint("SuspiciousIndentation")
@@ -128,7 +128,7 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
 
 // size adapter
         availableSizesAdapter = AvailableSizesAdapter(this)
-        binding.rvAvailableSizes.apply {
+        binding!!.rvAvailableSizes.apply {
             adapter = availableSizesAdapter
             layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
@@ -136,7 +136,7 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
         }
 // color adapter
         availableColorsAdapter = AvailableColorAdapter(this)
-        binding.rvAvailableColors.apply {
+        binding!!.rvAvailableColors.apply {
             adapter = availableColorsAdapter
             layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
@@ -144,7 +144,7 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
 
 // handel btn_addToCart
         // handel btn_addToCart
-        binding.btnAddToCart.setOnClickListener {
+        binding!!.btnAddToCart.setOnClickListener {
             when (IsGuestMode){
                 "true"->{
                     Snackbar.make(
@@ -263,7 +263,7 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
 
         getSpecificDraftOrderById(FavDraftOrderId.toLong())
         //handel btn add to favourite
-        binding.ivAddProuductToFavorite.setOnClickListener {
+        binding!!.ivAddProuductToFavorite.setOnClickListener {
             when (IsGuestMode){
                 "true"->{
                     Snackbar.make(
@@ -282,7 +282,7 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
                             .setMessage("Are you sure that you want to delete this item from your favourites?")
                             .setPositiveButton("Yes") { dialog, _ ->
                                 lifecycleScope.launch {
-                                    binding.ivAddProuductToFavorite.setColorFilter(Color.BLACK)
+                                    binding!!.ivAddProuductToFavorite.setColorFilter(Color.BLACK)
                                     var currentDraftOrderItems: MutableList<LineItem> =
                                         mutableListOf() // to store my previous liked products
 
@@ -339,7 +339,7 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
                                 FavDraftOrderId.toLong(),
                                 UpdateDraftOrderRequest(updatedDraftOrder)
                             )
-                            binding.ivAddProuductToFavorite.setColorFilter(Color.BLUE)
+                            binding!!.ivAddProuductToFavorite.setColorFilter(Color.BLUE)
 
 
                         }
@@ -393,18 +393,18 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
     }
 
     fun setProudctDetailToUI(productsList: List<Products>) {
-        binding.tvProuductName.text = productsList.get(0).title
-        binding.tvProuductDesc.text = productsList.get(0).bodyHtml
+        binding!!.tvProuductName.text = productsList.get(0).title
+        binding!!.tvProuductDesc.text = productsList.get(0).bodyHtml
 
         // da el se3r w hyt8yar based on shared pref in setting
         when (Currentcurrency) {
             1F -> {
-                binding.tvProuductPrice.text = "${productsList.get(0).variants.get(0).price} EGP"
+                binding!!.tvProuductPrice.text = "${productsList.get(0).variants.get(0).price} EGP"
             }
 
             else  -> {
                 val prics = productsList.get(0).variants.get(0).price.toDouble()
-                binding.tvProuductPrice.text =
+                binding!!.tvProuductPrice.text =
                     String.format("%.2f", (prics * Currentcurrency!!)) + " USD"
 //
 //                ProductInfoViewModel.getCurrencyRate("EGP", "USD")
@@ -421,9 +421,9 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
         val randomReview = reviewList[Random.nextInt(reviewList.size)]
 
         // Set the rating and review to the UI
-        binding.rbProuductRatingBar.rating = randomRating
-        binding.rbProuductRatingBar.setIsIndicator(true) // to make the rating bar unchangable
-        binding.tvProuductReview.text = randomReview
+        binding!!.rbProuductRatingBar.rating = randomRating
+        binding!!.rbProuductRatingBar.setIsIndicator(true) // to make the rating bar unchangable
+        binding!!.tvProuductReview.text = randomReview
         Log.d("TAG", "getProductDetails: url sora  ${productsList.get(0).images.get(0).src} ")
 
         // Set the image src to slider
@@ -433,7 +433,7 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
                 ScaleTypes.FIT
             )
         }
-        binding.isProuductImage.setImageList(imageSlideModels)
+        binding!!.isProuductImage.setImageList(imageSlideModels)
     }
 
     fun setUpTheAvailableSizesAndColors(optionList: List<Option>) {
@@ -552,7 +552,7 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
 
                         conversionRate = (result.data as ExchangeRateResponse).conversion_rate
                         Log.d("TAG", "getCurrencyRate: succes   $conversionRate   ")
-                        binding.tvProuductPrice.text =
+                        binding!!.tvProuductPrice.text =
                             String.format("%.2f", (price * conversionRate!!)) + " USD"
 
 
@@ -630,9 +630,9 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
                         }
 
                         if (IS_Liked) {
-                            binding.ivAddProuductToFavorite.setColorFilter(Color.BLUE)
+                            binding?.ivAddProuductToFavorite?.setColorFilter(Color.BLUE)
                         } else {
-                            binding.ivAddProuductToFavorite.setColorFilter(Color.BLACK)
+                            binding?.ivAddProuductToFavorite?.setColorFilter(Color.BLACK)
                         }
 
                     }
@@ -663,6 +663,11 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
 
         )
         return draftOrderRequest
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
     }
 
 

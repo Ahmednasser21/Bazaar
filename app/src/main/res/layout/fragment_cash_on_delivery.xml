@@ -29,16 +29,16 @@
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@+id/textView10"
-        app:layout_constraintEnd_toStartOf="@+id/textView14"
+        app:layout_constraintEnd_toStartOf="@+id/subTotalSymbol"
         app:layout_constraintTop_toTopOf="@+id/textView10"
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
-        android:id="@+id/textView14"
+        android:id="@+id/subTotalSymbol"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:text="EGP"
+        android:text=""
         android:textColor="@color/black"
         android:textSize="24sp"
         android:textStyle="bold"
@@ -49,11 +49,11 @@
 
 
     <TextView
-        android:id="@+id/textView18"
+        android:id="@+id/discountSymbol"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text="EGP"
+        android:text=""
         android:textColor="#F44336"
         android:textSize="24sp"
         android:textStyle="bold"
@@ -84,7 +84,7 @@
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@+id/et_coupons"
-        app:layout_constraintEnd_toEndOf="@+id/textView14"
+        app:layout_constraintEnd_toEndOf="@+id/subTotalSymbol"
         app:layout_constraintTop_toTopOf="@+id/et_coupons" />
 
     <TextView
@@ -95,9 +95,9 @@
         android:textColor="#F44336"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/textView18"
-        app:layout_constraintEnd_toStartOf="@+id/textView18"
-        app:layout_constraintTop_toTopOf="@+id/textView18"
+        app:layout_constraintBottom_toBottomOf="@+id/discountSymbol"
+        app:layout_constraintEnd_toStartOf="@+id/discountSymbol"
+        app:layout_constraintTop_toTopOf="@+id/discountSymbol"
         app:layout_constraintVertical_bias="1.0" />
 
 
@@ -140,10 +140,11 @@
 
 
     <TextView
+        android:id="@+id/GrandTotalPriceSymbol"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
-        android:text="EGP"
+        android:text=""
         android:textColor="@color/black"
         android:textSize="24sp"
         android:textStyle="bold"

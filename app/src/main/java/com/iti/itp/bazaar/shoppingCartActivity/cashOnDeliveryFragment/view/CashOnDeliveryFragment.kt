@@ -16,6 +16,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
@@ -59,13 +60,14 @@ class CashOnDeliveryFragment : Fragment() {
     private lateinit var binding: FragmentCashOnDeliveryBinding
     private lateinit var factory: CashOnDeliveryViewModelFactory
     private lateinit var cashOnDeliveryViewModel: CashOnDeliveryViewModel
-    private lateinit var currencySharedPreferences: SharedPreferences
     private var isApplyingDiscount = false
-    private var currentConversionRate = 1.0
     private lateinit var draftOrderSharedPreferences: SharedPreferences
-    private val sharedOrderViewModel by activityViewModels<SharedOrderViewModel>()
+    private lateinit var currencySharedPreferences: SharedPreferences
+    private val sharedOrderViewModel by viewModels<SharedOrderViewModel>()
     private var customerId: String? = null
     private var draftOrderId: String? = null
+    private val EGP_SYMBOL = "EGP"
+    private val USD_SYMBOL = "$"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -75,20 +77,27 @@ class CashOnDeliveryFragment : Fragment() {
             MyConstants.MY_SHARED_PREFERANCE,
             Context.MODE_PRIVATE
         )
+        currencySharedPreferences = requireActivity().getSharedPreferences(
+            MyConstants.CURRENCY_SHARED_PREFS,
+            Context.MODE_PRIVATE
+        )
         factory = CashOnDeliveryViewModelFactory(
             Repository.getInstance(ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)),
             CurrencyRepository(CurrencyRemoteDataSource(ExchangeRetrofitObj.service))
         )
         cashOnDeliveryViewModel =
-            ViewModelProvider(requireActivity(), factory)[CashOnDeliveryViewModel::class.java]
-        currencySharedPreferences =
-            requireContext().getSharedPreferences("currencySharedPrefs", Context.MODE_PRIVATE)
+            ViewModelProvider(this, factory)[CashOnDeliveryViewModel::class.java]
         binding = FragmentCashOnDeliveryBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val currentRate = currencySharedPreferences.getFloat(MyConstants.CURRENCY, 1f)
+        val initialSymbol = if (currentRate == 1f) EGP_SYMBOL else USD_SYMBOL
+        binding.subTotalSymbol.text = initialSymbol
+        binding.discountSymbol.text = initialSymbol
+        binding.GrandTotalPriceSymbol.text = initialSymbol
         customerId = draftOrderSharedPreferences.getString(MyConstants.CUSOMER_ID, "0")
         sharedOrderViewModel.updateCustomer(OrderCustomer(customerId?.toLong() ?: 0))
         draftOrderId = draftOrderSharedPreferences.getString(MyConstants.CART_DRAFT_ORDER_ID, "0")
@@ -190,9 +199,9 @@ class CashOnDeliveryFragment : Fragment() {
 
                         // Update UI with calculated values
                         binding.tvSubTotalPrice.text =
-                            String.format("%.2f", subtotal * currentConversionRate)
+                            String.format("%.2f", subtotal )
                         binding.tvGrandTotal.text =
-                            String.format("%.2f", total * currentConversionRate)
+                            String.format("%.2f", total )
 
                         if (!isApplyingDiscount) {
                             updateUIWithDraftOrder(
@@ -245,17 +254,14 @@ class CashOnDeliveryFragment : Fragment() {
 
 
     private suspend fun observeCurrency() {
-        val currency = currencySharedPreferences.getString("currency", "EGP")
-        if (currency == "USD") {
-            cashOnDeliveryViewModel.exchangeCurrency("EGP", "USD")
-        }
+
+
         cashOnDeliveryViewModel.currency.collect { state ->
             when (state) {
                 is DataState.Loading -> {}
                 is DataState.OnFailed -> {}
                 is DataState.OnSuccess<*> -> {
                     val data = state.data as ExchangeRateResponse
-                    currentConversionRate = data.conversion_rate
                     if (!isApplyingDiscount) {
                         changeAllTextViewsCurrency(data.conversion_rate)
                     }
@@ -298,80 +304,83 @@ class CashOnDeliveryFragment : Fragment() {
     }
 
     private fun applyCoupon(priceRule: PriceRuleDto) {
-        val subTotalPrice = binding.tvSubTotalPrice.text.toString().toDoubleOrNull() ?: 0.0
-        val baseSubTotalPrice = subTotalPrice / currentConversionRate
+        val displaySubTotal = binding.tvSubTotalPrice.text.toString().toDoubleOrNull() ?: return
+        val baseSubTotal = getBasePriceInEGP(displaySubTotal)
 
-        val baseDiscountAmount = when (priceRule.valueType) {
-            "percentage" -> {
-                val percentage = abs(priceRule.value.toDouble())
-                if (percentage > 100) {
-                    Snackbar.make(
-                        requireView(),
-                        "Invalid discount percentage",
-                        Snackbar.LENGTH_SHORT
-                    ).show()
-                    return
-                }
-                baseSubTotalPrice * percentage / 100
-            }
+        val discountAmount = calculateDiscount(priceRule, baseSubTotal) ?: return
 
-            "fixed_amount" -> {
-                val amount = abs(priceRule.value.toDouble())
-                if (amount > baseSubTotalPrice) {
-                    Snackbar.make(
-                        requireView(),
-                        "Discount amount exceeds total",
-                        Snackbar.LENGTH_SHORT
-                    ).show()
-                    return
-                }
-                amount
-            }
-
-            else -> 0.0
-        }
-
-        if (baseDiscountAmount <= 0) {
-            Snackbar.make(requireView(), "Invalid discount amount", Snackbar.LENGTH_SHORT).show()
+        if (discountAmount <= 0 || discountAmount > baseSubTotal) {
+            showSnackbar("Invalid discount amount")
             return
         }
 
         isApplyingDiscount = true
-        updatePricesAfterDiscount(baseDiscountAmount)
-        updateDraftOrderWithDiscount(priceRule.title, baseDiscountAmount)
+        val totalAfterDiscount = baseSubTotal - discountAmount
+        updatePriceDisplay(baseSubTotal, discountAmount, totalAfterDiscount)
+        updateDraftOrderWithDiscount(priceRule.title, discountAmount)
+
+        // Disable coupon input after successful application
+        binding.tvValidate.isClickable = false
+        binding.etCoupons.isEnabled = false
     }
+
+    private fun calculateDiscount(priceRule: PriceRuleDto, baseSubTotal: Double): Double? {
+        return when (priceRule.valueType) {
+            "percentage" -> {
+                val percentage = abs(priceRule.value.toDouble())
+                if (percentage > 100) {
+                    showSnackbar("Invalid discount percentage")
+                    null
+                } else {
+                    baseSubTotal * percentage / 100
+                }
+            }
+            "fixed_amount" -> {
+                val amount = abs(priceRule.value.toDouble())
+                if (amount > baseSubTotal) {
+                    showSnackbar("Discount amount exceeds total")
+                    null
+                } else {
+                    amount
+                }
+            }
+            else -> null
+        }
+    }
+
+
 
     private fun updatePricesAfterDiscount(baseDiscountAmount: Double) {
         val subTotalPrice = binding.tvSubTotalPrice.text.toString().toDoubleOrNull() ?: 0.0
-        val baseSubTotalPrice = subTotalPrice / currentConversionRate
+        val baseSubTotalPrice = getBasePriceInEGP(subTotalPrice)  // Convert to EGP
 
         val totalSubPriceAfterDiscount = baseSubTotalPrice - baseDiscountAmount
         val totalGrandPriceAfterDiscount = totalSubPriceAfterDiscount
 
-        binding.tvDiscountValue.text =
-            String.format("%.2f", baseDiscountAmount * currentConversionRate)
-        binding.tvSubTotalPrice.text =
-            String.format("%.2f", totalSubPriceAfterDiscount * currentConversionRate)
-        binding.tvGrandTotal.text =
-            String.format("%.2f", totalGrandPriceAfterDiscount * currentConversionRate)
+        // Convert back to display currency for UI
+        binding.tvDiscountValue.text = String.format("%.2f", getDisplayPrice(baseDiscountAmount))
+        binding.tvSubTotalPrice.text = String.format("%.2f", getDisplayPrice(totalSubPriceAfterDiscount))
+        binding.tvGrandTotal.text = String.format("%.2f", getDisplayPrice(totalGrandPriceAfterDiscount))
 
         binding.tvValidate.isClickable = false
         binding.etCoupons.isEnabled = false
     }
 
+
     private fun updateDraftOrderWithDiscount(couponCode: String, baseDiscountAmount: Double) {
         val currentDraftOrderState =
-            (cashOnDeliveryViewModel.draftOrders.value as? DataState.OnSuccess<*>)?.data as? ReceivedOrdersResponse
-        val currentDraftOrder = currentDraftOrderState?.draft_orders?.firstOrNull()
+            (cashOnDeliveryViewModel.specificDraftOrder.value as? DataState.OnSuccess<*>)?.data as? DraftOrderRequest
+        val currentDraftOrder = currentDraftOrderState?.draft_order
 
         if (currentDraftOrder != null) {
-            val updatedLineItems = currentDraftOrder.line_items?.map { item ->
-                val itemPrice = item.price?.toDoubleOrNull() ?: 0.0
+            val updatedLineItems = currentDraftOrder.line_items.map { item ->
+                val itemPrice = getBasePriceInEGP(item.price.toDoubleOrNull() ?: 0.0)
                 val quantity = item.quantity ?: 1
                 val itemTotal = itemPrice * quantity
-                val itemDiscountShare =
-                    (itemTotal / (currentDraftOrder.subtotal_price?.toDoubleOrNull()
-                        ?: 1.0)) * baseDiscountAmount
+                val subTotal = currentDraftOrder.line_items.sumOf {
+                    getBasePriceInEGP(it.price.toDoubleOrNull() ?: 0.0) * (it.quantity ?: 1)
+                }
+                val itemDiscountShare = (itemTotal / subTotal) * baseDiscountAmount
 
                 LineItem(
                     product_id = item.product_id,
@@ -379,14 +388,17 @@ class CashOnDeliveryFragment : Fragment() {
                     price = item.price,
                     quantity = item.quantity,
                     sku = item.sku,
-                    applied_discount = AppliedDiscount(couponCode, itemDiscountShare.toString())
+                    applied_discount = AppliedDiscount(couponCode, formatPrice(itemDiscountShare))
                 )
             }
 
             val updateRequest = UpdateDraftOrderRequest(
                 DraftOrder(
-                    line_items = updatedLineItems!!,
-                    applied_discount = AppliedDiscount(couponCode, baseDiscountAmount.toString()),
+                    line_items = updatedLineItems,
+                    applied_discount = AppliedDiscount(
+                        couponCode,
+                        formatPrice(baseDiscountAmount)
+                    ),
                     customer = Customer(currentDraftOrder.customer?.id ?: 0),
                     use_customer_default_address = true
                 )
@@ -394,40 +406,40 @@ class CashOnDeliveryFragment : Fragment() {
 
             lifecycleScope.launch(Dispatchers.IO) {
                 try {
-                    cashOnDeliveryViewModel.updateDraftOrder(currentDraftOrder.id, updateRequest)
+                    cashOnDeliveryViewModel.updateDraftOrder(
+                        draftOrderId?.toLong() ?: 0,
+                        updateRequest
+                    )
                     withContext(Dispatchers.Main) {
-                        Snackbar.make(
-                            requireView(),
-                            "Discount applied successfully",
-                            Snackbar.LENGTH_SHORT
-                        ).show()
+                        showSnackbar("Discount applied successfully")
                     }
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
                         isApplyingDiscount = false
-                        Snackbar.make(
-                            requireView(),
-                            "Failed to apply discount: ${e.message}",
-                            Snackbar.LENGTH_SHORT
-                        ).show()
+                        showSnackbar("Failed to apply discount: ${e.message}")
                     }
                 }
             }
         } else {
             isApplyingDiscount = false
-            Snackbar.make(requireView(), "No draft order available", Snackbar.LENGTH_SHORT).show()
+            showSnackbar("No draft order available")
         }
     }
 
-    private fun updateUIWithDraftOrder(draftOrder: ReceivedDraftOrder) {
+    private fun showSnackbar(message: String) {
+        Snackbar.make(requireView(), message, Snackbar.LENGTH_SHORT).show()
+    }
 
+
+    private fun updateUIWithDraftOrder(draftOrder: ReceivedDraftOrder) {
         val subTotal = draftOrder.subtotal_price?.toDoubleOrNull() ?: 0.0
-        val total = draftOrder.subtotal_price?.toDoubleOrNull() ?: 0.0
+        val total = draftOrder.total_price?.toDoubleOrNull() ?: 0.0
         val discount = draftOrder.applied_discount?.amount?.toDoubleOrNull() ?: 0.0
 
-        binding.tvSubTotalPrice.text = String.format("%.2f", subTotal * currentConversionRate)
-        binding.tvDiscountValue.text = String.format("%.2f", discount * currentConversionRate)
-        binding.tvGrandTotal.text = String.format("%.2f", total * currentConversionRate)
+        // Convert to display currency for UI
+        binding.tvSubTotalPrice.text = String.format("%.2f", getDisplayPrice(subTotal))
+        binding.tvDiscountValue.text = String.format("%.2f", getDisplayPrice(discount))
+        binding.tvGrandTotal.text = String.format("%.2f", getDisplayPrice(total))
 
         if (discount > 0) {
             binding.tvValidate.isClickable = false
@@ -436,20 +448,23 @@ class CashOnDeliveryFragment : Fragment() {
         }
     }
 
-    @SuppressLint("SetTextI18n", "DefaultLocale")
+
+    @SuppressLint("SetTextI18n")
     private fun changeAllTextViewsCurrency(conversionRate: Double) {
-        val subTotal = binding.tvSubTotalPrice.text.toString().toDoubleOrNull() ?: 0.0
-        val discount = binding.tvDiscountValue.text.toString().toDoubleOrNull() ?: 0.0
-        val grandTotal = binding.tvGrandTotal.text.toString().toDoubleOrNull() ?: 0.0
+        val subTotal = getBasePriceInEGP(binding.tvSubTotalPrice.text.toString().toDoubleOrNull() ?: 0.0)
+        val discount = getBasePriceInEGP(binding.tvDiscountValue.text.toString().toDoubleOrNull() ?: 0.0)
+        val grandTotal = getBasePriceInEGP(binding.tvGrandTotal.text.toString().toDoubleOrNull() ?: 0.0)
 
-        // Convert from current rate to base rate, then to new rate
-        val baseSubTotal = subTotal / currentConversionRate
-        val baseDiscount = discount / currentConversionRate
-        val baseGrandTotal = grandTotal / currentConversionRate
+        // Update prices
+        binding.tvSubTotalPrice.text = String.format("%.2f", subTotal * conversionRate)
+        binding.tvDiscountValue.text = String.format("%.2f", discount * conversionRate)
+        binding.tvGrandTotal.text = String.format("%.2f", grandTotal * conversionRate)
 
-        binding.tvSubTotalPrice.text = String.format("%.2f", baseSubTotal * conversionRate)
-        binding.tvDiscountValue.text = String.format("%.2f", baseDiscount * conversionRate)
-        binding.tvGrandTotal.text = String.format("%.2f", baseGrandTotal * conversionRate)
+        // Update currency symbols
+        val currentSymbol = if (conversionRate == 1.0) EGP_SYMBOL else USD_SYMBOL
+        binding.subTotalSymbol.text = currentSymbol
+        binding.discountSymbol.text = currentSymbol
+        binding.GrandTotalPriceSymbol.text = currentSymbol
     }
 
     private fun observeOrderResult() {
@@ -532,4 +547,30 @@ class CashOnDeliveryFragment : Fragment() {
         builder.create().show()
 
     }
+
+
+    private fun getBasePriceInEGP(displayPrice: Double): Double {
+        val currentRate = currencySharedPreferences.getFloat(MyConstants.CURRENCY, 1f).toDouble()
+        return displayPrice / currentRate
+    }
+
+    private fun getDisplayPrice(basePrice: Double): Double {
+        val currentRate = currencySharedPreferences.getFloat(MyConstants.CURRENCY, 1f).toDouble()
+        return basePrice * currentRate
+    }
+
+    private fun formatPrice(price: Double): String {
+        return String.format("%.2f", price)
+    }
+
+    private fun updatePriceDisplay(
+        subtotal: Double,
+        discount: Double = 0.0,
+        total: Double = subtotal - discount
+    ) {
+        binding.tvSubTotalPrice.text = formatPrice(getDisplayPrice(subtotal))
+        binding.tvDiscountValue.text = formatPrice(getDisplayPrice(discount))
+        binding.tvGrandTotal.text = formatPrice(getDisplayPrice(total))
+    }
+
 }

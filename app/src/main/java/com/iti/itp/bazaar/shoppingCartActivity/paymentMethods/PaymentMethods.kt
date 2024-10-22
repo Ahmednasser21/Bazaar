@@ -22,6 +22,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.databinding.FragmentPaymentMethodsBinding
 import com.iti.itp.bazaar.dto.*
+import com.iti.itp.bazaar.dto.order.Order
 import com.iti.itp.bazaar.mainActivity.MainActivity
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.mainActivity.ui.order.SharedOrderViewModel
@@ -36,7 +37,9 @@ import com.iti.itp.bazaar.shoppingCartActivity.cashOnDeliveryFragment.viewModel.
 import com.stripe.android.PaymentConfiguration
 import com.stripe.android.paymentsheet.PaymentSheet
 import com.stripe.android.paymentsheet.PaymentSheetResult
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 
 class PaymentMethods : Fragment() {
@@ -57,6 +60,7 @@ class PaymentMethods : Fragment() {
     private lateinit var paymentSheet: PaymentSheet
     private var draftOrderId: String? = null
     private val sharedOrderViewModel by activityViewModels<SharedOrderViewModel>()
+    private var sharedCustomerId:String? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -106,6 +110,7 @@ class PaymentMethods : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         draftOrderId = draftOrderSharedPreferences.getString(MyConstants.CART_DRAFT_ORDER_ID, "0")
+        sharedCustomerId = draftOrderSharedPreferences.getString(MyConstants.CUSOMER_ID, "0")
         binding.continueToPayment.setOnClickListener {
             when {
                 binding.paymob.isChecked -> {
@@ -236,11 +241,14 @@ class PaymentMethods : Fragment() {
 
     private fun createOrder() {
         lifecycleScope.launch {
-            sharedOrderViewModel.partialOrder.collect { partialOrder ->
+            try {
+                // Get the current value from the flow instead of collecting indefinitely
+                val partialOrder = sharedOrderViewModel.partialOrder.value
+
                 cashOnDeliveryViewModel.createOrder(
                     PartialOrder2(
                         PartialOrder(
-                            customer = partialOrder.customer,
+                            customer = OrderCustomer(sharedCustomerId?.toLong()?:0),
                             payment_gateway_names = listOf("Credit Card"),
                             applied_discount = partialOrder.applied_discount,
                             shipping_address = partialOrder.shipping_address,
@@ -250,25 +258,55 @@ class PaymentMethods : Fragment() {
                         )
                     )
                 )
+
+                // Move the observation of order result here
+                observeOrderResult()
+            } catch (e: Exception) {
+                Log.e(TAG, "Error creating order", e)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Failed to create order: ${e.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
-        observeOrderResult()
     }
 
     private fun observeOrderResult() {
         lifecycleScope.launch {
-            cashOnDeliveryViewModel.placedOrder.collect { state ->
-                when (state) {
-                    is DataState.Loading -> {
-                        // Show loading indicator if needed
+            try {
+                cashOnDeliveryViewModel.placedOrder.collect { state ->
+                    when (state) {
+                        is DataState.Loading -> {
+                            // Show loading indicator if needed
+                        }
+                        is DataState.OnFailed -> {
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Failed to place order",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                        is DataState.OnSuccess<*> -> {
+                            withContext(Dispatchers.Main) {
+                                showOrderSuccessDialog()
+                                clearingDraftOrderAfterPlacingOrder()
+                            }
+                        }
                     }
-                    is DataState.OnFailed -> {
-                        Toast.makeText(requireContext(), "Failed to place order", Toast.LENGTH_SHORT).show()
-                    }
-                    is DataState.OnSuccess<*> -> {
-                        showOrderSuccessDialog()
-                        clearingDraftOrderAfterPlacingOrder()
-                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error observing order result", e)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Error processing order: ${e.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
