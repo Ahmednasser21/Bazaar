@@ -30,6 +30,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
+
                 <data
                     android:host="paypalpay"
                     android:scheme="com.iti.itp.bazaar" />
