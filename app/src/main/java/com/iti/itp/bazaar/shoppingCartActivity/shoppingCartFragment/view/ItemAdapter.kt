@@ -52,10 +52,11 @@ class ItemAdapter(
         if (currentItem.sku != "emptySKU") {
             makeNetWorkCallForImage(currentItem.sku?.toLong() ?: 0, position, holder)
 
-            val unitPrice = currentItem.price.toDouble() / (currentItem.quantity ?: 1)
+            // Get the base unit price (not multiplied by quantity)
+            val baseUnitPrice = currentItem.price.toDouble()
             val formatter = NumberFormat.getNumberInstance(Locale.US).apply {
                 minimumFractionDigits = 2
-                minimumFractionDigits = 2
+                maximumFractionDigits = 2
             }
 
             holder.binding.apply {
@@ -63,29 +64,30 @@ class ItemAdapter(
 
                 val currentQuantity = currentItem.quantity ?: 1
                 tvQuantity.text = currentQuantity.toString()
-                tvPrice.text = formatter.format(currentItem.price.toDouble())
+                // Display the total price for this item (base price * quantity)
+                tvPrice.text = formatter.format(baseUnitPrice * currentQuantity)
 
                 ivIncrease.setOnClickListener {
                     val newQuantity = currentQuantity + 1
                     if (availableTotalAmountInStock != null && newQuantity > availableTotalAmountInStock!!) {
-                        // Do not increase the quantity if it exceeds the available total amount in stock
                         return@setOnClickListener
                     }
-                    val newPrice = unitPrice * newQuantity
-                    onQuantityChangeListener.onQuantityChanged(currentItem, newQuantity, newPrice)
+                    // Pass the original base price, not the multiplied price
+                    onQuantityChangeListener.onQuantityChanged(currentItem, newQuantity, baseUnitPrice)
                 }
 
                 ivDecrease.setOnClickListener {
                     if (currentQuantity > 1) {
                         val newQuantity = currentQuantity - 1
-                        val newPrice = unitPrice * newQuantity
-                        onQuantityChangeListener.onQuantityChanged(currentItem, newQuantity, newPrice)
+                        // Pass the original base price, not the multiplied price
+                        onQuantityChangeListener.onQuantityChanged(currentItem, newQuantity, baseUnitPrice)
                     }
                 }
             }
         }
     }
-    override fun submitList(list: List<LineItem>?) {
+
+override fun submitList(list: List<LineItem>?) {
         // Filter the list to exclude items with SKU "emptySKU"
         val filteredList = list?.filter { it.sku != "emptySKU" }
         super.submitList(filteredList)

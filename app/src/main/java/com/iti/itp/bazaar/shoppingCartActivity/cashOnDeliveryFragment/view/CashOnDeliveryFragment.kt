@@ -16,6 +16,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
@@ -63,7 +64,7 @@ class CashOnDeliveryFragment : Fragment() {
     private var isApplyingDiscount = false
     private var currentConversionRate = 1.0
     private lateinit var draftOrderSharedPreferences: SharedPreferences
-    private val sharedOrderViewModel by activityViewModels<SharedOrderViewModel>()
+    private val sharedOrderViewModel by viewModels<SharedOrderViewModel>()
     private var customerId: String? = null
     private var draftOrderId: String? = null
 
@@ -80,7 +81,7 @@ class CashOnDeliveryFragment : Fragment() {
             CurrencyRepository(CurrencyRemoteDataSource(ExchangeRetrofitObj.service))
         )
         cashOnDeliveryViewModel =
-            ViewModelProvider(requireActivity(), factory)[CashOnDeliveryViewModel::class.java]
+            ViewModelProvider(this, factory)[CashOnDeliveryViewModel::class.java]
         currencySharedPreferences =
             requireContext().getSharedPreferences("currencySharedPrefs", Context.MODE_PRIVATE)
         binding = FragmentCashOnDeliveryBinding.inflate(inflater, container, false)

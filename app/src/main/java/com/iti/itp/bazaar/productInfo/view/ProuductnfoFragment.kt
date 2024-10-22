@@ -3,6 +3,7 @@ package com.iti.itp.bazaar.productInfo.view
 import ReceivedLineItem
 import ReceivedOrdersResponse
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color
@@ -12,6 +13,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -84,6 +86,7 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
 
     }
 
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -142,104 +145,118 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
 // handel btn_addToCart
         // handel btn_addToCart
         binding.btnAddToCart.setOnClickListener {
-            when {
-                choosenSize.isNullOrBlank() -> {
+            when (IsGuestMode){
+                "true"->{
                     Snackbar.make(
                         requireView(),
-                        "You must choose a size to proceed with this action",
+                        "you cant add to cart in guest mode",
                         Snackbar.LENGTH_SHORT
                     ).show()
                 }
+                else->{
 
-                choosenColor.isNullOrBlank() -> {
-                    Snackbar.make(
-                        requireView(),
-                        "You must choose a color to proceed with this action",
-                        Snackbar.LENGTH_SHORT
-                    ).show()
-                }
+                    when {
+                        choosenSize.isNullOrBlank() -> {
+                            Snackbar.make(
+                                requireView(),
+                                "You must choose a size to proceed with this action",
+                                Snackbar.LENGTH_SHORT
+                            ).show()
+                        }
 
-                else -> {
-                    // samy's work
-                    // chosenSize, chosenColor, product (global variable taken its value when success in getProductDetails())
-                    viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                        ProductInfoViewModel.getPriceRules()
-                        ProductInfoViewModel.getSpecificDraftOrder(cartDraftOrderId?.toLong()!!)
-                        ProductInfoViewModel.specificDraftOrders.collect { state ->
-                            when (state) {
-                                is DataState.Loading -> {}
-                                is DataState.OnFailed -> {}
-                                is DataState.OnSuccess<*> -> {
-                                    val data = state.data as DraftOrderRequest
-                                    // Use the first existing draft order
-                                    val existingOrder = data.draft_order
-                                    Log.i(
-                                        "TAG",
-                                        "product id is: ${
-                                            ProuductnfoFragmentArgs.fromBundle(
-                                                requireArguments()
-                                            ).productId
-                                        }"
-                                    )
-                                    val updatedLineItems = (existingOrder.line_items
-                                        ?: emptyList()).toMutableList()
-                                    updatedLineItems.add(
-                                        LineItem(
-                                            sku = ProuductnfoFragmentArgs.fromBundle(
-                                                requireArguments()
-                                            ).productId.toString(),
-                                            id = ProuductnfoFragmentArgs.fromBundle(
-                                                requireArguments()
-                                            ).productId,
-                                            variant_title = "dgldsjglk",
-                                            product_id = ProuductnfoFragmentArgs.fromBundle(
-                                                requireArguments()
-                                            ).productId,
-                                            title = proudct.title,
-                                            price = proudct.variants[0].price,
-                                            quantity = 1
-                                        )
-                                    )
-                                    ProductInfoViewModel.updateDraftOrder(
-                                        cartDraftOrderId?.toLong()?:0,
-                                        UpdateDraftOrderRequest(
-                                            DraftOrder(
-                                                applied_discount = AppliedDiscount(null),
-                                                customer = Customer(8220771418416),
-                                                use_customer_default_address = true,
-                                                line_items = updatedLineItems.map {
-                                                    LineItem(
-                                                        sku = it.sku
-                                                            ?: ProuductnfoFragmentArgs.fromBundle(
-                                                                requireArguments()
-                                                            ).productId.toString(),  // Use existing SKU or new one
-                                                        product_id = it.product_id
-                                                            ?: ProuductnfoFragmentArgs.fromBundle(
-                                                                requireArguments()
-                                                            ).productId,
-                                                        title = it.title!!,
-                                                        price = it.price,
-                                                        quantity = it.quantity ?: 1
-                                                    )
-                                                }
+                        choosenColor.isNullOrBlank() -> {
+                            Snackbar.make(
+                                requireView(),
+                                "You must choose a color to proceed with this action",
+                                Snackbar.LENGTH_SHORT
+                            ).show()
+                        }
+
+                        else -> {
+                            // samy's work
+                            // chosenSize, chosenColor, product (global variable taken its value when success in getProductDetails())
+                            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                                ProductInfoViewModel.getPriceRules()
+                                ProductInfoViewModel.getSpecificDraftOrder(cartDraftOrderId?.toLong()!!)
+                                ProductInfoViewModel.specificDraftOrders.collect { state ->
+                                    when (state) {
+                                        is DataState.Loading -> {}
+                                        is DataState.OnFailed -> {}
+                                        is DataState.OnSuccess<*> -> {
+                                            val data = state.data as DraftOrderRequest
+                                            // Use the first existing draft order
+                                            val existingOrder = data.draft_order
+                                            Log.i(
+                                                "TAG",
+                                                "product id is: ${
+                                                    ProuductnfoFragmentArgs.fromBundle(
+                                                        requireArguments()
+                                                    ).productId
+                                                }"
                                             )
-                                        )
-                                    )
+                                            val updatedLineItems = (existingOrder.line_items
+                                                ?: emptyList()).toMutableList()
+                                            updatedLineItems.add(
+                                                LineItem(
+                                                    sku = ProuductnfoFragmentArgs.fromBundle(
+                                                        requireArguments()
+                                                    ).productId.toString(),
+                                                    id = ProuductnfoFragmentArgs.fromBundle(
+                                                        requireArguments()
+                                                    ).productId,
+                                                    variant_title = "dgldsjglk",
+                                                    product_id = ProuductnfoFragmentArgs.fromBundle(
+                                                        requireArguments()
+                                                    ).productId,
+                                                    title = proudct.title,
+                                                    price = proudct.variants[0].price,
+                                                    quantity = 1
+                                                )
+                                            )
+                                            ProductInfoViewModel.updateDraftOrder(
+                                                cartDraftOrderId?.toLong()?:0,
+                                                UpdateDraftOrderRequest(
+                                                    DraftOrder(
+                                                        applied_discount = AppliedDiscount(null),
+                                                        customer = Customer(8220771418416),
+                                                        use_customer_default_address = true,
+                                                        line_items = updatedLineItems.map {
+                                                            LineItem(
+                                                                sku = it.sku
+                                                                    ?: ProuductnfoFragmentArgs.fromBundle(
+                                                                        requireArguments()
+                                                                    ).productId.toString(),  // Use existing SKU or new one
+                                                                product_id = it.product_id
+                                                                    ?: ProuductnfoFragmentArgs.fromBundle(
+                                                                        requireArguments()
+                                                                    ).productId,
+                                                                title = it.title!!,
+                                                                price = it.price,
+                                                                quantity = it.quantity ?: 1
+                                                            )
+                                                        }
+                                                    )
+                                                )
+                                            )
 
+                                        }
+                                    }
+
+                                    withContext(Dispatchers.Main) {
+                                        Snackbar.make(
+                                            requireView(),
+                                            "Product is added to your cart",
+                                            2000
+                                        ).show()
+                                    }
                                 }
-                            }
-
-                            withContext(Dispatchers.Main) {
-                                Snackbar.make(
-                                    requireView(),
-                                    "Product is added to your cart",
-                                    2000
-                                ).show()
                             }
                         }
                     }
                 }
+
             }
+
         }
 
         // getting the specificFavDraftOrder
@@ -247,25 +264,45 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
         getSpecificDraftOrderById(FavDraftOrderId.toLong())
         //handel btn add to favourite
         binding.ivAddProuductToFavorite.setOnClickListener {
-            Log.d("TAG", "onViewCreated:prouductInfo el fav click sh8al  ")
-            if (IS_Liked) { // kda el button pressed >> ezan ha3ml delete
-                Log.d("TAG", "onViewCreated: prouductInfo case en el product da is liked (case if ) w hamsa7 ${IS_Liked}  ")
+            when (IsGuestMode){
+                "true"->{
+                    Snackbar.make(
+                        requireView(),
+                        "you cant add favorite in guest mode",
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                }
+                else  ->{
+                    Log.d("TAG", "onViewCreated:prouductInfo el fav click sh8al  ")
+                    if (IS_Liked) { // kda el button pressed >> ezan ha3ml delete
+                        Log.d("TAG", "onViewCreated: prouductInfo case en el product da is liked (case if ) w hamsa7 ${IS_Liked}  ")
 
+                        AlertDialog.Builder(context)
+                            .setTitle("Confirm item Delete")
+                            .setMessage("Are you sure that you want to delete this item from your favourites?")
+                            .setPositiveButton("Yes") { dialog, _ ->
+                                lifecycleScope.launch {
+                                    binding.ivAddProuductToFavorite.setColorFilter(Color.BLACK)
+                                    var currentDraftOrderItems: MutableList<LineItem> =
+                                        mutableListOf() // to store my previous liked products
 
-                lifecycleScope.launch {
-                    binding.ivAddProuductToFavorite.setColorFilter(Color.BLACK)
-                    var currentDraftOrderItems: MutableList<LineItem> =
-                        mutableListOf() // to store my previous liked products
-                    draftOrderRequest.draft_order.line_items.forEach {
-                        Log.d("TAG", "onViewCreated: ana gwa el foeach bs bara el if wel title = ${it.title} wel productTitle is $productTitle ")
-                        if (it.title != productTitle)
-                            Log.d("TAG", "onViewCreated: ana gwa el foeach gwa el if  wel title = ${it.title} wel productTitle is $productTitle ")
+                                    draftOrderRequest.draft_order.line_items.forEach {
+                                        Log.d("TAG", "onViewCreated: de el list abl el ta3del  ${it.title} ")
+                                    }
+                                    draftOrderRequest.draft_order.line_items.forEach {
+                                        if (it.title != productTitle)
 
-                        currentDraftOrderItems.add(it) // getting the old list of line_items
-                    }
-                    val draft = draftOrderRequest.draft_order
-                    draft.line_items = currentDraftOrderItems
-                    ProductInfoViewModel.updateDraftOrder(FavDraftOrderId.toLong(), UpdateDraftOrderRequest(draft))
+                                            currentDraftOrderItems.add(it) // getting the old list of line_items
+                                    }
+
+                                    currentDraftOrderItems.forEach{
+                                        Log.d("TAG", "onViewCreated: de el list ba3d el ta3del  ${it.title} ")
+
+                                    }
+
+                                    val draft = draftOrderRequest.draft_order
+                                    draft.line_items = currentDraftOrderItems
+                                    ProductInfoViewModel.DeleteLineItemFromDraftOrder(FavDraftOrderId.toLong(), UpdateDraftOrderRequest(draft))
 
 //                     // now i want to add this list to my new liked item
 //                     currentDraftOrderItems.add(draftOrderRequest(proudct).draft_order.line_items.get(0))
@@ -275,36 +312,49 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
 //                         FavDraftOrderId.toLong(),
 //                         UpdateDraftOrderRequest(updatedDraftOrder)
 //                     )
-                }
+                                }
 
-                IS_Liked = false
-            } else { // kda ha3ml add
-                Log.d("TAG", "onViewCreated: prouductInfo case en el product da is not  liked (case else ) w h3mel add  ${IS_Liked}  ")
-                lifecycleScope.launch {
-                    var currentDraftOrderItems: MutableList<LineItem> =
-                        mutableListOf() // to store my previous liked products
-                    draftOrderRequest.draft_order.line_items.forEach {
-                        currentDraftOrderItems.add(it) // getting the old list of line_items
+                                IS_Liked = false
+
+                            }
+                            .setNegativeButton("No") { dialog, _ ->
+                                dialog.dismiss()
+                            }
+                            .show()
+
+
+                    } else { // kda ha3ml add
+                        Log.d("TAG", "onViewCreated: prouductInfo case en el product da is not  liked (case else ) w h3mel add  ${IS_Liked}  ")
+                        lifecycleScope.launch {
+                            var currentDraftOrderItems: MutableList<LineItem> =
+                                mutableListOf() // to store my previous liked products
+                            draftOrderRequest.draft_order.line_items.forEach {
+                                currentDraftOrderItems.add(it) // getting the old list of line_items
+                            }
+                            // now i want to add this list to my new liked item
+                            currentDraftOrderItems.add(draftOrderRequest(proudct).draft_order.line_items.get(0))
+                            var updatedDraftOrder = draftOrderRequest(proudct).draft_order
+                            updatedDraftOrder.line_items = currentDraftOrderItems
+                            ProductInfoViewModel.updateDraftOrder(
+                                FavDraftOrderId.toLong(),
+                                UpdateDraftOrderRequest(updatedDraftOrder)
+                            )
+                            binding.ivAddProuductToFavorite.setColorFilter(Color.BLUE)
+
+
+                        }
+                        Snackbar.make(requireView(), "this products was saved to your favorite", 2000).show()
+
+
+
+                        IS_Liked = true
                     }
-                    // now i want to add this list to my new liked item
-                    currentDraftOrderItems.add(draftOrderRequest(proudct).draft_order.line_items.get(0))
-                    var updatedDraftOrder = draftOrderRequest(proudct).draft_order
-                    updatedDraftOrder.line_items = currentDraftOrderItems
-                    ProductInfoViewModel.updateDraftOrder(
-                        FavDraftOrderId.toLong(),
-                        UpdateDraftOrderRequest(updatedDraftOrder)
-                    )
-                    binding.ivAddProuductToFavorite.setColorFilter(Color.BLUE)
+
+                    Log.d("TAG", "onViewCreated:  sho8l el zrarez 5elels wel isliked b2a  ${IS_Liked} ")
 
 
                 }
-
-
-
-                IS_Liked = true
             }
-
-            Log.d("TAG", "onViewCreated:  sho8l el zrarez 5elels wel isliked b2a  ${IS_Liked} ")
 
         }
 
@@ -408,38 +458,65 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
 
     override fun OnClick(t: AvailableSizes) {
 
-        if (choosenSize.isNullOrBlank()) {
-            choosenSize = t.size
-            Log.d("TAG", "OnColorClick: choosen size  is  ${choosenSize} ")
-            Snackbar.make(requireView(), "you have choosen a size ${t.size} ", 2000).show()
-        } else {
+        when (IsGuestMode){
 
-            choosenSize = t.size
-            Log.d("TAG", "OnColorClick: choosen size  is  ${choosenSize} ")
-            Snackbar.make(
-                requireView(),
-                "Your choosen Size has been Changed To Be ${t.size} ",
-                2000
-            ).show()
+            "true"->{
+                Snackbar.make(
+                    requireView(),
+                    "you cant choose a size in guest mode",
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
+            else ->{
+                if (choosenSize.isNullOrBlank()) {
+                    choosenSize = t.size
+                    Log.d("TAG", "OnColorClick: choosen size  is  ${choosenSize} ")
+                    Snackbar.make(requireView(), "you have choosen a size ${t.size} ", 2000).show()
+                } else {
+
+                    choosenSize = t.size
+                    Log.d("TAG", "OnColorClick: choosen size  is  ${choosenSize} ")
+                    Snackbar.make(
+                        requireView(),
+                        "Your choosen Size has been Changed To Be ${t.size} ",
+                        2000
+                    ).show()
+                }
+            }
         }
+
+
 
     }
 
     override fun OnColorClick(t: AvailableColor) {
-        if (choosenColor.isNullOrBlank()) {
-            choosenColor = t.color
-            Log.d("TAG", "OnColorClick: choosen colr is  ${choosenColor} ")
-            Snackbar.make(requireView(), "you have choosen a color ${t.color} ", 2000).show()
-        } else {
-            choosenColor = t.color
-            Log.d("TAG", "OnColorClick: choosen colr is  ${choosenColor} ")
-            Snackbar.make(
-                requireView(),
-                "your choosen color has been changed to be ${t.color} ",
-                2000
-            ).show()
+        when (IsGuestMode){
+            "true"->{
+                Snackbar.make(
+                    requireView(),
+                    "you cant do that  in guest mode",
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
+            else ->{
+                if (choosenColor.isNullOrBlank()) {
+                    choosenColor = t.color
+                    Log.d("TAG", "OnColorClick: choosen colr is  ${choosenColor} ")
+                    Snackbar.make(requireView(), "you have choosen a color ${t.color} ", 2000).show()
+                } else {
+                    choosenColor = t.color
+                    Log.d("TAG", "OnColorClick: choosen colr is  ${choosenColor} ")
+                    Snackbar.make(
+                        requireView(),
+                        "your choosen color has been changed to be ${t.color} ",
+                        2000
+                    ).show()
+
+                }
+            }
 
         }
+
 
     }
 
@@ -536,6 +613,7 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
                             "getSpecificDraftOrderById: prouductInfo failie ${result.msg}  "
                         )
                     }
+
 
                     is DataState.OnSuccess<*> -> {
                         Log.d("TAG", "getSpecificDraftOrderById: prouductInfo success")

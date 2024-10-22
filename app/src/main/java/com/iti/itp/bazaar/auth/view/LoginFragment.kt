@@ -147,6 +147,7 @@ var password:String?=null
 
             // this is to be use in all project to check if the user is in guest mode
             sharedPreferences.edit().putString(MyConstants.IS_GUEST, "true").apply()
+            startActivity(Intent(requireActivity(), MainActivity::class.java))
 
         }
 
@@ -168,6 +169,7 @@ var password:String?=null
             Navigation.findNavController(binding.root).navigate(action)
 
         }
+
 
     }
 
@@ -227,7 +229,7 @@ var password:String?=null
                         else {
                             Snackbar.make(requireView(), "Authentication success.", 2000).show()
 
-
+                            sharedPreferences.edit().putString(MyConstants.IS_GUEST, "false").apply()
                             Log.d("TAG", "ObserveOnGettingCustomerByEmail success w da el object kamel ->:${customerByEmail.get(0).id} ")
                             //saving customer id i shared pref
                             sharedPreferences.edit().putString(MyConstants.CUSOMER_ID,customerByEmail.get(0).id.toString()).apply()

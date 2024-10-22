@@ -143,77 +143,77 @@ lateinit var searshAdapter: SearchAdapter
 
     override fun onFavClick(prduct: Products) {
 
-        lifecycleScope.launch {
-
-            if (draftOrderId==0L )
-            {
-                ProductInfoViewModel.createOrder(draftOrderRequest(prduct))
-                Log.d("TAG", "onFavClick: click favorite fragment")
-                delay(2000) // tb be able to retrive my draftOrderId
-                ProductInfoViewModel.getAllDraftOrders()
-                ProductInfoViewModel.allDraftOrders.collectLatest { result->
-                    when(result){
-                        DataState.Loading -> {}
-                        is DataState.OnFailed ->{}
-                        is DataState.OnSuccess<*> ->{
-                            val draftOrder = (result.data as ReceivedOrdersResponse)
-                            val draftOrderId =draftOrder.draft_orders.get(draftOrder.draft_orders.size-1).id
-                             sharedPreferences.edit().putString(MyConstants.FAV_DRAFT_ORDERS_ID,"$draftOrderId").apply()
-                        }
-                    }
-
-                }
-
-            }
-            else {
-
-                ProductInfoViewModel.getSpecificDraftOrder(draftOrderId)
-                ProductInfoViewModel.specificDraftOrders.collectLatest { result->
-                    when (result){
-                        DataState.Loading -> {}
-                        is DataState.OnFailed ->{}
-                        is DataState.OnSuccess<*> ->{
-                            var OldDraftOrderReq = result.data as  DraftOrderRequest
-                            var currentDraftOrderItems : MutableList<LineItem> = mutableListOf() // to store my previous liked products
-                            OldDraftOrderReq.draft_order.line_items.forEach{
-                                currentDraftOrderItems.add(it) // getting the old list of line_items
-                            }
-                            // now i want to add this list to my new liked item
-                            currentDraftOrderItems.add(draftOrderRequest(prduct).draft_order.line_items.get(0))
-                            var updatedDraftOrder = draftOrderRequest(prduct).draft_order
-                            updatedDraftOrder.line_items =currentDraftOrderItems
-                            ProductInfoViewModel.updateDraftOrder(draftOrderId,UpdateDraftOrderRequest(updatedDraftOrder) )
-                        }
-                    }
-
-
-                }
-
-
-            }
-
-            lifecycleScope.launch(Dispatchers.IO) {
-                ProductInfoViewModel.createdOrder.collectLatest { result ->
-                    when (result ){
-                        DataState.Loading -> {}
-                        is DataState.OnFailed -> {}
-                        is DataState.OnSuccess<*> -> {
-                            val x = result.data as ReceivedDraftOrder
-
-                            Log.d("TAG", "onFavClick: w id el draft odre is ->${x.line_items?.get(0)?.title} ")
-
-                        }
-                    }
-
-
-
-                }
-
-            }
-
-
-
-        }
+//        lifecycleScope.launch {
+//
+//            if (draftOrderId==0L )
+//            {
+//                ProductInfoViewModel.createOrder(draftOrderRequest(prduct))
+//                Log.d("TAG", "onFavClick: click favorite fragment")
+//                delay(2000) // tb be able to retrive my draftOrderId
+//                ProductInfoViewModel.getAllDraftOrders()
+//                ProductInfoViewModel.allDraftOrders.collectLatest { result->
+//                    when(result){
+//                        DataState.Loading -> {}
+//                        is DataState.OnFailed ->{}
+//                        is DataState.OnSuccess<*> ->{
+//                            val draftOrder = (result.data as ReceivedOrdersResponse)
+//                            val draftOrderId =draftOrder.draft_orders.get(draftOrder.draft_orders.size-1).id
+//                             sharedPreferences.edit().putString(MyConstants.FAV_DRAFT_ORDERS_ID,"$draftOrderId").apply()
+//                        }
+//                    }
+//
+//                }
+//
+//            }
+//            else {
+//
+//                ProductInfoViewModel.getSpecificDraftOrder(draftOrderId)
+//                ProductInfoViewModel.specificDraftOrders.collectLatest { result->
+//                    when (result){
+//                        DataState.Loading -> {}
+//                        is DataState.OnFailed ->{}
+//                        is DataState.OnSuccess<*> ->{
+//                            var OldDraftOrderReq = result.data as  DraftOrderRequest
+//                            var currentDraftOrderItems : MutableList<LineItem> = mutableListOf() // to store my previous liked products
+//                            OldDraftOrderReq.draft_order.line_items.forEach{
+//                                currentDraftOrderItems.add(it) // getting the old list of line_items
+//                            }
+//                            // now i want to add this list to my new liked item
+//                            currentDraftOrderItems.add(draftOrderRequest(prduct).draft_order.line_items.get(0))
+//                            var updatedDraftOrder = draftOrderRequest(prduct).draft_order
+//                            updatedDraftOrder.line_items =currentDraftOrderItems
+//                            ProductInfoViewModel.updateDraftOrder(draftOrderId,UpdateDraftOrderRequest(updatedDraftOrder) )
+//                        }
+//                    }
+//
+//
+//                }
+//
+//
+//            }
+//
+//            lifecycleScope.launch(Dispatchers.IO) {
+//                ProductInfoViewModel.createdOrder.collectLatest { result ->
+//                    when (result ){
+//                        DataState.Loading -> {}
+//                        is DataState.OnFailed -> {}
+//                        is DataState.OnSuccess<*> -> {
+//                            val x = result.data as ReceivedDraftOrder
+//
+//                            Log.d("TAG", "onFavClick: w id el draft odre is ->${x.line_items?.get(0)?.title} ")
+//
+//                        }
+//                    }
+//
+//
+//
+//                }
+//
+//            }
+//
+//
+//
+//        }
 
 
     }

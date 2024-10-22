@@ -51,6 +51,9 @@ class prouductInfoViewModel (private val repo: Repository , private val currency
     private val _allDraftOrdersFav = MutableStateFlow<DataState>(DataState.Loading)
     val allDraftOrdersFav = _allDraftOrdersFav.asStateFlow()
 
+    private val _deleteLineItemFromDraftOrder = MutableStateFlow<DataState>(DataState.Loading)
+    val deleteLineItemFromDraftOrder = _deleteLineItemFromDraftOrder.asStateFlow()
+
 
     fun getProductDetails(id: Long) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -176,6 +179,18 @@ class prouductInfoViewModel (private val repo: Repository , private val currency
             }.collect{
                 _allDraftOrdersFav.value = DataState.OnSuccess(it)
                 Log.i(TAG, "success getAllDraftOrdersForFav")
+            }
+        }
+    }
+
+    fun DeleteLineItemFromDraftOrder(draftOrderId:Long, updateDraftOrderRequest: UpdateDraftOrderRequest){
+        viewModelScope.launch(Dispatchers.IO){
+            repo.updateDraftOrderRequest(draftOrderId, updateDraftOrderRequest).catch {
+                _deleteLineItemFromDraftOrder.value = DataState.OnFailed(it)
+                Log.e(TAG, "error DeleteLineItemFromDraftOrder: ${it.message}")
+            }.collect{
+                _deleteLineItemFromDraftOrder.value = DataState.OnSuccess(it)
+                Log.i(TAG, "DeleteLineItemFromDraftOrder: $it")
             }
         }
     }
