@@ -3,6 +3,7 @@ package com.iti.itp.bazaar.productInfo.view
 import ReceivedLineItem
 import ReceivedOrdersResponse
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color
@@ -12,6 +13,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -251,21 +253,32 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
             if (IS_Liked) { // kda el button pressed >> ezan ha3ml delete
                 Log.d("TAG", "onViewCreated: prouductInfo case en el product da is liked (case if ) w hamsa7 ${IS_Liked}  ")
 
+                AlertDialog.Builder(context)
+                    .setTitle("Confirm item Delete")
+                    .setMessage("Are you sure that you want to delete this item from your favourites?")
+                    .setPositiveButton("Yes") { dialog, _ ->
+                        lifecycleScope.launch {
+                            binding.ivAddProuductToFavorite.setColorFilter(Color.BLACK)
+                            var currentDraftOrderItems: MutableList<LineItem> =
+                                mutableListOf() // to store my previous liked products
 
-                lifecycleScope.launch {
-                    binding.ivAddProuductToFavorite.setColorFilter(Color.BLACK)
-                    var currentDraftOrderItems: MutableList<LineItem> =
-                        mutableListOf() // to store my previous liked products
-                    draftOrderRequest.draft_order.line_items.forEach {
-                        Log.d("TAG", "onViewCreated: ana gwa el foeach bs bara el if wel title = ${it.title} wel productTitle is $productTitle ")
-                        if (it.title != productTitle)
-                            Log.d("TAG", "onViewCreated: ana gwa el foeach gwa el if  wel title = ${it.title} wel productTitle is $productTitle ")
+                            draftOrderRequest.draft_order.line_items.forEach {
+                                Log.d("TAG", "onViewCreated: de el list abl el ta3del  ${it.title} ")
+                            }
+                            draftOrderRequest.draft_order.line_items.forEach {
+                                if (it.title != productTitle)
 
-                        currentDraftOrderItems.add(it) // getting the old list of line_items
-                    }
-                    val draft = draftOrderRequest.draft_order
-                    draft.line_items = currentDraftOrderItems
-                    ProductInfoViewModel.updateDraftOrder(FavDraftOrderId.toLong(), UpdateDraftOrderRequest(draft))
+                                    currentDraftOrderItems.add(it) // getting the old list of line_items
+                            }
+
+                            currentDraftOrderItems.forEach{
+                                Log.d("TAG", "onViewCreated: de el list ba3d el ta3del  ${it.title} ")
+
+                            }
+
+                            val draft = draftOrderRequest.draft_order
+                            draft.line_items = currentDraftOrderItems
+                            ProductInfoViewModel.DeleteLineItemFromDraftOrder(FavDraftOrderId.toLong(), UpdateDraftOrderRequest(draft))
 
 //                     // now i want to add this list to my new liked item
 //                     currentDraftOrderItems.add(draftOrderRequest(proudct).draft_order.line_items.get(0))
@@ -275,9 +288,17 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
 //                         FavDraftOrderId.toLong(),
 //                         UpdateDraftOrderRequest(updatedDraftOrder)
 //                     )
-                }
+                        }
 
-                IS_Liked = false
+                        IS_Liked = false
+
+                    }
+                    .setNegativeButton("No") { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .show()
+
+
             } else { // kda ha3ml add
                 Log.d("TAG", "onViewCreated: prouductInfo case en el product da is not  liked (case else ) w h3mel add  ${IS_Liked}  ")
                 lifecycleScope.launch {
@@ -298,6 +319,7 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
 
 
                 }
+                Snackbar.make(requireView(), "this products was saved to your favorite", 2000).show()
 
 
 
