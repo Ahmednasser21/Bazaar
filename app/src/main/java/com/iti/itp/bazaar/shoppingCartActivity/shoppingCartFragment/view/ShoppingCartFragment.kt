@@ -242,9 +242,10 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
 
     private fun calculateTotalPrice(): Double {
         return firstDraftOrder.line_items?.sumOf { item ->
-            val unitPrice = item.price.toDouble() * currencySharedPreferences.getFloat("currency", 1F)
-            unitPrice * (item.quantity ?: 1)
-        } ?: 0.0
+            val basePrice = item.price.toDoubleOrNull() ?: 0.0
+            val quantity = item.quantity ?: 1
+            basePrice * quantity  // Multiply by quantity here
+        }?.times(currencySharedPreferences.getFloat("currency", 1F)) ?: 0.0
     }
 
     override fun onQuantityChanged(item: LineItem, newQuantity: Int, newPrice: Double) {
@@ -252,14 +253,14 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
             if (lineItem.id == item.id) {
                 lineItem.copy(
                     quantity = newQuantity,
-                    price = newPrice.toString()
+                    price = newPrice.toString()  // Store the base price, not multiplied
                 )
             } else {
                 lineItem
             }
         }
 
-        firstDraftOrder = firstDraftOrder.copy(line_items = updatedLineItems?: listOf())
+        firstDraftOrder = firstDraftOrder.copy(line_items = updatedLineItems ?: listOf())
         updateCartUI()
     }
 
@@ -269,17 +270,18 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
             return
         }
 
+
+
         val updatedLineItems = firstDraftOrder.line_items?.map { item ->
-            // Calculate the updated price based on quantity
-            val basePrice = item.price.toDouble() * currencySharedPreferences.getFloat("currency", 1F)
+            // Use the base price that's already stored
+            val basePrice = item.price.toDoubleOrNull() ?: 0.0
             val quantity = item.quantity ?: 1
-            val totalPrice = (basePrice * quantity).toString()
 
             LineItem(
                 variant_id = item.variant_id,
                 product_id = item.product_id,
                 quantity = quantity,
-                price = totalPrice,
+                price = basePrice.toString(),
                 title = item.title ?: "",
                 variant_title = item.variant_title,
                 sku = item.sku,
