@@ -46,11 +46,11 @@ class SearchAdapter ( var  onClick : OnCardClickListner , var onFavClick : OnSea
             Glide.with(binding.root.context).load(currentProduct.image?.src)
                 .into(holder.binding.ivSearchImageProduct)
         }
-        holder.binding.btnAddToFav.setOnClickListener {
-            onFavClick.onFavClick(currentProduct)
-            Log.d("TAG", "onFavClick: click favorite adapter")
-            holder.binding.btnAddToFav.setColorFilter(Color.BLUE)
-        }
+//        holder.binding.btnAddToFav.setOnClickListener {
+//            onFavClick.onFavClick(currentProduct)
+//            Log.d("TAG", "onFavClick: click favorite adapter")
+//            holder.binding.btnAddToFav.setColorFilter(Color.BLUE)
+//        }
 
     }
 
