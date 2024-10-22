@@ -69,16 +69,6 @@
         app:layout_constraintTop_toBottomOf="@+id/btn_singUp" />
 
     <ImageView
-        android:id="@+id/iv_googleSignUp"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="16dp"
-        android:src="@drawable/google"
-        app:layout_constraintEnd_toEndOf="@+id/tv_backToLogIn"
-        app:layout_constraintStart_toStartOf="@+id/tv_backToLogIn"
-        app:layout_constraintTop_toBottomOf="@+id/tv_backToLogIn" />
-
-    <ImageView
         android:id="@+id/imageView2"
         android:layout_width="150dp"
         android:layout_height="150dp"
