@@ -227,6 +227,7 @@ class SignUpFragment : Fragment() {
             }
 
 
+
     }
     fun navigateToLogin (){
         val action = SignUpFragmentDirections.actionSignUpFragmentToLoginFragment()
