@@ -147,6 +147,7 @@ var password:String?=null
 
             // this is to be use in all project to check if the user is in guest mode
             sharedPreferences.edit().putString(MyConstants.IS_GUEST, "true").apply()
+            startActivity(Intent(requireActivity(), MainActivity::class.java))
 
         }
 

@@ -32,13 +32,4 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/iv_searchImageProduct" />
 
-    <ImageView
-        android:id="@+id/btn_addToFav"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:src="@drawable/gray_favorite"
-        app:layout_constraintEnd_toEndOf="@+id/tv_searchProductName"
-        app:layout_constraintStart_toStartOf="@+id/tv_searchProductName"
-        app:layout_constraintTop_toBottomOf="@+id/tv_searchProductName" />
 </androidx.constraintlayout.widget.ConstraintLayout>
