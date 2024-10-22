@@ -50,6 +50,7 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
     private lateinit var draftOrderSharedPreferences: SharedPreferences
     private var customerId:String? = null
     private var draftOrderId:String? = null
+    private var currentCurrency = "EGP"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,6 +79,7 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
     }
 
     private fun setupUI() {
+        currentCurrency = if (currencySharedPreferences.getFloat("currency", 1F) == 1F) "EGP" else "USD"
         binding.btnProceedToCheckout.setOnClickListener {
             if (firstDraftOrder.line_items.size <= 1) {
                 Snackbar.make(requireView(),"Your cart is empty", 2000).show()
@@ -156,9 +158,14 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
     }
 
     private fun updateCartUI() {
+        val currencyRate = currencySharedPreferences.getFloat("currency", 1F)
         val totalPrice = calculateTotalPrice()
-        binding.tvTotalPriceValue.text = currencyFormatter.format(totalPrice)
+        binding.tvTotalPriceValue.text = "${currencyFormatter.format(totalPrice)} ${if (currencyRate == 1F) "EGP" else "USD"}"
+
         val newList = firstDraftOrder.line_items?.map { oldItem ->
+            val basePrice = oldItem.price.toDoubleOrNull() ?: 0.0
+            val displayPrice = basePrice * currencyRate
+
             LineItem(
                 id = oldItem.id,
                 variant_id = oldItem.variant_id,
@@ -178,10 +185,11 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
                 name = oldItem.name,
                 properties = oldItem.properties,
                 custom = oldItem.custom,
-                price = oldItem.price,
+                price = displayPrice.toString(), // Show converted price for display
                 admin_graphql_api_id = oldItem.admin_graphql_api_id,
             )
         }
+        adapter.submitList(newList)
         adapter.submitList(newList)
 
         val swipeToDeleteCallback = SwipeToDelete(
@@ -241,19 +249,23 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
     }
 
     private fun calculateTotalPrice(): Double {
+        val currencyRate = currencySharedPreferences.getFloat("currency", 1F)
         return firstDraftOrder.line_items?.sumOf { item ->
             val basePrice = item.price.toDoubleOrNull() ?: 0.0
             val quantity = item.quantity ?: 1
-            basePrice * quantity  // Multiply by quantity here
-        }?.times(currencySharedPreferences.getFloat("currency", 1F)) ?: 0.0
+            basePrice * quantity * currencyRate
+        } ?: 0.0
     }
 
     override fun onQuantityChanged(item: LineItem, newQuantity: Int, newPrice: Double) {
+        val currencyRate = currencySharedPreferences.getFloat("currency", 1F)
+        val basePriceInEGP = newPrice / currencyRate // Convert back to base price in EGP
+
         val updatedLineItems = firstDraftOrder.line_items?.map { lineItem ->
             if (lineItem.id == item.id) {
                 lineItem.copy(
                     quantity = newQuantity,
-                    price = newPrice.toString()  // Store the base price, not multiplied
+                    price = basePriceInEGP.toString()  // Store the base price in EGP
                 )
             } else {
                 lineItem
@@ -270,10 +282,8 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
             return
         }
 
-
-
         val updatedLineItems = firstDraftOrder.line_items?.map { item ->
-            // Use the base price that's already stored
+            // Always use the base price (EGP) when sending to API
             val basePrice = item.price.toDoubleOrNull() ?: 0.0
             val quantity = item.quantity ?: 1
 
@@ -281,7 +291,7 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
                 variant_id = item.variant_id,
                 product_id = item.product_id,
                 quantity = quantity,
-                price = basePrice.toString(),
+                price = basePrice.toString(), // Send original EGP price to API
                 title = item.title ?: "",
                 variant_title = item.variant_title,
                 sku = item.sku,
