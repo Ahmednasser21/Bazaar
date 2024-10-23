@@ -1,6 +1,8 @@
 package com.iti.itp.bazaar.mainActivity
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
@@ -18,7 +20,9 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.R
+import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.shoppingCartActivity.ShoppingCartActivity
 import com.iti.itp.bazaar.databinding.ActivityMainBinding
 import com.iti.itp.bazaar.settings.SettingsActivity
@@ -28,11 +32,19 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
     private lateinit var appBarConfiguration: AppBarConfiguration
+    lateinit var mySharedPrefrence: SharedPreferences
+    lateinit var IsGuestMode: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        mySharedPrefrence = getSharedPreferences(
+            MyConstants.MY_SHARED_PREFERANCE,
+            Context.MODE_PRIVATE
+        )
+        IsGuestMode = mySharedPrefrence.getString(MyConstants.IS_GUEST, "false") ?: "false"
+
 
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -57,52 +69,40 @@ class MainActivity : AppCompatActivity() {
             invalidateOptionsMenu()
         }
 
-        val searchView: SearchView = findViewById<SearchView?>(R.id.search_view).apply {
 
-            val searchIcon = findViewById<ImageView>(androidx.appcompat.R.id.search_button)
-            searchIcon.setColorFilter(Color.WHITE)
 
-            val searchEditText: EditText =
-                this.findViewById(androidx.appcompat.R.id.search_src_text)
-            searchEditText.setTextColor(Color.WHITE)
-            searchEditText.textSize = 20f
 
-            val closeIcon = findViewById<ImageView>(androidx.appcompat.R.id.search_close_btn)
-            closeIcon.setColorFilter(Color.WHITE)
-        }
 
-        searchView.setOnSearchClickListener {
-            navController.navigate(R.id.searchFragment)
-        }
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
 
-                return false
-            }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-
-                return false
-            }
-
-        })
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
                 R.id.nav_me -> {
-                    val toolbarTitle: TextView = findViewById(R.id.toolbar_title)
-                    toolbarTitle.text = destination.label
-                    searchView.visibility = View.INVISIBLE
-                    invalidateOptionsMenu()
+                    when(IsGuestMode){
+                        "true"->{
+                            Snackbar.make(binding.navView,"cant go to Me screen in guest Mode ",2000).show()
+
+                        }
+                        else ->{
+                            val toolbarTitle: TextView = findViewById(R.id.toolbar_title)
+                            toolbarTitle.text = destination.label
+                            invalidateOptionsMenu()
+                        }
+                    }
+
+
                 }
 
                 R.id.nav_home -> {
-                    searchView.visibility = View.VISIBLE
+
                 }
 
                 R.id.nav_categories -> {
-                    searchView.visibility = View.VISIBLE
+
                 }
             }
+        }
+        binding.toolbar.searchImg.setOnClickListener {
+            navController.navigate(R.id.searchFragment)
         }
     }
 
@@ -121,20 +121,51 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.nav_cart -> {
-                val intent = Intent(this, ShoppingCartActivity::class.java)
-                startActivity(intent)
-                true
+                when (IsGuestMode){
+                    "true"->{
+                        Snackbar.make(binding.navView,"cant go to cart in guest Mode ",2000).show()
+
+                        true
+                    }
+                    else->{
+                        val intent = Intent(this, ShoppingCartActivity::class.java)
+                        startActivity(intent)
+                        true
+                    }
+                }
+
             }
 
             R.id.nav_favourite -> {
-                navController.navigate(R.id.favoriteProductsFragment)
-                true
+                when (IsGuestMode){
+                    "true"->{
+                        Snackbar.make(binding.root,"cant go to favorites in guest Mode ",2000).show()
+
+                        true
+                    }
+                    else ->{
+                        navController.navigate(R.id.favoriteProductsFragment)
+                        true
+                    }
+                }
+
             }
 
             R.id.nav_settings -> {
-                val intent = Intent(this, SettingsActivity::class.java)
-                startActivity(intent)
-                true
+                when (IsGuestMode){
+
+                    "true"->{
+                        Snackbar.make(binding.root,"cant go to settings in guest Mode ",2000)
+                        true
+                    }
+                    else ->{
+                        val intent = Intent(this, SettingsActivity::class.java)
+                        startActivity(intent)
+                        true
+                    }
+                }
+
+
             }
 
             else -> super.onOptionsItemSelected(item)

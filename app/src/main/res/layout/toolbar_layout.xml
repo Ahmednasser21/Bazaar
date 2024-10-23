@@ -8,14 +8,12 @@
     app:menu="@menu/bottom_nav_menu"
     android:background="?attr/colorPrimary">
 
-    <androidx.appcompat.widget.SearchView
-        android:id="@+id/search_view"
+    <ImageView
+        android:id="@+id/search_img"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:iconifiedByDefault="false"
-        app:searchHintIcon="@drawable/baseline_search_24"
-        android:queryHint="Search..." />
+        android:src="@drawable/baseline_search_24"
+        />
 
     <TextView
         android:id="@+id/toolbar_title"
