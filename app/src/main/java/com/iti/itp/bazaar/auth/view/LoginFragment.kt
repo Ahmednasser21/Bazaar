@@ -154,7 +154,7 @@ var password:String?=null
         binding.btnLogIn.setOnClickListener {
 
              email = binding.etEmailLogIn.text.toString()
-             password = binding.etPassLogIn.text.toString()
+             //password = binding.etPassLogIn.text.toString()
             if (!email.isNullOrBlank() || !password.isNullOrBlank()) {
 
                 logIn(email!!, password!!)

@@ -19,8 +19,8 @@
     <string name="btn_signUp">Sign Up</string>
     <string name="tv_goToLogIn">"Back To Log In "</string>
     <string name="btn_logIn">LogIn</string>
-    <string name="tv_gotoSignUp">Don\'t Have an account ? .. Sign Up</string>
-    <string name="tv_GuestMode">Want To Continue In Guest Mode ? .. Click Here</string>
+    <string name="tv_gotoSignUp">Don\'t Have an account?</string>
+    <string name="tv_GuestMode">Skip</string>
 
     <string name="favourite">Favourite</string>
     <string name="cart">Cart</string>
@@ -80,4 +80,5 @@
     <string name="price_order">Price:</string>
     <string name="creation_date">Creation Date:</string>
     <string name="favProducts">Favorite</string>
+    <string name="or_login_with">Or login with</string>
 </resources>
