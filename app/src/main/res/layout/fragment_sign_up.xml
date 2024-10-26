@@ -22,6 +22,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/et_email_box"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
