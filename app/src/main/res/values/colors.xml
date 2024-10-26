@@ -9,4 +9,9 @@
     <color name="white">#FFFFFFFF</color>
     <color name="backgroundColor">#F9F9F9</color>
     <color name="primaryColor">#DB3022</color>
+
+
+    <color name="bottom_nav_icon_color">#DB3022</color> <!-- Selected icon color -->
+    <color name="bottom_nav_icon_color_inactive">@color/black</color> <!-- Unselected icon color -->
+
 </resources>

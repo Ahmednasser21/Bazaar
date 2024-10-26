@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.HORIZONTAL
 import com.denzcoskun.imageslider.constants.ScaleTypes
@@ -46,7 +47,7 @@ class HomeFragment : Fragment(), OnBrandClickListener {
     private lateinit var homeViewModel: HomeViewModel
     private lateinit var brandsAdapter: BrandsAdapter
     private lateinit var brandsRecycler: RecyclerView
-    private lateinit var brandsProgressBar: ProgressBar
+//    private lateinit var brandsProgressBar: ProgressBar
     private lateinit var list: List<PriceRuleDto>
 
     override fun onCreateView(
@@ -130,9 +131,9 @@ class HomeFragment : Fragment(), OnBrandClickListener {
 
         brandsRecycler = binding.recBrands.apply {
             adapter = brandsAdapter
-            layoutManager = GridLayoutManager(requireContext(), 2, HORIZONTAL, false)
+            layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         }
-        brandsProgressBar = binding.progBrands
+       // brandsProgressBar = binding.progBrands
         homeViewModel.getVendors()
         getProductVendors()
         }
@@ -144,12 +145,12 @@ class HomeFragment : Fragment(), OnBrandClickListener {
                 when (result) {
 
                     is DataState.Loading -> {
-                        brandsProgressBar.visibility = View.VISIBLE
+                        //brandsProgressBar.visibility = View.VISIBLE
                         brandsRecycler.visibility = View.INVISIBLE
                     }
 
                     is DataState.OnSuccess<*> -> {
-                        brandsProgressBar.visibility = View.GONE
+                        //brandsProgressBar.visibility = View.GONE
                         brandsRecycler.visibility = View.VISIBLE
                         val smartCollectionsResponse = result.data as SmartCollectionsResponse
                         val brandList = smartCollectionsResponse.smartCollections
@@ -159,7 +160,7 @@ class HomeFragment : Fragment(), OnBrandClickListener {
                     }
 
                     is DataState.OnFailed -> {
-                        brandsProgressBar.visibility = View.GONE
+                        //brandsProgressBar.visibility = View.GONE
                         Snackbar.make(requireView(), "Failed to get data", Snackbar.LENGTH_SHORT)
                             .show()
                     }
