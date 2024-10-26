@@ -13,6 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
         android:background="@drawable/custom_arrow"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
@@ -21,7 +22,7 @@
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
+        android:layout_marginTop="32dp"
         android:fontFamily="@font/metropolis_bold"
         android:text="Login"
         android:textColor="@color/black"
@@ -36,7 +37,14 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="64dp"
-        android:hint="Email"
+        app:boxStrokeWidth="2dp"
+        app:boxStrokeColor="@color/primaryColor"
+        android:hint="@string/email"
+        app:boxCornerRadiusTopStart="15dp"
+        app:boxCornerRadiusBottomEnd="15dp"
+        app:boxCornerRadiusTopEnd="15dp"
+        app:boxCornerRadiusBottomStart="15dp"
+        app:boxBackgroundColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -46,9 +54,7 @@
             android:id="@+id/et_EmailLogIn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/custom_et_backgroud"
             android:inputType="textEmailAddress"
-
             android:minHeight="48dp"
             android:padding="24dp" />
 
@@ -60,18 +66,24 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:hint="Password"
+        android:hint="@string/password"
+        app:boxStrokeWidth="2dp"
+        app:boxStrokeColor="@color/primaryColor"
+        app:boxCornerRadiusTopStart="15dp"
+        app:boxCornerRadiusBottomEnd="15dp"
+        app:boxCornerRadiusTopEnd="15dp"
+        app:boxCornerRadiusBottomStart="15dp"
+        app:boxBackgroundColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/til_email">
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_pass_logIn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/custom_et_backgroud"
             android:minHeight="48dp"
-
             android:padding="24dp" />
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -80,7 +92,7 @@
         android:id="@+id/btn_LogIn"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="32dp"
         android:background="@drawable/custom_button_background"
         android:fontFamily="@font/metropolis_medium"
         android:minHeight="48dp"

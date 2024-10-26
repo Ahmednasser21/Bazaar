@@ -58,10 +58,10 @@ class LoginFragment : Fragment() {
     lateinit var authViewModel: AuthViewModel
     lateinit var mAuth: FirebaseAuth
     lateinit var sharedPreferences: SharedPreferences
-    lateinit var ProductInfoViewModel : prouductInfoViewModel
-    lateinit var DraftvmFActory : ProuductIfonViewModelFactory
-var email:String?=null
-var password:String?=null
+    lateinit var ProductInfoViewModel: prouductInfoViewModel
+    lateinit var DraftvmFActory: ProuductIfonViewModelFactory
+    var email: String? = null
+    var password: String? = null
 
     val updateCustomerRequest = UpdateCustomerRequest(
         customer = CustomerUpdate(
@@ -96,12 +96,10 @@ var password:String?=null
     override fun onStart() {
         super.onStart()
         // don't forget to check on the logged in user
-       // checkIfEmailVerified()
+        // checkIfEmailVerified()
         Log.d("TAG", "onStart: ")
-        if (mAuth.currentUser != null)
-        {
-            if (mAuth.currentUser!!.isEmailVerified)
-            {
+        if (mAuth.currentUser != null) {
+            if (mAuth.currentUser!!.isEmailVerified) {
                 startActivity(Intent(requireActivity(), MainActivity::class.java))
             }
 
@@ -122,11 +120,13 @@ var password:String?=null
                 MyConstants.MY_SHARED_PREFERANCE,
                 Context.MODE_PRIVATE
             )
-        DraftvmFActory = ProuductIfonViewModelFactory( Repository.getInstance(
-            ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
-        ) , CurrencyRepository(CurrencyRemoteDataSource(ExchangeRetrofitObj.service))
+        DraftvmFActory = ProuductIfonViewModelFactory(
+            Repository.getInstance(
+                ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
+            ), CurrencyRepository(CurrencyRemoteDataSource(ExchangeRetrofitObj.service))
         )
-        ProductInfoViewModel = ViewModelProvider(this , DraftvmFActory).get(prouductInfoViewModel::class.java)
+        ProductInfoViewModel =
+            ViewModelProvider(this, DraftvmFActory).get(prouductInfoViewModel::class.java)
 
 
         binding = FragmentLoginBinding.inflate(inflater, container, false)
@@ -153,8 +153,8 @@ var password:String?=null
 
         binding.btnLogIn.setOnClickListener {
 
-             email = binding.etEmailLogIn.text.toString()
-             //password = binding.etPassLogIn.text.toString()
+            email = binding.etEmailLogIn.text.toString()
+            password = binding.etPassLogIn.text.toString()
             if (!email.isNullOrBlank() || !password.isNullOrBlank()) {
 
                 logIn(email!!, password!!)
@@ -204,39 +204,52 @@ var password:String?=null
 
         }
     }
-////////////////// wa2ef hena ya lol
-    fun ObserveOnGettingCustomerByEmail(email : String) {
+
+    ////////////////// wa2ef hena ya lol
+    fun ObserveOnGettingCustomerByEmail(email: String) {
         lifecycleScope.launch {
 
             authViewModel.getCustomerByEmail(email)
-            authViewModel.customerByEmailStateFlow .collectLatest { result ->
+            authViewModel.customerByEmailStateFlow.collectLatest { result ->
                 when (result) {
                     is DataState.Loading -> {
                         Log.d("TAG", "ObserveOnGettingCustomerByEmail: Loading")
                     }
 
                     is DataState.OnFailed -> {
-                        Log.d("TAG", "ObserveOnGettingCustomerByEmail faliour and error msg is ->: ${result.msg}")
+                        Log.d(
+                            "TAG",
+                            "ObserveOnGettingCustomerByEmail faliour and error msg is ->: ${result.msg}"
+                        )
                     }
 
                     is DataState.OnSuccess<*> -> {
                         val customerPostResponse = result.data as CustomerByEmailResponce
                         val customerByEmail = customerPostResponse.customers/*.id*/
-                        if (customerByEmail.isNullOrEmpty())
-                        {
+                        if (customerByEmail.isNullOrEmpty()) {
                             Snackbar.make(requireView(), "Email wasn't found 1", 2000).show()
-                        }
-                        else {
+                        } else {
                             Snackbar.make(requireView(), "Authentication success.", 2000).show()
 
-                            sharedPreferences.edit().putString(MyConstants.IS_GUEST, "false").apply()
-                            Log.d("TAG", "ObserveOnGettingCustomerByEmail success w da el object kamel ->:${customerByEmail.get(0).id} ")
+                            sharedPreferences.edit().putString(MyConstants.IS_GUEST, "false")
+                                .apply()
+                            Log.d(
+                                "TAG",
+                                "ObserveOnGettingCustomerByEmail success w da el object kamel ->:${
+                                    customerByEmail.get(0).id
+                                } "
+                            )
                             //saving customer id i shared pref
-                            sharedPreferences.edit().putString(MyConstants.CUSOMER_ID,customerByEmail.get(0).id.toString()).apply()
+                            sharedPreferences.edit().putString(
+                                MyConstants.CUSOMER_ID,
+                                customerByEmail.get(0).id.toString()
+                            ).apply()
                             // now i want to create a method for creating to draft orders (Fav And Cart ) and then post thier id to this customer again
-                            if (customerByEmail.get(0).first_name.isNullOrBlank()&&customerByEmail.get(0).last_name.isNullOrBlank())
-                            {
-                                updateCustomerRequest.customer.id=customerByEmail.get(0).id
+                            if (customerByEmail.get(0).first_name.isNullOrBlank() && customerByEmail.get(
+                                    0
+                                ).last_name.isNullOrBlank()
+                            ) {
+                                updateCustomerRequest.customer.id = customerByEmail.get(0).id
                                 CreatCartDraftOrder(customerByEmail.get(0).id)
 
                                 delay(2000)
@@ -245,22 +258,26 @@ var password:String?=null
                                 delay(3000)
 
                                 // to update the customer details with his draft orders idS
-                                updateCustomerById(customerByEmail.get(0).id,updateCustomerRequest)
+                                updateCustomerById(customerByEmail.get(0).id, updateCustomerRequest)
 
                                 startActivity(Intent(requireActivity(), MainActivity::class.java))
-                            }else
-                            {
-                                sharedPreferences.edit().putString(MyConstants.CART_DRAFT_ORDER_ID,"${customerByEmail.get(0).first_name}").apply()
-                                sharedPreferences.edit().putString(MyConstants.FAV_DRAFT_ORDERS_ID,"${customerByEmail.get(0).last_name}").apply()
+                            } else {
+                                sharedPreferences.edit().putString(
+                                    MyConstants.CART_DRAFT_ORDER_ID,
+                                    "${customerByEmail.get(0).first_name}"
+                                ).apply()
+                                sharedPreferences.edit().putString(
+                                    MyConstants.FAV_DRAFT_ORDERS_ID,
+                                    "${customerByEmail.get(0).last_name}"
+                                ).apply()
 
                                 startActivity(Intent(requireActivity(), MainActivity::class.java))
 
                             }
 
 
-
                         }
-                         }
+                    }
                 }
 
 
@@ -269,26 +286,33 @@ var password:String?=null
         }
     }
 
-    fun CreatCartDraftOrder(customerId : Long){
+    fun CreatCartDraftOrder(customerId: Long) {
         lifecycleScope.launch {
             ProductInfoViewModel.createOrder(creatDraftOrderRequest(customerId))
             delay(2000) // tb be able to retrive my draftOrderId
             ProductInfoViewModel.getAllDraftOrders()
-            ProductInfoViewModel.allDraftOrders.collectLatest { result->
-                when(result){
+            ProductInfoViewModel.allDraftOrders.collectLatest { result ->
+                when (result) {
                     DataState.Loading -> {
                         Log.d("TAG", "CreatCartDraftOrder: loading ")
                     }
-                    is DataState.OnFailed ->{
+
+                    is DataState.OnFailed -> {
                         Log.d("TAG", "CreatCartDraftOrder: failure ")
                     }
-                    is DataState.OnSuccess<*> ->{
+
+                    is DataState.OnSuccess<*> -> {
 
                         val draftOrder = (result.data as ReceivedOrdersResponse)
-                        val draftOrderId =draftOrder.draft_orders.get(draftOrder.draft_orders.size-1).id
-                        sharedPreferences.edit().putString(MyConstants.CART_DRAFT_ORDER_ID,"$draftOrderId").apply()
-                        Log.d("TAG", "CreatCartDraftOrder: success wel draftorder id is ->${draftOrderId} ")
-                        updateCustomerRequest.customer.first_name=draftOrderId.toString()
+                        val draftOrderId =
+                            draftOrder.draft_orders.get(draftOrder.draft_orders.size - 1).id
+                        sharedPreferences.edit()
+                            .putString(MyConstants.CART_DRAFT_ORDER_ID, "$draftOrderId").apply()
+                        Log.d(
+                            "TAG",
+                            "CreatCartDraftOrder: success wel draftorder id is ->${draftOrderId} "
+                        )
+                        updateCustomerRequest.customer.first_name = draftOrderId.toString()
                     }
                 }
 
@@ -297,26 +321,30 @@ var password:String?=null
 
     }
 
-    fun CreatFavDraftOrder(customerId : Long){
+    fun CreatFavDraftOrder(customerId: Long) {
         lifecycleScope.launch {
             ProductInfoViewModel.createFavDraftOrder(creatDraftOrderRequest(customerId))
             delay(2000) // tb be able to retrive my draftOrderId
             // el moshkela momken tkon hena 3shan b observ b wa7da bs 3al etnen
             ProductInfoViewModel.getAllDraftOrdersForFav()
-            ProductInfoViewModel.allDraftOrdersFav .collectLatest { result->
-                when(result){
+            ProductInfoViewModel.allDraftOrdersFav.collectLatest { result ->
+                when (result) {
                     DataState.Loading -> {
                         Log.d("TAG", "CreatFavDraftOrder: loading ")
                     }
-                    is DataState.OnFailed ->{
+
+                    is DataState.OnFailed -> {
                         Log.d("TAG", "CreatFavDraftOrder:  success")
                     }
-                    is DataState.OnSuccess<*> ->{
+
+                    is DataState.OnSuccess<*> -> {
                         val draftOrder = (result.data as ReceivedOrdersResponse)
-                        val draftOrderId =draftOrder.draft_orders.get(draftOrder.draft_orders.size-1).id
-                        sharedPreferences.edit().putString(MyConstants.FAV_DRAFT_ORDERS_ID,"$draftOrderId").apply()
+                        val draftOrderId =
+                            draftOrder.draft_orders.get(draftOrder.draft_orders.size - 1).id
+                        sharedPreferences.edit()
+                            .putString(MyConstants.FAV_DRAFT_ORDERS_ID, "$draftOrderId").apply()
                         Log.d("TAG", "CreatFavDraftOrder:  success wel id hwa $draftOrderId")
-                        updateCustomerRequest.customer.last_name=draftOrderId.toString()
+                        updateCustomerRequest.customer.last_name = draftOrderId.toString()
                     }
                 }
 
@@ -325,7 +353,7 @@ var password:String?=null
 
     }
 
-    private fun creatDraftOrderRequest(customerId : Long): DraftOrderRequest {
+    private fun creatDraftOrderRequest(customerId: Long): DraftOrderRequest {
         val draftOrderRequest = DraftOrderRequest(
             draft_order = DraftOrder(
                 line_items = listOf(
@@ -333,7 +361,8 @@ var password:String?=null
 
                         product_id = 0L,
                         sku = "emptySKU",
-                        title = "asdasda", price = "", quantity = 1)
+                        title = "asdasda", price = "", quantity = 1
+                    )
                 ),
                 use_customer_default_address = true,
                 applied_discount = AppliedDiscount(),
@@ -344,13 +373,13 @@ var password:String?=null
         return draftOrderRequest
     }
 
-    fun updateCustomerById (customerId : Long , updateCustomerRequest: UpdateCustomerRequest){
+    fun updateCustomerById(customerId: Long, updateCustomerRequest: UpdateCustomerRequest) {
         lifecycleScope.launch {
-            authViewModel.updateCustomerById(customerId,updateCustomerRequest)
+            authViewModel.updateCustomerById(customerId, updateCustomerRequest)
             delay(2000)
 
-            authViewModel.updateCustomerByIdStateFlow.collectLatest { result->
-                when (result){
+            authViewModel.updateCustomerByIdStateFlow.collectLatest { result ->
+                when (result) {
                     DataState.Loading -> {
                     }
 
@@ -368,9 +397,6 @@ var password:String?=null
         }
 
     }
-
-
-
 
 
 }
