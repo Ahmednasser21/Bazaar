@@ -49,6 +49,7 @@ class HomeFragment : Fragment(), OnBrandClickListener {
     private lateinit var brandsRecycler: RecyclerView
 //    private lateinit var brandsProgressBar: ProgressBar
     private lateinit var list: List<PriceRuleDto>
+    private lateinit var categoriesRec:RecyclerView
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -75,6 +76,11 @@ class HomeFragment : Fragment(), OnBrandClickListener {
                 showExitAlertDialog()
             }
         })
+        categoriesRec = binding.recCategoriesHome.apply {
+            adapter = CategoriesAdapter(categoriesList())
+            layoutManager = LinearLayoutManager(requireContext(),HORIZONTAL,false)
+        }
+
         binding.imageSlider.setImageList(getListOfImageAds())
         val clipboard =
             requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -209,6 +215,15 @@ class HomeFragment : Fragment(), OnBrandClickListener {
                 dialog.dismiss()
             }
             .show()
+    }
+
+    fun categoriesList():List<CategoryItem>{
+        val  categoriesList = listOf(
+            CategoryItem("Women",R.drawable.women),
+            CategoryItem("Men",R.drawable.men),
+            CategoryItem("Kids",R.drawable.kids),
+        )
+        return categoriesList
     }
 
 }

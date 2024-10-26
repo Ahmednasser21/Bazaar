@@ -4,7 +4,9 @@
     android:id="@+id/brand_item_container"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:padding="8dp">
+    android:paddingTop="4dp"
+    android:paddingStart="2dp"
+    android:paddingEnd="8dp">
 
     <ImageView
         android:id="@+id/img_product"
