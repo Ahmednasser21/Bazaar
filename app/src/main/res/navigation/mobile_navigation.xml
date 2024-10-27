@@ -17,6 +17,9 @@
         <action
             android:id="@+id/action_nav_home_to_prouductnfoFragment"
             app:destination="@id/prouductnfoFragment" />
+        <action
+            android:id="@+id/action_nav_home_to_nav_categories"
+            app:destination="@id/nav_categories" />
     </fragment>
 
     <fragment
@@ -27,6 +30,9 @@
         <action
             android:id="@+id/action_nav_categories_to_prouductnfoFragment"
             app:destination="@id/prouductnfoFragment" />
+        <argument
+            android:name="categoryName"
+            app:argType="string" />
     </fragment>
 
     <fragment

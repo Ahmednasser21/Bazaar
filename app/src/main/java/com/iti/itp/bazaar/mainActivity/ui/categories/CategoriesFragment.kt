@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
@@ -43,7 +44,6 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteClickL
     private lateinit var menChip: Chip
     private lateinit var womenChip: Chip
     private lateinit var kidChip: Chip
-    private lateinit var saleChip: Chip
     private lateinit var categoryProductsRec: RecyclerView
     private lateinit var categoriesViewModel: CategoriesViewModel
     private lateinit var searchViewModel: SearchViewModel
@@ -77,7 +77,7 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteClickL
             ViewModelProvider(requireActivity(), categoriesFactory)[CategoriesViewModel::class.java]
         searchViewModel =
             ViewModelProvider(requireActivity(), searchFactory)[SearchViewModel::class.java]
-        productsAdapter = ProductsAdapter(false,this, this)
+        productsAdapter = ProductsAdapter(false, this, this)
 
         binding = FragmentCategoriesBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -87,8 +87,23 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteClickL
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
         initialiseUI()
+        val args:CategoriesFragmentArgs by navArgs()
+        val categoryName = args.categoryName
+
+        when (categoryName) {
+            "Women" -> {
+                animateChip(womenChip, 480515457328)
+            }
+
+            "Men" -> {
+                animateChip(menChip, 480515424560)
+            }
+
+            "Kids" -> {
+                animateChip(kidChip, 480515490096)
+            }
+        }
         categoriesViewModel.getCategoryProducts(categoryID)
         searchViewModel.getAllProducts()
         getCategoryProducts()
@@ -103,10 +118,6 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteClickL
         }
         kidChip.setOnClickListener {
             animateChip(kidChip, 480515490096)
-        }
-
-        saleChip.setOnClickListener {
-            animateChip(saleChip, 480515522864)
         }
 
         fabAccessories.setOnClickListener {
@@ -150,7 +161,6 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteClickL
         womenChip = binding.women
         menChip = binding.men
         kidChip = binding.kid
-        saleChip = binding.sale
         categoriesProg = binding.progCategories
         categoryProductsRec = binding.recCategoryProducts.apply {
             adapter = productsAdapter
@@ -226,10 +236,9 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteClickL
                         } else {
                             setAnimationInvisible()
                         }
-                        if(categoryID!=480514900272){
-                        productsAdapter.submitList(getListWithProductPrice(productsList))
-                        }
-                        else{
+                        if (categoryID != 480514900272) {
+                            productsAdapter.submitList(getListWithProductPrice(productsList))
+                        } else {
                             getListWithProductPrice(productsList)
                         }
 
@@ -269,12 +278,12 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteClickL
                         filteredProducts = productsList.filter { product ->
                             categoryProducts.any { it.id == product.id }
                         }
-                        if(categoryID==480514900272){
-                            val filteredList =productsList.filter { !it.image?.src.isNullOrBlank() }
+                        if (categoryID == 480514900272) {
+                            val filteredList =
+                                productsList.filter { !it.image?.src.isNullOrBlank() }
                             products = filteredList
                             productsAdapter.submitList(filteredList)
-                        }
-                        else{
+                        } else {
                             products = filteredProducts
                         }
 

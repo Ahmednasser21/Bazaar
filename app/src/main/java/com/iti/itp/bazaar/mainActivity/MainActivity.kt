@@ -62,17 +62,16 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        navController.addOnDestinationChangedListener { _, destination, _ ->
+        navController.addOnDestinationChangedListener { _, destination, arguments ->
             val toolbarTitle: TextView = findViewById(R.id.toolbar_title)
             toolbarTitle.text = destination.label
 
+            if (destination.id == R.id.nav_brand_products) {
+                toolbarTitle.text = arguments?.getString("vendorName") ?: "Brands"
+            }
+
             invalidateOptionsMenu()
         }
-
-
-
-
-
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {

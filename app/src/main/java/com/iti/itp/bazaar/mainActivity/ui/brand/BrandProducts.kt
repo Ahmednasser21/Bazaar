@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
@@ -30,7 +31,6 @@ import kotlinx.coroutines.launch
 private const val TAG = "BrandProducts"
 
 class BrandProducts : Fragment(), OnProductClickListener, OnFavouriteClickListener {
-    private lateinit var brandTitle: TextView
     private lateinit var productRecycler: RecyclerView
     private lateinit var brandProductsViewModel: BrandProductsViewModel
     private lateinit var binding: FragmentBrandProductsBinding
@@ -56,8 +56,7 @@ class BrandProducts : Fragment(), OnProductClickListener, OnFavouriteClickListen
         super.onViewCreated(view, savedInstanceState)
         val args: BrandProductsArgs by navArgs()
         val brandName = args.vendorName
-        Log.i(TAG, "onViewCreated: $brandName")
-
+        (activity as? AppCompatActivity)?.supportActionBar?.title = brandName
         productsAdapter = ProductsAdapter(false,this,this)
         initialiseUI(brandName)
         brandProductsViewModel.getVendorProducts(brandName)
@@ -65,9 +64,6 @@ class BrandProducts : Fragment(), OnProductClickListener, OnFavouriteClickListen
     }
 
     private fun initialiseUI(brandName: String) {
-        brandTitle = binding.brandName.apply {
-            text = brandName
-        }
         progBrandProducts = binding.progBrandProducts
         productRecycler = binding.recBrandProducts.apply {
             adapter = productsAdapter

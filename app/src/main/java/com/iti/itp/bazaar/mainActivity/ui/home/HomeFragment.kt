@@ -48,7 +48,7 @@ import kotlinx.coroutines.withContext
 private const val TAG = "HomeFragment"
 
 class HomeFragment : Fragment(), OnBrandClickListener, OnProductClickListener,
-    OnFavouriteClickListener {
+    OnFavouriteClickListener,OnCategoryClickListener {
 
     private lateinit var binding: FragmentHomeBinding
     private lateinit var homeViewModel: HomeViewModel
@@ -105,7 +105,7 @@ class HomeFragment : Fragment(), OnBrandClickListener, OnProductClickListener,
                 }
             })
         categoriesRec = binding.recCategoriesHome.apply {
-            adapter = CategoriesAdapter(categoriesList())
+            adapter = CategoriesAdapter(categoriesList(),this@HomeFragment)
             layoutManager = LinearLayoutManager(requireContext(), HORIZONTAL, false)
         }
 
@@ -329,6 +329,11 @@ class HomeFragment : Fragment(), OnBrandClickListener, OnProductClickListener,
             }
         }
         return filteredProducts
+    }
+
+    override fun onCategoryClick(categoryName: String) {
+       val action = HomeFragmentDirections.actionNavHomeToNavCategories(categoryName)
+        Navigation.findNavController(requireView()).navigate(action)
     }
 
 }
