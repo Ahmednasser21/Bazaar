@@ -2,7 +2,7 @@
     <!-- Base application theme. -->
     <style name="Theme.Bazaar" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/white</item>
+        <item name="colorPrimary">@color/primaryColor</item>
         <item name="colorPrimaryVariant">@color/white</item>
         <item name="colorOnPrimary">@color/black</item>
         <!-- Secondary brand color. -->
@@ -14,5 +14,10 @@
         <item name="android:windowLightStatusBar">true</item>
 
         <!-- Customize your theme here. -->
+    </style>
+    <style name="CustomRatingBar" parent="Widget.AppCompat.RatingBar.Small">
+        <item name="android:minHeight">15dp</item>
+        <item name="android:maxHeight">15dp</item>
+
     </style>
 </resources>
