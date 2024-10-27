@@ -17,6 +17,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.databinding.FragmentBrandProductsBinding
 import com.iti.itp.bazaar.mainActivity.ui.DataState
+import com.iti.itp.bazaar.mainActivity.ui.products.ProductsAdapter
+import com.iti.itp.bazaar.mainActivity.ui.products.OnFavouriteClickListener
+import com.iti.itp.bazaar.mainActivity.ui.products.OnProductClickListener
 import com.iti.itp.bazaar.network.responses.ProductResponse
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
@@ -26,12 +29,12 @@ import kotlinx.coroutines.launch
 
 private const val TAG = "BrandProducts"
 
-class BrandProducts : Fragment(), OnBrandProductClickListener, OnFavouriteClickListener {
+class BrandProducts : Fragment(), OnProductClickListener, OnFavouriteClickListener {
     private lateinit var brandTitle: TextView
     private lateinit var productRecycler: RecyclerView
     private lateinit var brandProductsViewModel: BrandProductsViewModel
     private lateinit var binding: FragmentBrandProductsBinding
-    private lateinit var productsAdapter: BrandProductsAdapter
+    private lateinit var productsAdapter: ProductsAdapter
     private lateinit var progBrandProducts: ProgressBar
 
     override fun onCreateView(
@@ -55,7 +58,7 @@ class BrandProducts : Fragment(), OnBrandProductClickListener, OnFavouriteClickL
         val brandName = args.vendorName
         Log.i(TAG, "onViewCreated: $brandName")
 
-        productsAdapter = BrandProductsAdapter(this,this)
+        productsAdapter = ProductsAdapter(false,this,this)
         initialiseUI(brandName)
         brandProductsViewModel.getVendorProducts(brandName)
         getVendorProducts()
@@ -103,13 +106,12 @@ class BrandProducts : Fragment(), OnBrandProductClickListener, OnFavouriteClickL
         }
     }
 
-    override fun onBrandProductClick(productID: Long) {
-// navigate to prouductDetails fragment using args with productID
-        val action = BrandProductsDirections.actionNavBrandProductsToProuductnfoFragment(productID)
+    override fun onProductClick(id: Long) {
+        val action = BrandProductsDirections.actionNavBrandProductsToProuductnfoFragment(id)
         Navigation.findNavController(binding.root).navigate(action)
     }
 
-    override fun onFavClick() {
+    override fun onFavProductClick() {
 
     }
 }

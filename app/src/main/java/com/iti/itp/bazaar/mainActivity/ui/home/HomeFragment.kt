@@ -1,6 +1,5 @@
 package com.iti.itp.bazaar.mainActivity.ui.home
 
-import android.app.AlertDialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -15,7 +14,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.HORIZONTAL
@@ -27,8 +25,12 @@ import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.R
 import com.iti.itp.bazaar.databinding.FragmentHomeBinding
 import com.iti.itp.bazaar.dto.PriceRuleDto
-import com.iti.itp.bazaar.mainActivity.MainActivity
 import com.iti.itp.bazaar.mainActivity.ui.DataState
+import com.iti.itp.bazaar.mainActivity.ui.categories.CategoriesViewModel
+import com.iti.itp.bazaar.mainActivity.ui.categories.CategoriesViewModelFactory
+import com.iti.itp.bazaar.mainActivity.ui.products.OnFavouriteClickListener
+import com.iti.itp.bazaar.mainActivity.ui.products.OnProductClickListener
+import com.iti.itp.bazaar.mainActivity.ui.products.ProductsAdapter
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
 import com.iti.itp.bazaar.network.products.Products
@@ -36,20 +38,29 @@ import com.iti.itp.bazaar.network.responses.PriceRulesResponse
 import com.iti.itp.bazaar.network.responses.ProductResponse
 import com.iti.itp.bazaar.network.responses.SmartCollectionsResponse
 import com.iti.itp.bazaar.repo.Repository
+import com.iti.itp.bazaar.search.viewModel.SearchViewModel
+import com.iti.itp.bazaar.search.viewModel.SearchViewModelFactory
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private const val TAG = "HomeFragment"
 
-class HomeFragment : Fragment(), OnBrandClickListener {
+class HomeFragment : Fragment(), OnBrandClickListener, OnProductClickListener,
+    OnFavouriteClickListener {
 
     private lateinit var binding: FragmentHomeBinding
     private lateinit var homeViewModel: HomeViewModel
     private lateinit var brandsAdapter: BrandsAdapter
     private lateinit var brandsRecycler: RecyclerView
-//    private lateinit var brandsProgressBar: ProgressBar
+    private lateinit var saleRecycler: RecyclerView
+    private lateinit var saleProgressBar: ProgressBar
     private lateinit var list: List<PriceRuleDto>
-    private lateinit var categoriesRec:RecyclerView
+    private lateinit var categoriesRec: RecyclerView
+    private lateinit var categoriesViewModel: CategoriesViewModel
+    private lateinit var searchViewModel: SearchViewModel
+    private lateinit var saleProductsAdapter: ProductsAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -61,8 +72,23 @@ class HomeFragment : Fragment(), OnBrandClickListener {
                 ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
             )
         )
+        val categoriesFactory = CategoriesViewModelFactory(
+            Repository.getInstance(
+                ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
+            )
+        )
+        val searchFactory = SearchViewModelFactory(
+            Repository.getInstance(
+                ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
+            )
+        )
+        categoriesViewModel =
+            ViewModelProvider(requireActivity(), categoriesFactory)[CategoriesViewModel::class.java]
+        searchViewModel =
+            ViewModelProvider(requireActivity(), searchFactory)[SearchViewModel::class.java]
         homeViewModel = ViewModelProvider(this, factory)[HomeViewModel::class.java]
         brandsAdapter = BrandsAdapter(this)
+        saleProductsAdapter = ProductsAdapter(true,this, this)
         binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
         return root
@@ -71,14 +97,16 @@ class HomeFragment : Fragment(), OnBrandClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                showExitAlertDialog()
-            }
-        })
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    showExitAlertDialog()
+                }
+            })
         categoriesRec = binding.recCategoriesHome.apply {
             adapter = CategoriesAdapter(categoriesList())
-            layoutManager = LinearLayoutManager(requireContext(),HORIZONTAL,false)
+            layoutManager = LinearLayoutManager(requireContext(), HORIZONTAL, false)
         }
 
         binding.imageSlider.setImageList(getListOfImageAds())
@@ -135,14 +163,24 @@ class HomeFragment : Fragment(), OnBrandClickListener {
             }
         })
 
+        saleProgressBar =binding.saleProgressBar
+
         brandsRecycler = binding.recBrands.apply {
             adapter = brandsAdapter
-            layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+            layoutManager =
+                LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         }
-       // brandsProgressBar = binding.progBrands
+        categoriesViewModel.getCategoryProducts(480515522864)
+        searchViewModel.getAllProducts()
+        getCategoryProducts()
+        saleRecycler = binding.recSaleHome.apply {
+            adapter = saleProductsAdapter
+            layoutManager = LinearLayoutManager(requireContext(), HORIZONTAL,false)
+        }
+        // brandsProgressBar = binding.progBrands
         homeViewModel.getVendors()
         getProductVendors()
-        }
+    }
 
     private fun getProductVendors() {
         lifecycleScope.launch {
@@ -217,13 +255,80 @@ class HomeFragment : Fragment(), OnBrandClickListener {
             .show()
     }
 
-    fun categoriesList():List<CategoryItem>{
-        val  categoriesList = listOf(
-            CategoryItem("Women",R.drawable.women),
-            CategoryItem("Men",R.drawable.men),
-            CategoryItem("Kids",R.drawable.kids),
+    private fun categoriesList(): List<CategoryItem> {
+        val categoriesList = listOf(
+            CategoryItem("Women", R.drawable.women),
+            CategoryItem("Men", R.drawable.men),
+            CategoryItem("Kids", R.drawable.kids),
         )
         return categoriesList
+    }
+
+    override fun onFavProductClick() {
+
+    }
+
+    override fun onProductClick(id: Long) {
+        val action =HomeFragmentDirections.actionNavHomeToProuductnfoFragment(id)
+        Navigation.findNavController(requireView()).navigate(action)
+    }
+
+    private fun getCategoryProducts() {
+        lifecycleScope.launch(Dispatchers.IO)  {
+            categoriesViewModel.categoryProductStateFlow.collectLatest { result ->
+                when (result) {
+                    is DataState.Loading -> {}
+
+                    is DataState.OnSuccess<*> -> {
+                        val productResponse = result.data as ProductResponse
+                        val productsList = productResponse.products
+                        getListWithProductPrice(productsList)
+                    }
+
+                    is DataState.OnFailed -> {
+                        Snackbar.make(requireView(), "Failed to get data", Snackbar.LENGTH_SHORT)
+                            .show()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun getListWithProductPrice(categoryProducts: List<Products>): List<Products> {
+        var filteredProducts: List<Products> = listOf()
+        lifecycleScope.launch(Dispatchers.IO) {
+            searchViewModel.searchStateFlow.collectLatest { result ->
+                when (result) {
+                    is DataState.Loading -> {
+                        withContext(Dispatchers.Main) {
+                            saleRecycler.visibility = View.INVISIBLE
+                        }
+                    }
+
+                    is DataState.OnSuccess<*> -> {
+                        val productResponse = result.data as ProductResponse
+                        val productsList = productResponse.products
+
+                        filteredProducts = productsList.filter { product ->
+                            categoryProducts.any { it.id == product.id }
+                        }
+                        withContext(Dispatchers.Main){
+                            saleProgressBar.visibility = View.GONE
+                            saleRecycler.visibility = View.VISIBLE
+                            saleProductsAdapter.submitList(filteredProducts)
+                        }
+                    }
+                    is DataState.OnFailed -> {
+                        withContext(Dispatchers.Main){
+                            saleProgressBar.visibility = View.GONE
+                            Snackbar.make(requireView(), "Failed to get data", Snackbar.LENGTH_SHORT)
+                                .show()
+                        }
+                    }
+                }
+            }
+        }
+        return filteredProducts
     }
 
 }

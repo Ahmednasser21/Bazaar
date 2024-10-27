@@ -1,4 +1,4 @@
-package com.iti.itp.bazaar.mainActivity.ui.categories
+package com.iti.itp.bazaar.mainActivity.ui.products
 
 import android.graphics.Paint
 import android.view.LayoutInflater
@@ -8,15 +8,15 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.iti.itp.bazaar.databinding.ProductsItemBinding
-import com.iti.itp.bazaar.mainActivity.ui.brand.BrandProductsDiffUtils
 import com.iti.itp.bazaar.network.products.Products
 import kotlin.random.Random
 
-class CategoryProductsAdapter(
+class ProductsAdapter(
+    private val isSale:Boolean,
     private val onProductClickListener: OnProductClickListener,
-    private val onFavouriteProductClickListener: OnFavouriteProductClickListener
-) : ListAdapter<Products, CategoryProductsAdapter.CategoryProductViewHolder>(
-    BrandProductsDiffUtils()
+    private val onFavouriteClickListener: OnFavouriteClickListener
+) : ListAdapter<Products, ProductsAdapter.CategoryProductViewHolder>(
+    ProductsDiffUtils()
 ) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryProductViewHolder {
@@ -27,7 +27,7 @@ class CategoryProductsAdapter(
 
     override fun onBindViewHolder(holder: CategoryProductViewHolder, position: Int) {
         val product = getItem(position)
-        holder.bindView(product, onProductClickListener, onFavouriteProductClickListener)
+        holder.bindView(isSale,product, onProductClickListener, onFavouriteClickListener)
     }
 
 
@@ -35,9 +35,10 @@ class CategoryProductsAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bindView(
+            isSale:Boolean,
             productDTO: Products,
             onProductClickListener: OnProductClickListener,
-            onFavouriteProductClickListener: OnFavouriteProductClickListener
+            onFavouriteClickListener: OnFavouriteClickListener
         ) {
             binding.tvProductName.text = extractProductName(productDTO.title)
             Glide.with(binding.root.context)
@@ -51,18 +52,28 @@ class CategoryProductsAdapter(
                 onProductClickListener.onProductClick(productDTO.id)
             }
             binding.imgFav.setOnClickListener {
-                onFavouriteProductClickListener.onFavProductClick()
+                onFavouriteClickListener.onFavProductClick()
             }
             binding.productRatingBar.rating = ratingList[Random.nextInt(ratingList.size)]
-            binding.ratingOfTen.text = (binding.productRatingBar.rating*2).toString()
+            binding.ratingOfTen.text = "(${binding.productRatingBar.rating*2})"
             binding.productVendor.text = productDTO.vendor
-//            binding.tvOldPrice.apply {
-//                text = if (productDTO.variants.isNullOrEmpty()){""
-//
-//                }else{"${productDTO.variants[0].price.toDouble()+(discountList[Random.nextInt(discountList.size)])}EGP"}
-//                paintFlags = paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-//            }
-            binding.tvOldPrice.visibility = View.INVISIBLE
+            if (isSale) {
+                binding.tvOldPrice.apply {
+                    text = if (productDTO.variants.isNullOrEmpty()) {
+                        ""
+
+                    } else {
+                        "${
+                            productDTO.variants[0].price.toDouble() + (discountList[Random.nextInt(
+                                discountList.size
+                            )])
+                        }EGP"
+                    }
+                    paintFlags = paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                }
+            }else{
+                binding.tvOldPrice.visibility = View.INVISIBLE
+            }
 
         }
 
@@ -71,8 +82,8 @@ class CategoryProductsAdapter(
             val parts = fullName.split(delimiter)
             return if (parts.size > 1) parts[1].trim() else ""
         }
-        private val ratingList = listOf(2.3f, 3.1f, 3.4f, 4.2f, 4.7f, 4.9f)
-        private val discountList = listOf(15.00, 20.00, 30.00, 4.99, 10.00)
+        private val ratingList = listOf(1.8f,1.4f,2.3f, 3.1f, 3.4f, 4.2f, 4.7f, 4.9f)
+        private val discountList = listOf(15.00, 20.00, 30.00, 4.99, 10.00,35.00)
 
     }
 }

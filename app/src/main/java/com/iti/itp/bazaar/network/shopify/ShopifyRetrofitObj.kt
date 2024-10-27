@@ -1,13 +1,11 @@
 package com.iti.itp.bazaar.network.shopify
 
 import android.util.Base64
-import com.google.gson.GsonBuilder
 import com.iti.itp.bazaar.network.MyApplication
 import com.iti.itp.bazaar.network.NetworkUtil
 import okhttp3.Cache
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
@@ -18,14 +16,12 @@ object ShopifyRetrofitObj {
 
     private val onlineInterceptor: Interceptor = Interceptor { chain ->
         val response = chain.proceed(chain.request())
-        val maxAge = 0
+        val maxAge = 60
         response.newBuilder()
             .header("Cache-Control", "public, max-age=$maxAge")
             .removeHeader("Pragma")
             .build()
     }
-
-    //@Headers("Content-Type:application/json","X-Shopify-Access-Token:${Constants.ACCESS_TOKEN}")
 
     private val offlineInterceptor: Interceptor = Interceptor { chain ->
         var request = chain.request()

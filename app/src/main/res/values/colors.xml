@@ -13,6 +13,6 @@
 
     <color name="bottom_nav_icon_color">#DB3022</color> <!-- Selected icon color -->
     <color name="bottom_nav_icon_color_inactive">@color/black</color>
-    <color name="golden">#FFFC00</color> <!-- Unselected icon color -->
+    <color name="golden">#FFBA49</color> <!-- Unselected icon color -->
 
 </resources>

@@ -58,13 +58,14 @@
 
     <TextView
         android:id="@+id/tv_product_name"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:fontFamily="@font/metropolis_semibold"
         android:text="New Style T-Shirt"
         android:textColor="@color/black"
-        android:textSize="16sp"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/product_vendor"
         app:layout_constraintTop_toBottomOf="@+id/product_vendor" />
 

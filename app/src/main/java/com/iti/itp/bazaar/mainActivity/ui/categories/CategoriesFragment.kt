@@ -21,6 +21,9 @@ import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.R
 import com.iti.itp.bazaar.databinding.FragmentCategoriesBinding
 import com.iti.itp.bazaar.mainActivity.ui.DataState
+import com.iti.itp.bazaar.mainActivity.ui.products.OnFavouriteClickListener
+import com.iti.itp.bazaar.mainActivity.ui.products.OnProductClickListener
+import com.iti.itp.bazaar.mainActivity.ui.products.ProductsAdapter
 import com.iti.itp.bazaar.network.products.Products
 import com.iti.itp.bazaar.network.responses.ProductResponse
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
@@ -33,7 +36,7 @@ import kotlinx.coroutines.launch
 
 private const val TAG = "CategoriesFragment"
 
-class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteProductClickListener {
+class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteClickListener {
 
     private lateinit var binding: FragmentCategoriesBinding
     private lateinit var categoryGroup: ChipGroup
@@ -48,7 +51,7 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteProduc
     private lateinit var fabAccessories: FloatingActionButton
     private lateinit var fabTShirt: FloatingActionButton
     private lateinit var fabShoes: FloatingActionButton
-    private lateinit var categoryProductsAdapter: CategoryProductsAdapter
+    private lateinit var productsAdapter: ProductsAdapter
     private lateinit var categoriesProg: ProgressBar
     private lateinit var products: List<Products>
     private var isFabOpen = false
@@ -71,10 +74,10 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteProduc
             )
         )
         categoriesViewModel =
-            ViewModelProvider(this, categoriesFactory)[CategoriesViewModel::class.java]
+            ViewModelProvider(requireActivity(), categoriesFactory)[CategoriesViewModel::class.java]
         searchViewModel =
             ViewModelProvider(requireActivity(), searchFactory)[SearchViewModel::class.java]
-        categoryProductsAdapter = CategoryProductsAdapter(this, this)
+        productsAdapter = ProductsAdapter(false,this, this)
 
         binding = FragmentCategoriesBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -113,7 +116,7 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteProduc
             } else {
                 setAnimationInvisible()
             }
-            categoryProductsAdapter.submitList(filteredProducts)
+            productsAdapter.submitList(filteredProducts)
         }
         fabShoes.setOnClickListener {
             val filteredProducts = products.filter { it.productType == "SHOES" }
@@ -122,7 +125,7 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteProduc
             } else {
                 setAnimationInvisible()
             }
-            categoryProductsAdapter.submitList(filteredProducts)
+            productsAdapter.submitList(filteredProducts)
         }
 
         fabTShirt.setOnClickListener {
@@ -132,7 +135,7 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteProduc
             } else {
                 setAnimationInvisible()
             }
-            categoryProductsAdapter.submitList(filteredProducts)
+            productsAdapter.submitList(filteredProducts)
         }
 
 
@@ -150,7 +153,7 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteProduc
         saleChip = binding.sale
         categoriesProg = binding.progCategories
         categoryProductsRec = binding.recCategoryProducts.apply {
-            adapter = categoryProductsAdapter
+            adapter = productsAdapter
             layoutManager = GridLayoutManager(requireContext(), 2)
         }
     }
@@ -179,7 +182,7 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteProduc
         fabShoes.hide()
         fabMain.animate().rotation(0f)
         fabMain.setImageResource(R.drawable.filter)
-        categoryProductsAdapter.submitList(products)
+        productsAdapter.submitList(products)
         if (products.isNotEmpty()) {
             setAnimationInvisible()
         }
@@ -224,7 +227,7 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteProduc
                             setAnimationInvisible()
                         }
                         if(categoryID!=480514900272){
-                        categoryProductsAdapter.submitList(getListWithProductPrice(productsList))
+                        productsAdapter.submitList(getListWithProductPrice(productsList))
                         }
                         else{
                             getListWithProductPrice(productsList)
@@ -269,7 +272,7 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteProduc
                         if(categoryID==480514900272){
                             val filteredList =productsList.filter { !it.image?.src.isNullOrBlank() }
                             products = filteredList
-                            categoryProductsAdapter.submitList(filteredList)
+                            productsAdapter.submitList(filteredList)
                         }
                         else{
                             products = filteredProducts

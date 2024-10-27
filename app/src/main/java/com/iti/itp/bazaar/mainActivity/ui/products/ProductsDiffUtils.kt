@@ -1,9 +1,9 @@
-package com.iti.itp.bazaar.mainActivity.ui.brand
+package com.iti.itp.bazaar.mainActivity.ui.products
 
 import androidx.recyclerview.widget.DiffUtil
 import com.iti.itp.bazaar.network.products.Products
 
-class BrandProductsDiffUtils :DiffUtil.ItemCallback<Products>() {
+class ProductsDiffUtils :DiffUtil.ItemCallback<Products>() {
     override fun areItemsTheSame(oldItem: Products, newItem: Products): Boolean {
         return oldItem.id == newItem.id
     }

@@ -5,14 +5,13 @@
     android:id="@+id/coordinatorLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="2dp"
+    android:background="@color/backgroundColor"
     tools:context=".mainActivity.ui.categories.CategoriesFragment">
 
     <com.google.android.material.chip.ChipGroup
         android:id="@+id/collection_group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
         android:background="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -87,8 +86,9 @@
         android:id="@+id/rec_category_products"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@color/white"
         android:layout_marginTop="2dp"
+        android:layout_marginBottom="2dp"
+        android:background="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
