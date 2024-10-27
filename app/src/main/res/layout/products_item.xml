@@ -94,10 +94,10 @@
         app:layout_constraintTop_toBottomOf="@+id/tv_product_name" />
 
     <ImageView
-        android:id="@+id/imageView5"
+        android:id="@+id/gpodfgk"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:src="@drawable/round_white_background"
+        android:src="@drawable/round_grey_background"
         app:layout_constraintBottom_toBottomOf="@+id/img_product"
         app:layout_constraintEnd_toEndOf="@+id/img_product" />
 
@@ -106,8 +106,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/favorite"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView5"
-        app:layout_constraintEnd_toEndOf="@+id/imageView5"
-        app:layout_constraintStart_toStartOf="@+id/imageView5"
-        app:layout_constraintTop_toTopOf="@+id/imageView5" />
+        app:layout_constraintBottom_toBottomOf="@+id/gpodfgk"
+        app:layout_constraintEnd_toEndOf="@+id/gpodfgk"
+        app:layout_constraintStart_toStartOf="@+id/gpodfgk"
+        app:layout_constraintTop_toTopOf="@+id/gpodfgk" />
 </androidx.constraintlayout.widget.ConstraintLayout>
