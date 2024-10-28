@@ -17,115 +17,117 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/textView16"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/metropolis_bold"
+        android:text="@string/shipping_address"
+        android:textColor="@color/black"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/price_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/metropolis_bold"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@+id/textView17"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/textView17" />
+
     <androidx.cardview.widget.CardView
         android:id="@+id/addressCardView"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:backgroundTint="#F0D0BC"
-        app:cardCornerRadius="40dp"
-        android:layout_marginHorizontal="3dp"
+        android:layout_height="170dp"
+        android:layout_marginTop="12dp"
+        android:backgroundTint="@color/white"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="5dp"
+        android:elevation="5dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/textView16">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/constraintAddress"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-
-            <TextView
-                android:id="@+id/country"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="44dp"
-                android:layout_marginTop="36dp"
-                android:text="@string/country"
-                android:textColor="@color/brown"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/countryValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="32dp"
                 android:ellipsize="end"
+                android:fontFamily="@font/metropolis_medium"
                 android:maxLines="1"
                 android:textColor="@color/black"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="@+id/country"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toEndOf="@+id/country"
-                app:layout_constraintTop_toTopOf="@+id/country"
-                app:layout_constraintVertical_bias="0.0" />
+                android:textSize="20sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/cityValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
                 android:ellipsize="end"
+                android:textSize="18sp"
+                android:fontFamily="@font/metropolis_regular"
                 android:maxLines="1"
                 android:textColor="@color/black"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="@+id/city"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.031"
-                app:layout_constraintStart_toEndOf="@+id/city"
-                app:layout_constraintTop_toTopOf="@+id/city"
-                app:layout_constraintVertical_bias="0.0" />
+                app:layout_constraintStart_toStartOf="@+id/countryValue"
+                app:layout_constraintTop_toBottomOf="@+id/countryValue" />
 
             <TextView
                 android:id="@+id/phoneValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
                 android:ellipsize="end"
+                android:fontFamily="@font/metropolis_regular"
                 android:maxLines="1"
+                android:textSize="18sp"
                 android:textColor="@color/black"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="@+id/phone"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.027"
-                app:layout_constraintStart_toEndOf="@+id/phone"
-                app:layout_constraintTop_toTopOf="@+id/phone"
-                app:layout_constraintVertical_bias="0.0" />
-
-            <TextView
-                android:id="@+id/city"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="44dp"
-                android:layout_marginTop="16dp"
-                android:text="@string/city_text"
-                android:textColor="@color/brown"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/country" />
-
-            <TextView
-                android:id="@+id/phone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/phone"
-                android:textColor="@color/brown"
-                android:textSize="24sp"
-                android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/city"
-                app:layout_constraintTop_toBottomOf="@+id/city"
-                app:layout_constraintVertical_bias="0.0" />
+                app:layout_constraintStart_toStartOf="@+id/cityValue"
+                app:layout_constraintTop_toBottomOf="@+id/cityValue"
+                app:layout_constraintVertical_bias="0.21" />
+
+            <TextView
+                android:id="@+id/chooseAntoherAddress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:fontFamily="@font/metropolis_medium"
+                android:text="@string/change"
+                android:textColor="@color/primaryColor"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@+id/countryValue"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/countryValue" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 
     </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/textView17"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
+        android:text="@string/order"
+        android:textColor="@color/grey_font"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/continueToPayment"
+        app:layout_constraintStart_toStartOf="@+id/continueToPayment" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/continueToPayment"
@@ -134,28 +136,13 @@
         android:layout_marginBottom="24dp"
         android:background="@drawable/custom_button_background"
         android:text="@string/continue_to_payment"
+        android:textAllCaps="false"
         android:textColor="@color/white"
         android:textSize="16sp"
-        android:textAllCaps="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/chooseAntoherAddress" />
+        app:layout_constraintStart_toStartOf="parent" />
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/chooseAntoherAddress"
-        android:layout_width="0dp"
-        android:layout_height="50dp"
-        android:background="@drawable/custom_button_background"
-        android:text="Choose another address"
-        android:textAllCaps="false"
-        android:layout_marginEnd="20dp"
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="@+id/continueToPayment"
-        app:layout_constraintEnd_toStartOf="@+id/continueToPayment"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/continueToPayment" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

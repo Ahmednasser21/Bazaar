@@ -109,6 +109,9 @@
         <action
             android:id="@+id/action_choose_address_to_paymentMethods2"
             app:destination="@id/paymentMethods2" />
+        <argument
+            android:name="totalPrice"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/paymentMethods2"

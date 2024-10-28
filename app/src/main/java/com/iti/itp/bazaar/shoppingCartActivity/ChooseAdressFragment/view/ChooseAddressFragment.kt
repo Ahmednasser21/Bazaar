@@ -44,6 +44,7 @@ class ChooseAddressFragment : Fragment(), OnAddressClickListener {
     private lateinit var draftOrderSharedPreferences: SharedPreferences
     private var customerId:String?= null
     private lateinit var listOfAddresses: ListOfAddresses
+    private var totalPrice:String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,7 +66,7 @@ class ChooseAddressFragment : Fragment(), OnAddressClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         customerId = draftOrderSharedPreferences.getString(MyConstants.CUSOMER_ID, "0")
-
+        totalPrice = ChooseAddressFragmentArgs.fromBundle(requireArguments()).totalPrice
     }
 
     override fun onStart() {
@@ -125,25 +126,26 @@ class ChooseAddressFragment : Fragment(), OnAddressClickListener {
     private fun handleLoading() {
         binding.progressBar.visibility = View.VISIBLE
         binding.addressCardView.visibility = View.GONE
-        binding.country.visibility = View.GONE
-        binding.city.visibility = View.GONE
-        binding.phone.visibility = View.GONE
+        //binding.country.visibility = View.GONE
+        //binding.city.visibility = View.GONE
+        //binding.phone.visibility = View.GONE
         binding.countryValue.visibility = View.GONE
         binding.cityValue.visibility = View.GONE
         binding.phoneValue.visibility = View.GONE
-        binding.constraintAddress.visibility = View.GONE
+       // binding.constraintAddress.visibility = View.GONE
     }
 
     private fun handleSuccess(){
         binding.progressBar.visibility = View.GONE
         binding.addressCardView.visibility = View.VISIBLE
-        binding.country.visibility = View.VISIBLE
-        binding.city.visibility = View.VISIBLE
-        binding.phone.visibility = View.VISIBLE
+        //binding.country.visibility = View.VISIBLE
+       // binding.city.visibility = View.VISIBLE
+       // binding.phone.visibility = View.VISIBLE
         binding.countryValue.visibility = View.VISIBLE
         binding.cityValue.visibility = View.VISIBLE
         binding.phoneValue.visibility = View.VISIBLE
-        binding.constraintAddress.visibility = View.VISIBLE
+        binding.priceValue.text = totalPrice
+       // binding.constraintAddress.visibility = View.VISIBLE
     }
 
     override fun onAddressClick(customerAddress: CustomerAddress) {

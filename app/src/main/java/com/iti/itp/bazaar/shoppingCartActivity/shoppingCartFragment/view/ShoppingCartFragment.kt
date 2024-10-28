@@ -160,6 +160,22 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
         val totalPrice = calculateTotalPrice()
         binding.tvTotalPriceValue.text = totalPrice.toString()
 
+        if (firstDraftOrder.line_items.isEmpty() || firstDraftOrder.line_items.size == 1){
+            binding.emptyBoxAnimation.visibility = View.VISIBLE
+            binding.itemsRv.visibility = View.INVISIBLE
+            binding.couponsConstraint.visibility = View.INVISIBLE
+            binding.couponsCardView.visibility = View.INVISIBLE
+            binding.couponsEditText.visibility = View.INVISIBLE
+            binding.couponsImageButton.visibility = View.INVISIBLE
+        }else{
+            binding.emptyBoxAnimation.visibility = View.GONE
+            binding.itemsRv.visibility = View.VISIBLE
+            binding.couponsConstraint.visibility = View.VISIBLE
+            binding.couponsCardView.visibility = View.VISIBLE
+            binding.couponsEditText.visibility = View.VISIBLE
+            binding.couponsImageButton.visibility = View.VISIBLE
+        }
+
         val newList = firstDraftOrder.line_items?.map { oldItem ->
             val basePrice = oldItem.price.toDoubleOrNull() ?: 0.0
             val displayPrice = basePrice * currencyRate
@@ -188,7 +204,6 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
             )
         }
         adapter.submitList(newList)
-        adapter.submitList(newList)
 
         val swipeToDeleteCallback = SwipeToDelete(
             adapter = adapter,
@@ -200,6 +215,22 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
                 // Update the UI immediately
                 firstDraftOrder = firstDraftOrder.copy(line_items = updatedLineItems)
                 adapter.submitList(updatedLineItems)
+
+                if (updatedLineItems.isEmpty() || updatedLineItems.size == 1){
+                    binding.emptyBoxAnimation.visibility = View.VISIBLE
+                    binding.itemsRv.visibility = View.INVISIBLE
+                    binding.couponsConstraint.visibility = View.INVISIBLE
+                    binding.couponsCardView.visibility = View.INVISIBLE
+                    binding.couponsEditText.visibility = View.INVISIBLE
+                    binding.couponsImageButton.visibility = View.INVISIBLE
+                }else{
+                    binding.emptyBoxAnimation.visibility = View.GONE
+                    binding.itemsRv.visibility = View.VISIBLE
+                    binding.couponsConstraint.visibility = View.VISIBLE
+                    binding.couponsCardView.visibility = View.VISIBLE
+                    binding.couponsEditText.visibility = View.VISIBLE
+                    binding.couponsImageButton.visibility = View.VISIBLE
+                }
 
                 // Recalculate and update the total price
                 val newTotalPrice = calculateTotalPrice()
@@ -346,7 +377,7 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
         }
         Toast.makeText(requireContext(), "Cart updated successfully", Toast.LENGTH_SHORT).show()
         Navigation.findNavController(requireView())
-            .navigate(ShoppingCartFragmentDirections.actionNavCartToChooseAddressFragment2())
+            .navigate(ShoppingCartFragmentDirections.actionNavCartToChooseAddressFragment2(calculateTotalPrice().toString()+" EGP"))
     }
 
     private fun handleUpdateError(e: Exception) {

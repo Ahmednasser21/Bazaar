@@ -90,4 +90,7 @@
     <string name="color">Color</string>
     <string name="size">Size</string>
     <string name="search">Search</string>
+    <string name="change">Change</string>
+    <string name="order">Order:</string>
+    <string name="shipping_address">Shipping address</string>
 </resources>
