@@ -112,8 +112,8 @@ class ItemAdapter(
                             imageUrl?.let {
                                 Glide.with(context)
                                     .load(it)
-                                    .placeholder(R.drawable.arrow_forward_24) // Add a placeholder image
-                                    .error(R.drawable.shoe) // Add an error image
+                                    //.placeholder() // Add a placeholder image
+                                    //.error(R.drawable.shoe) // Add an error image
                                     .into(holder.binding.imageView)
                             }
                         }
