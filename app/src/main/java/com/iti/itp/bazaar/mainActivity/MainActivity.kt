@@ -101,9 +101,6 @@ class MainActivity : AppCompatActivity() {
             invalidateOptionsMenu()
         }
 
-        binding.toolbar.searchImg.setOnClickListener {
-            navController.navigate(R.id.nav_search)
-        }
     }
 
     private fun disableEdgeToEdge() {
