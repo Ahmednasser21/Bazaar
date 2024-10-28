@@ -92,4 +92,36 @@
             android:id="@+id/action_favoriteProductsFragment_to_prouductnfoFragment"
             app:destination="@id/prouductnfoFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/nav_cart"
+        android:name="com.iti.itp.bazaar.shoppingCartActivity.shoppingCartFragment.view.ShoppingCartFragment"
+        android:label="Shopping cart"
+        tools:layout="@layout/fragment_shopping_cart" >
+        <action
+            android:id="@+id/action_nav_cart_to_chooseAddressFragment2"
+            app:destination="@id/choose_address" />
+    </fragment>
+    <fragment
+        android:id="@+id/choose_address"
+        android:name="com.iti.itp.bazaar.shoppingCartActivity.ChooseAdressFragment.view.ChooseAddressFragment"
+        android:label="Choose address"
+        tools:layout="@layout/fragment_choose_address" >
+        <action
+            android:id="@+id/action_choose_address_to_paymentMethods2"
+            app:destination="@id/paymentMethods2" />
+    </fragment>
+    <fragment
+        android:id="@+id/paymentMethods2"
+        android:name="com.iti.itp.bazaar.shoppingCartActivity.paymentMethods.PaymentMethods"
+        android:label="Payment methods"
+        tools:layout="@layout/fragment_payment_methods">
+        <action
+            android:id="@+id/action_paymentMethods2_to_cashOnDeliveryFragment2"
+            app:destination="@id/cashOnDeliveryFragment2" />
+    </fragment>
+    <fragment
+        android:id="@+id/cashOnDeliveryFragment2"
+        android:name="com.iti.itp.bazaar.shoppingCartActivity.cashOnDeliveryFragment.view.CashOnDeliveryFragment"
+        android:label="Cash on delivery"
+        tools:layout="@layout/fragment_cash_on_delivery" />
 </navigation>

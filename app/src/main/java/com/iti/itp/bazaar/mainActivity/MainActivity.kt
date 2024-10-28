@@ -31,7 +31,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.R
 import com.iti.itp.bazaar.auth.MyConstants
-import com.iti.itp.bazaar.shoppingCartActivity.ShoppingCartActivity
+//import com.iti.itp.bazaar.shoppingCartActivity.ShoppingCartActivity
 import com.iti.itp.bazaar.databinding.ActivityMainBinding
 import com.iti.itp.bazaar.settings.SettingsActivity
 
@@ -151,8 +151,8 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     else -> {
-                        val intent = Intent(this, ShoppingCartActivity::class.java)
-                        startActivity(intent)
+//                        val intent = Intent(this, ShoppingCartActivity::class.java)
+//                        startActivity(intent)
                         true
                     }
                 }

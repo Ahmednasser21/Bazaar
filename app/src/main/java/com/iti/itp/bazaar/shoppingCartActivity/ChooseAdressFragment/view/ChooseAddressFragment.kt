@@ -112,7 +112,7 @@ class ChooseAddressFragment : Fragment(), OnAddressClickListener {
                 }
                 binding.continueToPayment.setOnClickListener {
                     if (listOfAddresses.addresses.isNotEmpty()){
-                        val action = ChooseAddressFragmentDirections.actionChooseAddressFragmentToPaymentMethods()
+                        val action = ChooseAddressFragmentDirections.actionChooseAddressToPaymentMethods2()
                         Navigation.findNavController(requireView()).navigate(action)
                     }else{
                         Snackbar.make(requireView(),"must be one address at least", 2000).show()

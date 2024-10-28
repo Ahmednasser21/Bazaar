@@ -348,7 +348,7 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
         }
         Toast.makeText(requireContext(), "Cart updated successfully", Toast.LENGTH_SHORT).show()
         Navigation.findNavController(requireView())
-            .navigate(ShoppingCartFragmentDirections.actionShoppingCartFragmentToChooseAddressFragment())
+            .navigate(ShoppingCartFragmentDirections.actionNavCartToChooseAddressFragment2())
     }
 
     private fun handleUpdateError(e: Exception) {

@@ -119,7 +119,7 @@ class PaymentMethods : Fragment() {
                 }
                 binding.cashOnDelivery.isChecked -> {
                     sharedOrderViewModel.updatePaymentGateway(listOf("Cash On Delivery"))
-                    val action = PaymentMethodsDirections.actionPaymentMethodsToCashOnDeliveryFragment()
+                    val action = PaymentMethodsDirections.actionPaymentMethods2ToCashOnDeliveryFragment2()
                     Navigation.findNavController(view).navigate(action)
                 }
             }
