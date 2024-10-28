@@ -49,8 +49,12 @@ class ItemAdapter(
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val currentItem = getItem(position)
-        if (currentItem.sku != "emptySKU") {
-            makeNetWorkCallForImage(currentItem.sku?.toLong() ?: 0, position, holder)
+        val sku = currentItem.sku?.split("##")
+        val productId = sku?.get(0)
+        val size = sku?.get(2)
+        val color = sku?.get(1)
+        if (productId != "emptySKU") {
+            makeNetWorkCallForImage(productId?.toLong()?:0, position, holder)
 
             // Get the base unit price (not multiplied by quantity)
             val baseUnitPrice = currentItem.price.toDouble()
@@ -61,6 +65,8 @@ class ItemAdapter(
 
             holder.binding.apply {
                 tvTitle.text = currentItem.title
+                colorTv.text = color
+                sizeTv.text = size
 
                 val currentQuantity = currentItem.quantity ?: 1
                 tvQuantity.text = currentQuantity.toString()
@@ -87,7 +93,7 @@ class ItemAdapter(
         }
     }
 
-override fun submitList(list: List<LineItem>?) {
+    override fun submitList(list: List<LineItem>?) {
         // Filter the list to exclude items with SKU "emptySKU"
         val filteredList = list?.filter { it.sku != "emptySKU" }
         super.submitList(filteredList)

@@ -178,7 +178,7 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
                                     LineItem(
                                         sku = ProuductnfoFragmentArgs.fromBundle(
                                             requireArguments()
-                                        ).productId.toString(),
+                                        ).productId.toString()+"##"+binding?.tvColor?.text+"##"+binding?.tvSize?.text,
                                         id = ProuductnfoFragmentArgs.fromBundle(
                                             requireArguments()
                                         ).productId,

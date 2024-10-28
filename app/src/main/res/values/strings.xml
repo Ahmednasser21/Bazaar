@@ -87,4 +87,6 @@
     <string name="save">Save</string>
     <string name="select_color">Select color</string>
     <string name="shop">Shop</string>
+    <string name="color">Color</string>
+    <string name="size">Size</string>
 </resources>
