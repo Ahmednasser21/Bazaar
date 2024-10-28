@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/backgroundColor"
-    android:paddingHorizontal="12dp"
     android:paddingVertical="2dp"
     tools:context=".mainActivity.ui.home.HomeFragment">
 
@@ -19,7 +18,7 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="350dp"
             android:layout_marginBottom="8dp"
             android:elevation="4dp"
             app:layout_constraintBottom_toTopOf="@+id/tv_brands"
@@ -31,7 +30,6 @@
                 android:id="@+id/image_slider"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginBottom="8dp"
                 app:iss_auto_cycle="true"
                 app:iss_delay="1000"
                 app:iss_period="2500"
@@ -46,12 +44,14 @@
             android:fontFamily="@font/metropolis_bold"
             android:text="@string/sale"
             android:textColor="@color/black"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="12dp"
             android:textSize="34sp"
             android:textStyle="bold"/>
 
         <ProgressBar
             android:id="@+id/sale_progressBar"
-            android:layout_marginTop="50dp"
+            android:layout_marginTop="30dp"
             style="?android:attr/progressBarStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
@@ -74,6 +74,7 @@
             android:fontFamily="@font/metropolis_bold"
             android:text="@string/categories"
             android:textColor="@color/black"
+            android:layout_marginStart="8dp"
             android:textSize="34sp"
             android:textStyle="bold"/>
 
@@ -95,6 +96,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/metropolis_bold"
             android:text="@string/brands"
+            android:layout_marginStart="8dp"
             android:textColor="@color/black"
             android:textSize="34sp"
             android:textStyle="bold" />

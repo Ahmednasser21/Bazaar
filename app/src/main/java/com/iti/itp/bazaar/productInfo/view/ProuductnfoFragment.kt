@@ -113,6 +113,7 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
 //        FavDraftOrderId = mySharedPrefrence.getString(MyConstants.FAV_DRAFT_ORDERS_ID, "") ?: ""
         cartDraftOrderId = mySharedPrefrence.getString(MyConstants.CART_DRAFT_ORDER_ID, "0")
 //        Log.d("TAG", "onViewCreated fav draft order id : ${FavDraftOrderId} ")

@@ -29,7 +29,7 @@
     <string name="textview">TextView</string>
     <string name="item_image">Item image</string>
     <string name="categories">Categories</string>
-    <string name="me">Me</string>
+    <string name="profile">Profile</string>
 
     <string name="proceed_to_checkout_text">PROCEED TO CHECKOUT</string>
     <string name="total_price">Total price:</string>
@@ -86,4 +86,5 @@
     <string name="already_have_an_account">Already have an account</string>
     <string name="save">Save</string>
     <string name="select_color">Select color</string>
+    <string name="shop">Shop</string>
 </resources>

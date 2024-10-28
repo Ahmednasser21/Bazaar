@@ -20,4 +20,18 @@
         <item name="android:maxHeight">15dp</item>
 
     </style>
+
+    <style name="BottomNavigationTextStyle">
+        <item name="android:fontFamily">@font/metropolis_regular</item>
+        <!-- Optional: customize other text properties -->
+        <item name="android:textSize">11sp</item>
+    </style>
+
+    <style name="BottomNavigationTextStyleInActive">
+        <item name="android:fontFamily">@font/metropolis_regular</item>
+        <!-- Optional: customize other text properties -->
+        <item name="android:textSize">10sp</item>
+        <item name="color">@color/grey_font</item>
+    </style>
+
 </resources>

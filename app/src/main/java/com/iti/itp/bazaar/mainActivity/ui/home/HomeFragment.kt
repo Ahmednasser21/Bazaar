@@ -223,17 +223,17 @@ class HomeFragment : Fragment(), OnBrandClickListener, OnProductClickListener,
     private fun getListOfImageAds(): List<SlideModel> {
         val adsImages: List<SlideModel> = listOf(
             SlideModel(
-                "https://t4.ftcdn.net/jpg/04/65/12/75/360_F_465127589_BfwtgftgEboy01GSVVQZP5hC9XJGXTO1.jpg",
+                "https://img.freepik.com/premium-vector/sale-offer-label-banner-discount-offer-promotion_157027-1265.jpg",
                 "",
                 ScaleTypes.FIT
             ),
             SlideModel(
-                "https://png.pngtree.com/png-vector/20220527/ourmid/pngtree-coupon-design-isolated-on-white-background-png-image_4759153.png",
+                "https://cdn.shopify.com/app-store/listing_images/fca0d2f332428be47d5491598535bbb3/icon/CKvtw8z0lu8CEAE=.jpg",
                 "",
                 ScaleTypes.FIT
             ),
             SlideModel(
-                "https://ajaxparkingrus.com/wp-content/uploads/2016/10/coupon.jpg",
+                "https://www.shutterstock.com/image-vector/best-deals-sale-banner-design-600nw-2469448247.jpg",
                 "",
                 ScaleTypes.FIT
             ),
