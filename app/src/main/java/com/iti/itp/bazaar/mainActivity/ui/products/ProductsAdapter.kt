@@ -12,7 +12,7 @@ import com.iti.itp.bazaar.network.products.Products
 import kotlin.random.Random
 
 class ProductsAdapter(
-    private val isSale:Boolean,
+    private val isSale: Boolean,
     private val onProductClickListener: OnProductClickListener,
     private val onFavouriteClickListener: OnFavouriteClickListener
 ) : ListAdapter<Products, ProductsAdapter.CategoryProductViewHolder>(
@@ -27,7 +27,7 @@ class ProductsAdapter(
 
     override fun onBindViewHolder(holder: CategoryProductViewHolder, position: Int) {
         val product = getItem(position)
-        holder.bindView(isSale,product, onProductClickListener, onFavouriteClickListener)
+        holder.bindView(isSale, product, onProductClickListener, onFavouriteClickListener)
     }
 
 
@@ -35,7 +35,7 @@ class ProductsAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bindView(
-            isSale:Boolean,
+            isSale: Boolean,
             productDTO: Products,
             onProductClickListener: OnProductClickListener,
             onFavouriteClickListener: OnFavouriteClickListener
@@ -44,9 +44,12 @@ class ProductsAdapter(
             Glide.with(binding.root.context)
                 .load(productDTO.image?.src)
                 .into(binding.imgProduct)
-            binding.tvProductPrice.text = if (productDTO.variants.isNullOrEmpty()){""
+            binding.tvProductPrice.text = if (productDTO.variants.isNullOrEmpty()) {
+                ""
 
-            }else{"${productDTO.variants[0].price}EGP"}
+            } else {
+                "${productDTO.variants[0].price}EGP"
+            }
 
             binding.productContainer.setOnClickListener {
                 onProductClickListener.onProductClick(productDTO.id)
@@ -55,7 +58,7 @@ class ProductsAdapter(
                 onFavouriteClickListener.onFavProductClick()
             }
             binding.productRatingBar.rating = ratingList[Random.nextInt(ratingList.size)]
-            binding.ratingOfTen.text = "(${binding.productRatingBar.rating*2})"
+            binding.ratingOfTen.text = "(${binding.productRatingBar.rating * 2})"
             binding.productVendor.text = productDTO.vendor
             if (isSale) {
                 binding.tvOldPrice.apply {
@@ -71,7 +74,8 @@ class ProductsAdapter(
                     }
                     paintFlags = paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
                 }
-            }else{
+            } else {
+                binding.productContainer.elevation = 3f
                 binding.tvOldPrice.visibility = View.INVISIBLE
             }
 
@@ -82,8 +86,9 @@ class ProductsAdapter(
             val parts = fullName.split(delimiter)
             return if (parts.size > 1) parts[1].trim() else ""
         }
-        private val ratingList = listOf(1.8f,1.4f,2.3f, 3.1f, 3.4f, 4.2f, 4.7f, 4.9f)
-        private val discountList = listOf(15.00, 20.00, 30.00, 4.99, 10.00,35.00)
+
+        private val ratingList = listOf(1.8f, 1.4f, 2.3f, 3.1f, 3.4f, 4.2f, 4.7f, 4.9f)
+        private val discountList = listOf(15.00, 20.00, 30.00, 4.99, 10.00, 35.00)
 
     }
 }
