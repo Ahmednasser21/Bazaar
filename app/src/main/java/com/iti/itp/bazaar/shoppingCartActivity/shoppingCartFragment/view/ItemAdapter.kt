@@ -8,9 +8,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import android.widget.Toast.LENGTH_SHORT
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.bumptech.glide.Glide
+import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.R
 import com.iti.itp.bazaar.databinding.ShoppingCartItemBinding
 import com.iti.itp.bazaar.dto.LineItem
@@ -24,6 +27,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.NumberFormat
 import java.util.Locale
+import kotlin.time.Duration
 
 class ItemAdapter(
     private val onQuantityChangeListener: OnQuantityChangeListener
@@ -76,6 +80,7 @@ class ItemAdapter(
                 ivIncrease.setOnClickListener {
                     val newQuantity = currentQuantity + 1
                     if (availableTotalAmountInStock != null && newQuantity > availableTotalAmountInStock!!) {
+                        Toast.makeText(context,"there is no more in stock", LENGTH_SHORT).show()
                         return@setOnClickListener
                     }
                     // Pass the original base price, not the multiplied price
