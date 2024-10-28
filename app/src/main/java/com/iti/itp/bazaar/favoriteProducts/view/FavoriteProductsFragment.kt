@@ -35,15 +35,15 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 
-class FavoriteProductsFragment : Fragment() , OnFavProductCardClick , OnFavProductDelete {
-// will try to sue it as a shared viewmodel
-    lateinit var productInfoViewModel : ProductInfoViewModel
-    lateinit var vmFActory : ProuductIfonViewModelFactory
-    lateinit var binding : FragmentFavoriteProductsBinding
-    lateinit var FavAdapter : FavoriteProductsAdapter
+class FavoriteProductsFragment : Fragment(), OnFavProductCardClick, OnFavProductDelete {
+    // will try to sue it as a shared viewmodel
+    lateinit var productInfoViewModel: ProductInfoViewModel
+    lateinit var vmFActory: ProuductIfonViewModelFactory
+    lateinit var binding: FragmentFavoriteProductsBinding
+    lateinit var FavAdapter: FavoriteProductsAdapter
     lateinit var sharedPreferences: SharedPreferences
-    lateinit var FavDraftOrder : DraftOrderRequest
-    var favDraftOrderId : Long = 0
+    lateinit var FavDraftOrder: DraftOrderRequest
+    var favDraftOrderId: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,61 +55,71 @@ class FavoriteProductsFragment : Fragment() , OnFavProductCardClick , OnFavProdu
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        binding = FragmentFavoriteProductsBinding.inflate(inflater,container,false)
+        binding = FragmentFavoriteProductsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        sharedPreferences = requireContext().getSharedPreferences(MyConstants.MY_SHARED_PREFERANCE , Context.MODE_PRIVATE)
-        favDraftOrderId = (sharedPreferences.getString(MyConstants.FAV_DRAFT_ORDERS_ID , "0")?:"0").toLong()
-
-        vmFActory = ProuductIfonViewModelFactory( Repository.getInstance(
-            ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
-        ) , CurrencyRepository(CurrencyRemoteDataSource(ExchangeRetrofitObj.service))
+        sharedPreferences = requireContext().getSharedPreferences(
+            MyConstants.MY_SHARED_PREFERANCE,
+            Context.MODE_PRIVATE
         )
-        productInfoViewModel = ViewModelProvider(this , vmFActory).get(ProductInfoViewModel::class.java)
+        favDraftOrderId =
+            (sharedPreferences.getString(MyConstants.FAV_DRAFT_ORDERS_ID, "0") ?: "0").toLong()
 
-        FavAdapter = FavoriteProductsAdapter(this , this )
+        vmFActory = ProuductIfonViewModelFactory(
+            Repository.getInstance(
+                ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
+            ), CurrencyRepository(CurrencyRemoteDataSource(ExchangeRetrofitObj.service))
+        )
+        productInfoViewModel =
+            ViewModelProvider(this, vmFActory).get(ProductInfoViewModel::class.java)
+
+        FavAdapter = FavoriteProductsAdapter(this, this)
         binding.rvFavProducts.apply {
             adapter = FavAdapter
-            layoutManager = GridLayoutManager(requireContext() , 2)
+            layoutManager = GridLayoutManager(requireContext(), 2)
 
         }
 
 
         lifecycleScope.launch {
-        if (favDraftOrderId == 0L)
-        {
-            Snackbar.make(requireView(), "There is No Favorite Products to Display", 2000)
-                .show()
-        }
-            else {
+            if (favDraftOrderId == 0L) {
+                Snackbar.make(requireView(), "There is No Favorite Products to Display", 2000)
+                    .show()
+            } else {
                 productInfoViewModel.getSpecificDraftOrder(favDraftOrderId)
-            productInfoViewModel.specificDraftOrders.collectLatest { result->
-                when(result){
-                    DataState.Loading -> {}
-                    is DataState.OnFailed ->{}
-                    is DataState.OnSuccess<*> -> {
-                        // i must make this list golbal to use it in the delete click to delete the targted lineItm from the list of lineItems in This List
-                        FavDraftOrder = result.data as DraftOrderRequest
-                        // print this list here ASAP
-                        var lineItems : MutableList <LineItem> = mutableListOf()
-                        FavDraftOrder.draft_order.line_items.forEach{
-                            if (it.sku != "emptySKU")
-                            {
-                                lineItems.add(it) // containes every eleemnts exepts the last item which is updated sku to Aa
-                                // tb be able to delete it
+                productInfoViewModel.specificDraftOrders.collectLatest { result ->
+                    when (result) {
+                        DataState.Loading -> {}
+                        is DataState.OnFailed -> {}
+                        is DataState.OnSuccess<*> -> {
+                            // i must make this list golbal to use it in the delete click to delete the targted lineItm from the list of lineItems in This List
+                            FavDraftOrder = result.data as DraftOrderRequest
+                            // print this list here ASAP
+                            var lineItems: MutableList<LineItem> = mutableListOf()
+                            FavDraftOrder.draft_order.line_items.forEach {
+                                if (it.sku != "emptySKU") {
+                                    lineItems.add(it) // containes every eleemnts exepts the last item which is updated sku to Aa
+                                    // tb be able to delete it
+                                }
                             }
+                            if (lineItems.isNullOrEmpty()) {
+                                binding.rvFavProducts.visibility = View.INVISIBLE
+                                binding.emptyFavAnimation.visibility = View.VISIBLE
+                            } else {
+                                binding.emptyFavAnimation.visibility = View.GONE
+                                binding.rvFavProducts.visibility = View.VISIBLE
+                                FavAdapter.submitList(lineItems)
+                            }
+
+
                         }
-                        FavAdapter.submitList(lineItems)
-
                     }
+
+
                 }
-
-
-
-            }
 
             }
 
@@ -118,7 +128,10 @@ class FavoriteProductsFragment : Fragment() , OnFavProductCardClick , OnFavProdu
     }
 
     override fun onCardClick(productId: Long) {
-       val action = FavoriteProductsFragmentDirections.actionFavoriteProductsFragmentToProuductnfoFragment(productId)
+        val action =
+            FavoriteProductsFragmentDirections.actionFavoriteProductsFragmentToProuductnfoFragment(
+                productId
+            )
         Navigation.findNavController(binding.root).navigate(action)
     }
 
@@ -137,11 +150,20 @@ class FavoriteProductsFragment : Fragment() , OnFavProductCardClick , OnFavProdu
                             currentDraftOrderItems.add(it)
                             Log.d("TAG", "onFavDelete: 3mlt add ${currentDraftOrderItems.size} ")
                             if (it == lineItem) {
-                                Log.d("TAG", "onFavDelete: d5alt el if >- ezan el it == pressed line item  ")
+                                Log.d(
+                                    "TAG",
+                                    "onFavDelete: d5alt el if >- ezan el it == pressed line item  "
+                                )
                                 currentDraftOrderItems.remove(it)// kda 3addelt el list of line items
-                                Log.d("TAG", "onFavDelete: hal 3mlt delete walla la2? new size ->> ${currentDraftOrderItems.size} ")
+                                Log.d(
+                                    "TAG",
+                                    "onFavDelete: hal 3mlt delete walla la2? new size ->> ${currentDraftOrderItems.size} "
+                                )
                             } else {
-                                Log.d("TAG", "onFavDelete: d5alt el else  >- ezan el it != pressed line item  ")
+                                Log.d(
+                                    "TAG",
+                                    "onFavDelete: d5alt el else  >- ezan el it != pressed line item  "
+                                )
                             }
 
 
@@ -154,10 +176,10 @@ class FavoriteProductsFragment : Fragment() , OnFavProductCardClick , OnFavProdu
                         delay(1000) // to give time for changes ( delating and updating the list ) to take action
                         // to call the list again after its modified
                         productInfoViewModel.getSpecificDraftOrder(favDraftOrderId)
-                    }
-                    else {
+                    } else {
 
-                        FavDraftOrder.draft_order.line_items.get(0).sku="emptySKU" // make sku of remainig item to be Aa
+                        FavDraftOrder.draft_order.line_items.get(0).sku =
+                            "emptySKU" // make sku of remainig item to be Aa
                         productInfoViewModel.updateDraftOrder(
                             favDraftOrderId,
                             UpdateDraftOrderRequest(FavDraftOrder.draft_order)
@@ -172,9 +194,6 @@ class FavoriteProductsFragment : Fragment() , OnFavProductCardClick , OnFavProdu
                 dialog.dismiss()
             }
             .show()
-
-
-
 
 
     }
