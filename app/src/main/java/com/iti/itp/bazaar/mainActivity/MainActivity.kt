@@ -4,34 +4,28 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.graphics.Color
 import android.graphics.PorterDuff
-import android.graphics.drawable.VectorDrawable
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.EditText
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.R
+import com.iti.itp.bazaar.auth.AuthActivity
 import com.iti.itp.bazaar.auth.MyConstants
-//import com.iti.itp.bazaar.shoppingCartActivity.ShoppingCartActivity
 import com.iti.itp.bazaar.databinding.ActivityMainBinding
 import com.iti.itp.bazaar.settings.SettingsActivity
 
@@ -40,21 +34,23 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
     private lateinit var appBarConfiguration: AppBarConfiguration
-    lateinit var mySharedPrefrence: SharedPreferences
-    lateinit var IsGuestMode: String
+    private lateinit var mySharedPreference: SharedPreferences
+    private lateinit var isGuestMode: String
+    private lateinit var toolbar: Toolbar
+    private lateinit var toolbarTitle: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        mySharedPrefrence = getSharedPreferences(
+        mySharedPreference = getSharedPreferences(
             MyConstants.MY_SHARED_PREFERANCE,
             Context.MODE_PRIVATE
         )
-        IsGuestMode = mySharedPrefrence.getString(MyConstants.IS_GUEST, "false") ?: "false"
+        isGuestMode = mySharedPreference.getString(MyConstants.IS_GUEST, "false") ?: "false"
 
 
-        val toolbar: Toolbar = findViewById(R.id.toolbar)
+        toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
@@ -63,47 +59,26 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.nav_home, R.id.nav_categories, R.id.nav_me, R.id.nav_brand_products,
-                R.id.prouductnfoFragment, R.id.searchFragment, R.id.orderFragment,
-                R.id.favoriteProductsFragment
+                R.id.productInfoFragment, R.id.nav_search, R.id.orderFragment,
+                R.id.nav_favourite
             )
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
         navController.addOnDestinationChangedListener { _, destination, arguments ->
-            val toolbarTitle: TextView = findViewById(R.id.toolbar_title)
+            toolbarTitle = findViewById(R.id.toolbar_title)
             toolbarTitle.text = destination.label
 
-            if (destination.id == R.id.nav_brand_products) {
-                toolbarTitle.text = arguments?.getString("vendorName") ?: "Brands"
-            }
-
-            invalidateOptionsMenu()
-        }
-
-        navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
-                R.id.nav_me -> {
-                    disableEdgeToEdge()
+                R.id.nav_brand_products -> {
+                    toolbarTitle.text = arguments?.getString("vendorName") ?: "Brands"
                     showToolBar()
-                    when (IsGuestMode) {
-                        "true" -> {
-                            Snackbar.make(
-                                binding.navView,
-                                "cant go to Me screen in guest Mode ",
-                                2000
-                            ).show()
+                    disableEdgeToEdge()
+                }
 
-                        }
-
-                        else -> {
-                            val toolbarTitle: TextView = findViewById(R.id.toolbar_title)
-                            toolbarTitle.text = destination.label
-                            invalidateOptionsMenu()
-                        }
-                    }
-
-
+                R.id.nav_me ,  R.id.nav_favourite , R.id.nav_cart -> {
+                    applyGuestConstrains(destination)
                 }
 
                 R.id.nav_home -> {
@@ -112,14 +87,22 @@ class MainActivity : AppCompatActivity() {
                     animateIconFill(R.id.nav_home)
                 }
 
+                R.id.nav_search -> {
+                    hideToolBar()
+                    disableEdgeToEdge()
+                }
+
                 else -> {
                     showToolBar()
                     disableEdgeToEdge()
                 }
             }
+
+            invalidateOptionsMenu()
         }
+
         binding.toolbar.searchImg.setOnClickListener {
-            navController.navigate(R.id.searchFragment)
+            navController.navigate(R.id.nav_search)
         }
     }
 
@@ -142,7 +125,7 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.nav_cart -> {
-                when (IsGuestMode) {
+                when (isGuestMode) {
                     "true" -> {
                         Snackbar.make(binding.navView, "cant go to cart in guest Mode ", 2000)
                             .show()
@@ -160,7 +143,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             R.id.nav_favourite -> {
-                when (IsGuestMode) {
+                when (isGuestMode) {
                     "true" -> {
                         Snackbar.make(binding.root, "cant go to favorites in guest Mode ", 2000)
                             .show()
@@ -169,7 +152,7 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     else -> {
-                        navController.navigate(R.id.favoriteProductsFragment)
+                        navController.navigate(R.id.nav_favourite)
                         true
                     }
                 }
@@ -177,7 +160,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             R.id.nav_settings -> {
-                when (IsGuestMode) {
+                when (isGuestMode) {
 
                     "true" -> {
                         Snackbar.make(binding.root, "cant go to settings in guest Mode ", 2000)
@@ -200,19 +183,20 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    fun hideToolBar() {
+    private fun hideToolBar() {
         binding.toolbar.toolbar.visibility = View.GONE
     }
 
 
-    fun showToolBar() {
+    private fun showToolBar() {
         binding.toolbar.toolbar.visibility = View.VISIBLE
     }
 
 
     private fun animateIconFill(itemId: Int) {
         val menuItem = findViewById<BottomNavigationView>(R.id.nav_view).menu.findItem(itemId)
-        val drawable = menuItem.icon?.mutate() ?: return  // Mutate to avoid affecting other instances
+        val drawable =
+            menuItem.icon?.mutate() ?: return  // Mutate to avoid affecting other instances
 
         // Create fill animation
         val fillAnimator = ValueAnimator.ofArgb(
@@ -227,5 +211,24 @@ class MainActivity : AppCompatActivity() {
         }
 
         fillAnimator.start()
+    }
+
+    private fun applyGuestConstrains(destination: NavDestination) {
+        disableEdgeToEdge()
+        showToolBar()
+        if (isGuestMode == "true") {
+            Snackbar.make(
+                binding.navView,
+                "Signup first to use this feature",
+                Snackbar.LENGTH_LONG
+            ).setAction("Signup") {
+                val intent = Intent(this, AuthActivity::class.java)
+                intent.putExtra("navigateToFragment", "SignUpFragment")
+                startActivity(intent)
+            }.setActionTextColor(getColor(R.color.primaryColor)).show()
+            navController.popBackStack()
+        } else {
+            toolbarTitle.text = destination.label
+        }
     }
 }

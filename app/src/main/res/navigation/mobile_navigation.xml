@@ -16,7 +16,7 @@
             app:destination="@id/nav_brand_products" />
         <action
             android:id="@+id/action_nav_home_to_prouductnfoFragment"
-            app:destination="@id/prouductnfoFragment" />
+            app:destination="@id/productInfoFragment" />
         <action
             android:id="@+id/action_nav_home_to_nav_categories"
             app:destination="@id/nav_categories" />
@@ -29,7 +29,7 @@
         tools:layout="@layout/fragment_categories" >
         <action
             android:id="@+id/action_nav_categories_to_prouductnfoFragment"
-            app:destination="@id/prouductnfoFragment" />
+            app:destination="@id/productInfoFragment" />
         <argument
             android:name="categoryName"
             app:argType="string" />
@@ -54,10 +54,10 @@
             app:argType="string" />
         <action
             android:id="@+id/action_nav_brand_products_to_prouductnfoFragment"
-            app:destination="@id/prouductnfoFragment" />
+            app:destination="@id/productInfoFragment" />
     </fragment>
     <fragment
-        android:id="@+id/prouductnfoFragment"
+        android:id="@+id/productInfoFragment"
         android:name="com.iti.itp.bazaar.productInfo.view.ProuductnfoFragment"
         android:label="@string/fragmentProuductInfo"
         tools:layout="@layout/fragment_prouductnfo">
@@ -66,13 +66,13 @@
             app:argType="long" />
     </fragment>
     <fragment
-        android:id="@+id/searchFragment"
+        android:id="@+id/nav_search"
         android:name="com.iti.itp.bazaar.search.view.SearchFragment"
         android:label="@string/fragmentSearch"
         tools:layout="@layout/fragment_search" >
         <action
             android:id="@+id/action_searchFragment_to_prouductnfoFragment"
-            app:destination="@id/prouductnfoFragment" />
+            app:destination="@id/productInfoFragment" />
     </fragment>
     <fragment
         android:id="@+id/orderFragment"
@@ -84,13 +84,13 @@
             app:argType="string" />
     </fragment>
     <fragment
-        android:id="@+id/favoriteProductsFragment"
+        android:id="@+id/nav_favourite"
         android:name="com.iti.itp.bazaar.favoriteProducts.view.FavoriteProductsFragment"
         android:label="@string/favProducts"
         tools:layout="@layout/fragment_favorite_products" >
         <action
             android:id="@+id/action_favoriteProductsFragment_to_prouductnfoFragment"
-            app:destination="@id/prouductnfoFragment" />
+            app:destination="@id/productInfoFragment" />
     </fragment>
     <fragment
         android:id="@+id/nav_cart"
