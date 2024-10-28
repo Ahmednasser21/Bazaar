@@ -50,7 +50,6 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
     private lateinit var draftOrderSharedPreferences: SharedPreferences
     private var customerId:String? = null
     private var draftOrderId:String? = null
-    private var currentCurrency = "EGP"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,7 +78,6 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
     }
 
     private fun setupUI() {
-        currentCurrency = if (currencySharedPreferences.getFloat("currency", 1F) == 1F) "EGP" else "USD"
         binding.btnProceedToCheckout.setOnClickListener {
             if (firstDraftOrder.line_items.size <= 1) {
                 Snackbar.make(requireView(),"Your cart is empty", 2000).show()
@@ -160,7 +158,7 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
     private fun updateCartUI() {
         val currencyRate = currencySharedPreferences.getFloat("currency", 1F)
         val totalPrice = calculateTotalPrice()
-        binding.tvTotalPriceValue.text = "${currencyFormatter.format(totalPrice)} ${if (currencyRate == 1F) "EGP" else "USD"}"
+        binding.tvTotalPriceValue.text = totalPrice.toString()
 
         val newList = firstDraftOrder.line_items?.map { oldItem ->
             val basePrice = oldItem.price.toDoubleOrNull() ?: 0.0
