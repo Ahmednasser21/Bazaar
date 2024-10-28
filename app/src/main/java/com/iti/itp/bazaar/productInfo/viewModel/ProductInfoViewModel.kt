@@ -7,8 +7,6 @@ import com.iti.itp.bazaar.dto.DraftOrderRequest
 import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
 
 import com.iti.itp.bazaar.mainActivity.ui.DataState
-import com.iti.itp.bazaar.mainActivity.ui.home.HomeViewModel
-import com.iti.itp.bazaar.mainActivity.ui.home.HomeViewModel.Companion
 import com.iti.itp.bazaar.repo.CurrencyRepository
 import com.iti.itp.bazaar.repo.Repository
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +16,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-class prouductInfoViewModel (private val repo: Repository , private val currencyRepository: CurrencyRepository) : ViewModel() {
+class ProductInfoViewModel (private val repo: Repository, private val currencyRepository: CurrencyRepository) : ViewModel() {
     companion object{
         private const val TAG = "prouductInfoViewModel"
     }

@@ -1,7 +1,6 @@
 package com.iti.itp.bazaar.productInfo.view
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -16,7 +15,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.denzcoskun.imageslider.constants.ScaleTypes
 import com.denzcoskun.imageslider.models.SlideModel
 import com.example.productinfoform_commerce.productInfo.viewModel.ProuductIfonViewModelFactory
-import com.example.productinfoform_commerce.productInfo.viewModel.prouductInfoViewModel
+import com.example.productinfoform_commerce.productInfo.viewModel.ProductInfoViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.auth.MyConstants
@@ -50,7 +49,7 @@ import kotlin.random.Random
 class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorClickListner {
 
     var binding: FragmentProuductnfoBinding? = null
-    lateinit var ProductInfoViewModel: prouductInfoViewModel
+    lateinit var productInfoViewModel: ProductInfoViewModel
     lateinit var vmFActory: ProuductIfonViewModelFactory
     lateinit var sizeBottomSheetBinding: SizeItemBottomSheetBinding
     lateinit var colorBottomSheetBinding: ColorItemBottomSheetBinding
@@ -128,8 +127,8 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
                 ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
             ), CurrencyRepository(CurrencyRemoteDataSource(ExchangeRetrofitObj.service))
         )
-        ProductInfoViewModel =
-            ViewModelProvider(this, vmFActory).get(prouductInfoViewModel::class.java)
+        productInfoViewModel =
+            ViewModelProvider(this, vmFActory).get(ProductInfoViewModel::class.java)
 // here i should recive args from any string with id : Long
 
         getProductDetailsById()
@@ -154,9 +153,9 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
                 // samy's work
                 // chosenSize, chosenColor, product (global variable taken its value when success in getProductDetails())
                 viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                    ProductInfoViewModel.getPriceRules()
-                    ProductInfoViewModel.getSpecificDraftOrder(cartDraftOrderId?.toLong()!!)
-                    ProductInfoViewModel.specificDraftOrders.collect { state ->
+                    productInfoViewModel.getPriceRules()
+                    productInfoViewModel.getSpecificDraftOrder(cartDraftOrderId?.toLong()!!)
+                    productInfoViewModel.specificDraftOrders.collect { state ->
                         when (state) {
                             is DataState.Loading -> {}
                             is DataState.OnFailed -> {}
@@ -191,7 +190,7 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
                                         quantity = 1
                                     )
                                 )
-                                ProductInfoViewModel.updateDraftOrder(
+                                productInfoViewModel.updateDraftOrder(
                                     cartDraftOrderId?.toLong() ?: 0,
                                     UpdateDraftOrderRequest(
                                         DraftOrder(
@@ -367,7 +366,7 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
     private fun getProductDetails() {
 
         lifecycleScope.launch {
-            ProductInfoViewModel.productDetailsStateFlow.collectLatest { result ->
+            productInfoViewModel.productDetailsStateFlow.collectLatest { result ->
                 when (result) {
                     is DataState.Loading -> {
                         Log.d("TAG", "getProductDetails: loading")
@@ -477,7 +476,7 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
         val productId = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId
 
         if (productId != null || productId != 0L) {
-            ProductInfoViewModel.getProductDetails(productId)
+            productInfoViewModel.getProductDetails(productId)
             getProductDetails()
         } else {
             Snackbar.make(
@@ -491,7 +490,7 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
     fun getCurrencyRate(price: Double) {
 
         lifecycleScope.launch {
-            ProductInfoViewModel.currencyStateFlow.collectLatest { result ->
+            productInfoViewModel.currencyStateFlow.collectLatest { result ->
                 when (result) {
                     DataState.Loading -> {
                         Log.d("TAG", "getCurrencyRate: loading   ")
@@ -553,8 +552,8 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
 
     fun getSpecificDraftOrderById(FavDraftOrderId: Long) {
         lifecycleScope.launch {
-            ProductInfoViewModel.getSpecificDraftOrder(FavDraftOrderId)
-            ProductInfoViewModel.specificDraftOrders.collectLatest { result ->
+            productInfoViewModel.getSpecificDraftOrder(FavDraftOrderId)
+            productInfoViewModel.specificDraftOrders.collectLatest { result ->
                 when (result) {
                     DataState.Loading -> {
                         Log.d("TAG", "getSpecificDraftOrderById prouductInfo: loading  ")

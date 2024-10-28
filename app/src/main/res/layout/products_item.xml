@@ -3,8 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/product_container"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_margin="8dp"
+    android:layout_height="350dp"
+    android:layout_marginVertical="8dp"
+    android:layout_marginHorizontal="12dp"
+    android:background="@drawable/curved_brownish_background"
+    android:elevation="4dp"
     android:padding="2dp">
 
     <ImageView
@@ -74,24 +77,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
         android:fontFamily="@font/metropolis_medium"
         android:text="12$"
-        android:textSize="12sp"
         android:textColor="@color/primaryColor"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_old_price"
         app:layout_constraintStart_toEndOf="@+id/tv_old_price"
-        app:layout_constraintTop_toBottomOf="@+id/tv_product_name" />
+        app:layout_constraintTop_toTopOf="@+id/tv_old_price" />
 
     <TextView
         android:id="@+id/tv_old_price"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginBottom="4dp"
         android:fontFamily="@font/metropolis_medium"
         android:text="15$"
         android:textSize="12sp"
-        app:layout_constraintStart_toStartOf="@+id/tv_product_name"
-        app:layout_constraintTop_toBottomOf="@+id/tv_product_name" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/tv_product_name" />
 
     <ImageView
         android:id="@+id/gpodfgk"

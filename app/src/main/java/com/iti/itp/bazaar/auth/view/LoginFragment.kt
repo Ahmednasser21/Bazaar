@@ -14,7 +14,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import com.example.productinfoform_commerce.productInfo.viewModel.ProuductIfonViewModelFactory
-import com.example.productinfoform_commerce.productInfo.viewModel.prouductInfoViewModel
+import com.example.productinfoform_commerce.productInfo.viewModel.ProductInfoViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.iti.itp.bazaar.auth.MyConstants
@@ -37,12 +37,10 @@ import com.iti.itp.bazaar.dto.PostedCustomer
 import com.iti.itp.bazaar.dto.UpdateCustomerRequest
 import com.iti.itp.bazaar.dto.cutomerResponce.CustomerByEmailResponce
 
-import com.iti.itp.bazaar.dto.cutomerResponce.CustomerResponse
 import com.iti.itp.bazaar.mainActivity.MainActivity
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.network.exchangeCurrencyApi.CurrencyRemoteDataSource
 import com.iti.itp.bazaar.network.exchangeCurrencyApi.ExchangeRetrofitObj
-import com.iti.itp.bazaar.network.products.Products
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
 import com.iti.itp.bazaar.repo.CurrencyRepository
@@ -58,7 +56,7 @@ class LoginFragment : Fragment() {
     lateinit var authViewModel: AuthViewModel
     lateinit var mAuth: FirebaseAuth
     lateinit var sharedPreferences: SharedPreferences
-    lateinit var ProductInfoViewModel: prouductInfoViewModel
+    lateinit var productInfoViewModel:ProductInfoViewModel
     lateinit var DraftvmFActory: ProuductIfonViewModelFactory
     var email: String? = null
     var password: String? = null
@@ -125,8 +123,8 @@ class LoginFragment : Fragment() {
                 ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
             ), CurrencyRepository(CurrencyRemoteDataSource(ExchangeRetrofitObj.service))
         )
-        ProductInfoViewModel =
-            ViewModelProvider(this, DraftvmFActory).get(prouductInfoViewModel::class.java)
+        productInfoViewModel =
+            ViewModelProvider(this, DraftvmFActory).get(ProductInfoViewModel::class.java)
 
 
         binding = FragmentLoginBinding.inflate(inflater, container, false)
@@ -288,10 +286,10 @@ class LoginFragment : Fragment() {
 
     fun CreatCartDraftOrder(customerId: Long) {
         lifecycleScope.launch {
-            ProductInfoViewModel.createOrder(creatDraftOrderRequest(customerId))
+            productInfoViewModel.createOrder(creatDraftOrderRequest(customerId))
             delay(2000) // tb be able to retrive my draftOrderId
-            ProductInfoViewModel.getAllDraftOrders()
-            ProductInfoViewModel.allDraftOrders.collectLatest { result ->
+            productInfoViewModel.getAllDraftOrders()
+            productInfoViewModel.allDraftOrders.collectLatest { result ->
                 when (result) {
                     DataState.Loading -> {
                         Log.d("TAG", "CreatCartDraftOrder: loading ")
@@ -323,11 +321,11 @@ class LoginFragment : Fragment() {
 
     fun CreatFavDraftOrder(customerId: Long) {
         lifecycleScope.launch {
-            ProductInfoViewModel.createFavDraftOrder(creatDraftOrderRequest(customerId))
+            productInfoViewModel.createFavDraftOrder(creatDraftOrderRequest(customerId))
             delay(2000) // tb be able to retrive my draftOrderId
             // el moshkela momken tkon hena 3shan b observ b wa7da bs 3al etnen
-            ProductInfoViewModel.getAllDraftOrdersForFav()
-            ProductInfoViewModel.allDraftOrdersFav.collectLatest { result ->
+            productInfoViewModel.getAllDraftOrdersForFav()
+            productInfoViewModel.allDraftOrdersFav.collectLatest { result ->
                 when (result) {
                     DataState.Loading -> {
                         Log.d("TAG", "CreatFavDraftOrder: loading ")

@@ -7,8 +7,8 @@ import com.iti.itp.bazaar.repo.Repository
 
 class ProuductIfonViewModelFactory (private val repo: Repository , private val CurrencyRepo : CurrencyRepository) : ViewModelProvider.Factory  {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return if (modelClass.isAssignableFrom(prouductInfoViewModel::class.java)) {
-            prouductInfoViewModel(repo , CurrencyRepo) as T
+        return if (modelClass.isAssignableFrom(ProductInfoViewModel::class.java)) {
+            ProductInfoViewModel(repo , CurrencyRepo) as T
         } else {
             throw IllegalArgumentException("Unknown ViewModel class")
         }

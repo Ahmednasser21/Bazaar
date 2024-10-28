@@ -3,8 +3,6 @@ package com.iti.itp.bazaar.shoppingCartActivity.shoppingCartFragment.viewModel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.productinfoform_commerce.productInfo.viewModel.prouductInfoViewModel
-import com.example.productinfoform_commerce.productInfo.viewModel.prouductInfoViewModel.Companion
 import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.repo.Repository

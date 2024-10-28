@@ -9,15 +9,13 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.productinfoform_commerce.productInfo.viewModel.ProuductIfonViewModelFactory
-import com.example.productinfoform_commerce.productInfo.viewModel.prouductInfoViewModel
+import com.example.productinfoform_commerce.productInfo.viewModel.ProductInfoViewModel
 import com.google.android.material.snackbar.Snackbar
-import com.iti.itp.bazaar.R
 import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.databinding.FragmentFavoriteProductsBinding
 import com.iti.itp.bazaar.dto.DraftOrderRequest
@@ -39,7 +37,7 @@ import kotlinx.coroutines.launch
 
 class FavoriteProductsFragment : Fragment() , OnFavProductCardClick , OnFavProductDelete {
 // will try to sue it as a shared viewmodel
-    lateinit var ProductInfoViewModel : prouductInfoViewModel
+    lateinit var productInfoViewModel : ProductInfoViewModel
     lateinit var vmFActory : ProuductIfonViewModelFactory
     lateinit var binding : FragmentFavoriteProductsBinding
     lateinit var FavAdapter : FavoriteProductsAdapter
@@ -70,7 +68,7 @@ class FavoriteProductsFragment : Fragment() , OnFavProductCardClick , OnFavProdu
             ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
         ) , CurrencyRepository(CurrencyRemoteDataSource(ExchangeRetrofitObj.service))
         )
-        ProductInfoViewModel = ViewModelProvider(this , vmFActory).get(prouductInfoViewModel::class.java)
+        productInfoViewModel = ViewModelProvider(this , vmFActory).get(ProductInfoViewModel::class.java)
 
         FavAdapter = FavoriteProductsAdapter(this , this )
         binding.rvFavProducts.apply {
@@ -87,8 +85,8 @@ class FavoriteProductsFragment : Fragment() , OnFavProductCardClick , OnFavProdu
                 .show()
         }
             else {
-                ProductInfoViewModel.getSpecificDraftOrder(favDraftOrderId)
-            ProductInfoViewModel.specificDraftOrders.collectLatest { result->
+                productInfoViewModel.getSpecificDraftOrder(favDraftOrderId)
+            productInfoViewModel.specificDraftOrders.collectLatest { result->
                 when(result){
                     DataState.Loading -> {}
                     is DataState.OnFailed ->{}
@@ -149,24 +147,24 @@ class FavoriteProductsFragment : Fragment() , OnFavProductCardClick , OnFavProdu
 
                         }
                         FavDraftOrder.draft_order.line_items = currentDraftOrderItems
-                        ProductInfoViewModel.updateDraftOrder(
+                        productInfoViewModel.updateDraftOrder(
                             favDraftOrderId,
                             UpdateDraftOrderRequest(FavDraftOrder.draft_order)
                         )
                         delay(1000) // to give time for changes ( delating and updating the list ) to take action
                         // to call the list again after its modified
-                        ProductInfoViewModel.getSpecificDraftOrder(favDraftOrderId)
+                        productInfoViewModel.getSpecificDraftOrder(favDraftOrderId)
                     }
                     else {
 
                         FavDraftOrder.draft_order.line_items.get(0).sku="emptySKU" // make sku of remainig item to be Aa
-                        ProductInfoViewModel.updateDraftOrder(
+                        productInfoViewModel.updateDraftOrder(
                             favDraftOrderId,
                             UpdateDraftOrderRequest(FavDraftOrder.draft_order)
                         )
 
                         delay(1000)
-                        ProductInfoViewModel.getSpecificDraftOrder(favDraftOrderId)
+                        productInfoViewModel.getSpecificDraftOrder(favDraftOrderId)
                     }
                 }
             }
