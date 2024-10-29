@@ -99,7 +99,7 @@ class CashOnDeliveryFragment : Fragment() {
         binding.discountSymbol.text = initialSymbol
         binding.GrandTotalPriceSymbol.text = initialSymbol
         customerId = draftOrderSharedPreferences.getString(MyConstants.CUSOMER_ID, "0")
-        sharedOrderViewModel.updateCustomer(OrderCustomer(customerId?.toLong() ?: 0))
+        sharedOrderViewModel.updateCustomer(OrderCustomer(customerId?.toLong() ?: 0))  //
         draftOrderId = draftOrderSharedPreferences.getString(MyConstants.CART_DRAFT_ORDER_ID, "0")
         setupUI()
         observeData()
@@ -388,7 +388,12 @@ class CashOnDeliveryFragment : Fragment() {
                     price = item.price,
                     quantity = item.quantity,
                     sku = item.sku,
-                    applied_discount = AppliedDiscount(couponCode, formatPrice(itemDiscountShare))
+                    applied_discount = AppliedDiscount(
+                        couponCode, formatPrice(itemDiscountShare),
+                        value = null,
+                        amount = null,
+                        title = null
+                    )
                 )
             }
 
@@ -397,7 +402,10 @@ class CashOnDeliveryFragment : Fragment() {
                     line_items = updatedLineItems,
                     applied_discount = AppliedDiscount(
                         couponCode,
-                        formatPrice(baseDiscountAmount)
+                        formatPrice(baseDiscountAmount),
+                        value = null,
+                        amount = null,
+                        title = null
                     ),
                     customer = Customer(currentDraftOrder.customer?.id ?: 0),
                     use_customer_default_address = true

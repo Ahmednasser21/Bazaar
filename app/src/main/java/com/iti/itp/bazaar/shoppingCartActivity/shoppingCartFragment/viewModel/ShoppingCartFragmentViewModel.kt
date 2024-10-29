@@ -26,6 +26,9 @@ class ShoppingCartFragmentViewModel(val repository: Repository):ViewModel() {
     private val _specificDraftOrder = MutableStateFlow<DataState>(DataState.Loading)
     val specificDraftOrder = _specificDraftOrder.asStateFlow()
 
+    private val _priceRules = MutableStateFlow<DataState>(DataState.Loading)
+    val priceRules = _priceRules.asStateFlow()
+
     fun getAllDraftOrders(){
         viewModelScope.launch(Dispatchers.IO){
             repository.getAllDraftOrders().catch {
@@ -59,6 +62,19 @@ class ShoppingCartFragmentViewModel(val repository: Repository):ViewModel() {
             }.collect{
                 _specificDraftOrder.value = DataState.OnSuccess(it)
                 Log.i(TAG, "success to getSpecificDraftOrder: ")
+            }
+        }
+    }
+
+
+    fun getPriceRules(){
+        viewModelScope.launch(Dispatchers.IO){
+            repository.getPriceRules().catch {
+                _priceRules.value = DataState.OnFailed(it)
+                Log.e(TAG, "getPriceRules: failed to get price rules due to: ${it.message}", )
+            }.collect{
+                _priceRules.value = DataState.OnSuccess(it)
+                Log.i(TAG, "success to getPriceRules: ")
             }
         }
     }

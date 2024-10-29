@@ -3,6 +3,7 @@ package com.iti.itp.bazaar.shoppingCartActivity.shoppingCartFragment.view
 import ReceivedDraftOrder
 import ReceivedLineItem
 import ReceivedOrdersResponse
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -25,8 +26,10 @@ import com.iti.itp.bazaar.dto.Customer
 import com.iti.itp.bazaar.dto.DraftOrder
 import com.iti.itp.bazaar.dto.DraftOrderRequest
 import com.iti.itp.bazaar.dto.LineItem
+import com.iti.itp.bazaar.dto.PriceRuleDto
 import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
 import com.iti.itp.bazaar.mainActivity.ui.DataState
+import com.iti.itp.bazaar.network.responses.PriceRulesResponse
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
 import com.iti.itp.bazaar.repo.Repository
@@ -38,6 +41,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.NumberFormat
 import java.util.Locale
+import kotlin.math.abs
 
 class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
     private lateinit var binding: FragmentShoppingCartBinding
@@ -50,6 +54,9 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
     private lateinit var draftOrderSharedPreferences: SharedPreferences
     private var customerId:String? = null
     private var draftOrderId:String? = null
+    private lateinit var priceRules:PriceRulesResponse
+    private var matchingRule: PriceRuleDto?= null
+    private var appliedDiscountPercentage: Double = 0.0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,6 +80,8 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
         super.onViewCreated(view, savedInstanceState)
         draftOrderId = draftOrderSharedPreferences.getString(MyConstants.CART_DRAFT_ORDER_ID, "0")
         customerId = draftOrderSharedPreferences.getString(MyConstants.CUSOMER_ID, "0")
+        observePriceRules()
+        getPriceRules()
         setupUI()
         observeCartData()
     }
@@ -155,10 +164,55 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
         Toast.makeText(requireContext(), "Your cart is empty", Toast.LENGTH_SHORT).show()
     }
 
+
+    private fun calculateDiscountedTotal(): Double {
+        val currencyRate = currencySharedPreferences.getFloat("currency", 1F)
+        return firstDraftOrder.line_items?.sumOf { item ->
+            val basePrice = item.price.toDoubleOrNull() ?: 0.0
+            val quantity = item.quantity ?: 1
+            val itemTotal = basePrice * quantity * currencyRate
+            val discountAmount = (itemTotal * appliedDiscountPercentage) / 100
+            itemTotal - discountAmount
+        } ?: 0.0
+    }
+
+
+    private fun calculateDiscountedPrice(basePrice: Double): Double {
+        return if (appliedDiscountPercentage > 0) {
+            val discountAmount = (basePrice * appliedDiscountPercentage) / 100
+            basePrice - discountAmount
+        } else {
+            basePrice
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
     private fun updateCartUI() {
         val currencyRate = currencySharedPreferences.getFloat("currency", 1F)
-        val totalPrice = calculateTotalPrice()
-        binding.tvTotalPriceValue.text = totalPrice.toString()
+        val baseTotal = calculateTotalPrice()
+        binding.tvTotalPriceValue.text = baseTotal.toString()
+
+        binding.couponsImageButton.setOnClickListener {
+            val couponCode = binding.couponsEditText.text.toString().trim()
+
+            // Find matching price rule
+            matchingRule = priceRules.priceRules.find { it.title == couponCode }!!
+
+            // Store the discount percentage
+            appliedDiscountPercentage = abs(matchingRule?.value?.toDouble()?:0.0)
+
+            // Recalculate total with discounted items
+            val discountedTotal = calculateDiscountedTotal()
+
+            binding.tvTotalPriceValue.text = currencyFormatter.format(discountedTotal)
+            binding.couponsEditText.isEnabled = false
+            binding.couponsImageButton.isEnabled = false
+
+            // Refresh the RecyclerView to show discounted prices
+            adapter.setDiscount(appliedDiscountPercentage)
+            adapter.notifyDataSetChanged()
+
+        }
 
         if (firstDraftOrder.line_items.isEmpty() || firstDraftOrder.line_items.size == 1){
             binding.emptyBoxAnimation.visibility = View.VISIBLE
@@ -241,13 +295,14 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
                     showEmptyCart()
                 }
 
+
                 // Perform the API call to sync with the server
                 viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                     try {
                         val updateRequest = UpdateDraftOrderRequest(
                             DraftOrder(
                                 line_items = updatedLineItems,
-                                applied_discount = firstDraftOrder.applied_discount,
+                                applied_discount = AppliedDiscount(null,matchingRule?.valueType,matchingRule?.value, matchingRule?.value,matchingRule?.title),
                                 customer = firstDraftOrder.customer,
                                 use_customer_default_address = firstDraftOrder.use_customer_default_address
                             )
@@ -289,12 +344,14 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
     override fun onQuantityChanged(item: LineItem, newQuantity: Int, newPrice: Double) {
         val currencyRate = currencySharedPreferences.getFloat("currency", 1F)
         val basePriceInEGP = newPrice / currencyRate // Convert back to base price in EGP
+        binding.tvTotalPriceValue.text = newPrice.toString()
 
         val updatedLineItems = firstDraftOrder.line_items?.map { lineItem ->
             if (lineItem.id == item.id) {
+                // Store the original base price, not the discounted one
                 lineItem.copy(
                     quantity = newQuantity,
-                    price = basePriceInEGP.toString()  // Store the base price in EGP
+                    price = basePriceInEGP.toString()
                 )
             } else {
                 lineItem
@@ -303,6 +360,7 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
 
         firstDraftOrder = firstDraftOrder.copy(line_items = updatedLineItems ?: listOf())
         updateCartUI()
+        binding.tvTotalPriceValue.text = currencyFormatter.format(calculateDiscountedTotal())
     }
 
     private fun updateDraftOrderToAPI() {
@@ -312,15 +370,17 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
         }
 
         val updatedLineItems = firstDraftOrder.line_items?.map { item ->
-            // Always use the base price (EGP) when sending to API
+            // Get the base price in EGP
             val basePrice = item.price.toDoubleOrNull() ?: 0.0
             val quantity = item.quantity ?: 1
 
+            // Calculate the discounted price if a discount is applied
+            val finalPrice = calculateDiscountedPrice(basePrice)
             LineItem(
                 variant_id = item.variant_id,
                 product_id = item.product_id,
                 quantity = quantity,
-                price = basePrice.toString(), // Send original EGP price to API
+                price = finalPrice.toString(), // Send original EGP price to API
                 title = item.title ?: "",
                 variant_title = item.variant_title,
                 sku = item.sku,
@@ -376,8 +436,18 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
             progressBar.visibility = View.GONE
         }
         Toast.makeText(requireContext(), "Cart updated successfully", Toast.LENGTH_SHORT).show()
+
+        // Use the discounted total price when navigating
+        val finalTotal = if (appliedDiscountPercentage > 0) {
+            calculateDiscountedTotal()
+        } else {
+            calculateTotalPrice()
+        }
+
         Navigation.findNavController(requireView())
-            .navigate(ShoppingCartFragmentDirections.actionNavCartToChooseAddressFragment2(calculateTotalPrice().toString()+" EGP"))
+            .navigate(ShoppingCartFragmentDirections.actionNavCartToChooseAddressFragment2(
+                "$finalTotal EGP"
+            ))
     }
 
     private fun handleUpdateError(e: Exception) {
@@ -391,5 +461,25 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
             "Failed to update cart: ${e.message ?: "Unknown error"}",
             Toast.LENGTH_SHORT
         ).show()
+    }
+
+    private fun getPriceRules(){
+        lifecycleScope.launch{
+            shoppingCartViewModel.getPriceRules()
+        }
+    }
+
+    private fun observePriceRules(){
+        lifecycleScope.launch{
+            shoppingCartViewModel.priceRules.collect{
+                when(it){
+                    DataState.Loading -> {}
+                    is DataState.OnFailed -> {}
+                    is DataState.OnSuccess<*> -> {
+                        priceRules = it.data as PriceRulesResponse
+                    }
+                }
+            }
+        }
     }
 }

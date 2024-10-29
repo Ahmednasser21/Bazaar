@@ -93,4 +93,7 @@
     <string name="change">Change</string>
     <string name="order">Order:</string>
     <string name="shipping_address">Shipping address</string>
+    <string name="success">Success!</string>
+    <string name="your_order_will_be_delivered_soon_thank_you_for_choosing_our_app">Your order will be delivered soon. Thank you for choosing our app!</string>
+    <string name="continue_shopping">Continue shopping</string>
 </resources>

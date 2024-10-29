@@ -92,6 +92,10 @@ class MainActivity : AppCompatActivity() {
                     disableEdgeToEdge()
                 }
 
+                R.id.successOrderPage->{
+                    hideToolBar()
+                }
+
                 else -> {
                     showToolBar()
                     disableEdgeToEdge()

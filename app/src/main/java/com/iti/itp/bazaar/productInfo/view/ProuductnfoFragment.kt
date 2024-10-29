@@ -194,7 +194,13 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
                                     cartDraftOrderId?.toLong() ?: 0,
                                     UpdateDraftOrderRequest(
                                         DraftOrder(
-                                            applied_discount = AppliedDiscount(null),
+                                            applied_discount = AppliedDiscount(
+                                                null,
+                                                value_type = null,
+                                                value = null,
+                                                amount = null,
+                                                title = null
+                                            ),
                                             customer = Customer(8220771418416),
                                             use_customer_default_address = true,
                                             line_items = updatedLineItems.map {
@@ -529,7 +535,13 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
                     )
                 ),
                 use_customer_default_address = true,
-                applied_discount = AppliedDiscount(),
+                applied_discount = AppliedDiscount(
+                    description = null,
+                    value_type = null,
+                    value = null,
+                    amount = null,
+                    title = null
+                ),
                 customer = Customer(8220771418416)
             )
 
@@ -609,7 +621,13 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
                     )
                 ),
                 use_customer_default_address = true,
-                applied_discount = AppliedDiscount(),
+                applied_discount = AppliedDiscount(
+                    description = null,
+                    value_type = null,
+                    value = null,
+                    amount = null,
+                    title = null
+                ),
                 customer = Customer(8220771385648)
             )
 

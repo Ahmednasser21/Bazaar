@@ -1,8 +1,6 @@
 package com.iti.itp.bazaar.shoppingCartActivity.paymentMethods
 
-import android.app.AlertDialog
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
@@ -15,15 +13,12 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
-import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.databinding.FragmentPaymentMethodsBinding
 import com.iti.itp.bazaar.dto.*
-import com.iti.itp.bazaar.dto.order.Order
-import com.iti.itp.bazaar.mainActivity.MainActivity
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.mainActivity.ui.order.SharedOrderViewModel
 import com.iti.itp.bazaar.network.exchangeCurrencyApi.CurrencyRemoteDataSource
@@ -61,6 +56,7 @@ class PaymentMethods : Fragment() {
     private var draftOrderId: String? = null
     private val sharedOrderViewModel by activityViewModels<SharedOrderViewModel>()
     private var sharedCustomerId:String? = null
+    private var paymentMethod=""
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -119,8 +115,7 @@ class PaymentMethods : Fragment() {
                 }
                 binding.cashOnDelivery.isChecked -> {
                     sharedOrderViewModel.updatePaymentGateway(listOf("Cash On Delivery"))
-                    val action = PaymentMethodsDirections.actionPaymentMethods2ToCashOnDeliveryFragment2()
-                    Navigation.findNavController(view).navigate(action)
+                    createOrder()
                 }
             }
         }
@@ -249,7 +244,7 @@ class PaymentMethods : Fragment() {
                     PartialOrder2(
                         PartialOrder(
                             customer = OrderCustomer(sharedCustomerId?.toLong()?:0),
-                            payment_gateway_names = listOf("Credit Card"),
+                            payment_gateway_names = partialOrder.payment_gateway_names,
                             applied_discount = partialOrder.applied_discount,
                             shipping_address = partialOrder.shipping_address,
                             fulfillment_status = partialOrder.fulfillment_status,
@@ -293,7 +288,7 @@ class PaymentMethods : Fragment() {
                         }
                         is DataState.OnSuccess<*> -> {
                             withContext(Dispatchers.Main) {
-                                showOrderSuccessDialog()
+                                navigateToSuccessPage()
                                 clearingDraftOrderAfterPlacingOrder()
                             }
                         }
@@ -339,18 +334,9 @@ class PaymentMethods : Fragment() {
         }
     }
 
-    private fun showOrderSuccessDialog() {
-        AlertDialog.Builder(requireContext())
-            .setTitle("Successful Order")
-            .setMessage("Order placed successfully")
-            .setPositiveButton("OK") { dialog, _ ->
-                dialog.dismiss()
-                val intent = Intent(requireActivity(), MainActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                startActivity(intent)
-            }
-            .create()
-            .show()
+    private fun navigateToSuccessPage() {
+       val action = PaymentMethodsDirections.actionPaymentMethods2ToSuccessOrderPage()
+        Navigation.findNavController(requireView()).navigate(action)
     }
 
     private fun observeDraftOrders() {

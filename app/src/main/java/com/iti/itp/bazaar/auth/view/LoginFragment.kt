@@ -363,7 +363,13 @@ class LoginFragment : Fragment() {
                     )
                 ),
                 use_customer_default_address = true,
-                applied_discount = AppliedDiscount(),
+                applied_discount = AppliedDiscount(
+                    null,
+                    value_type = null,
+                    value = null,
+                    amount = null,
+                    title = null
+                ),
                 customer = Customer(customerId)
             )
 

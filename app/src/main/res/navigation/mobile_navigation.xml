@@ -121,10 +121,22 @@
         <action
             android:id="@+id/action_paymentMethods2_to_cashOnDeliveryFragment2"
             app:destination="@id/cashOnDeliveryFragment2" />
+        <action
+            android:id="@+id/action_paymentMethods2_to_successOrderPage"
+            app:destination="@id/successOrderPage" />
     </fragment>
     <fragment
         android:id="@+id/cashOnDeliveryFragment2"
         android:name="com.iti.itp.bazaar.shoppingCartActivity.cashOnDeliveryFragment.view.CashOnDeliveryFragment"
         android:label="Cash on delivery"
         tools:layout="@layout/fragment_cash_on_delivery" />
+    <fragment
+        android:id="@+id/successOrderPage"
+        android:name="com.iti.itp.bazaar.SuccessOrderPage"
+        android:label="fragment_success_order_page"
+        tools:layout="@layout/fragment_success_order_page" >
+        <action
+            android:id="@+id/action_successOrderPage_to_nav_home"
+            app:destination="@id/nav_home" />
+    </fragment>
 </navigation>
