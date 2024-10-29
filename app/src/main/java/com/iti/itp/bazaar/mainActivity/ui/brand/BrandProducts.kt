@@ -56,7 +56,6 @@ class BrandProducts : Fragment(), OnProductClickListener, OnFavouriteClickListen
         super.onViewCreated(view, savedInstanceState)
         val args: BrandProductsArgs by navArgs()
         val brandName = args.vendorName
-        (activity as? AppCompatActivity)?.supportActionBar?.title = brandName
         productsAdapter = ProductsAdapter(false,this,this)
         initialiseUI(brandName)
         brandProductsViewModel.getVendorProducts(brandName)

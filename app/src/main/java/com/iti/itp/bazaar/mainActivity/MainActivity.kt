@@ -20,6 +20,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.snackbar.Snackbar
@@ -49,20 +50,27 @@ class MainActivity : AppCompatActivity() {
         )
         isGuestMode = mySharedPreference.getString(MyConstants.IS_GUEST, "false") ?: "false"
 
-
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayShowTitleEnabled(false)
+        supportActionBar?.apply {
+            setDisplayShowTitleEnabled(false)
+            setDisplayHomeAsUpEnabled(true)
+            setHomeAsUpIndicator(R.drawable.ic_arrow_back)
+        }
 
         val navView: BottomNavigationView = binding.navView
         navController = findNavController(R.id.nav_host_fragment_activity_main)
+
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.nav_home, R.id.nav_categories, R.id.nav_me, R.id.nav_brand_products,
-                R.id.productInfoFragment, R.id.nav_search, R.id.orderFragment,
+                R.id.nav_home,
+                R.id.nav_search,
+                R.id.nav_profile,
+                R.id.nav_cart,
                 R.id.nav_favourite
             )
         )
+
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
@@ -77,7 +85,7 @@ class MainActivity : AppCompatActivity() {
                     disableEdgeToEdge()
                 }
 
-                R.id.nav_me ,  R.id.nav_favourite , R.id.nav_cart -> {
+                R.id.nav_profile, R.id.nav_favourite, R.id.nav_cart -> {
                     applyGuestConstrains(destination)
                 }
 
@@ -102,9 +110,16 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
+            supportActionBar?.setDisplayHomeAsUpEnabled(
+                !appBarConfiguration.topLevelDestinations.contains(destination.id)
+            )
+
             invalidateOptionsMenu()
         }
+    }
 
+    override fun onSupportNavigateUp(): Boolean {
+        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
     private fun disableEdgeToEdge() {
@@ -112,7 +127,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        val isNavMe = navController.currentDestination?.id == R.id.nav_me
+        val isNavMe = navController.currentDestination?.id == R.id.nav_profile
         menu.findItem(R.id.nav_settings)?.isVisible = isNavMe
         menu.findItem(R.id.nav_favourite)?.isVisible = !isNavMe
         return super.onPrepareOptionsMenu(menu)
@@ -125,86 +140,34 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.nav_cart -> {
-                when (isGuestMode) {
-                    "true" -> {
-                        Snackbar.make(binding.navView, "cant go to cart in guest Mode ", 2000)
-                            .show()
-
-                        true
-                    }
-
-                    else -> {
-//                        val intent = Intent(this, ShoppingCartActivity::class.java)
-//                        startActivity(intent)
-                        true
-                    }
-                }
-
-            }
-
-            R.id.nav_favourite -> {
-                when (isGuestMode) {
-                    "true" -> {
-                        Snackbar.make(binding.root, "cant go to favorites in guest Mode ", 2000)
-                            .show()
-
-                        true
-                    }
-
-                    else -> {
-                        navController.navigate(R.id.nav_favourite)
-                        true
-                    }
-                }
-
-            }
 
             R.id.nav_settings -> {
-                when (isGuestMode) {
-
-                    "true" -> {
-                        Snackbar.make(binding.root, "cant go to settings in guest Mode ", 2000)
-                        true
-                    }
-
-                    else -> {
-                        val intent = Intent(this, SettingsActivity::class.java)
-                        startActivity(intent)
-                        true
-                    }
-                }
-
-
+                val intent = Intent(this, SettingsActivity::class.java)
+                startActivity(intent)
+                true
             }
-
             else -> super.onOptionsItemSelected(item)
-
         }
     }
-
 
     private fun hideToolBar() {
         binding.toolbar.toolbar.visibility = View.GONE
     }
 
-
     private fun showToolBar() {
         binding.toolbar.toolbar.visibility = View.VISIBLE
     }
 
-
     private fun animateIconFill(itemId: Int) {
         val menuItem = findViewById<BottomNavigationView>(R.id.nav_view).menu.findItem(itemId)
         val drawable =
-            menuItem.icon?.mutate() ?: return  // Mutate to avoid affecting other instances
+            menuItem.icon?.mutate() ?: return
 
-        // Create fill animation
         val fillAnimator = ValueAnimator.ofArgb(
             ContextCompat.getColor(this, android.R.color.transparent),
             ContextCompat.getColor(this, R.color.primaryColor)
         ).apply {
-            duration = 300 // Animation duration in milliseconds
+            duration = 300
             addUpdateListener { animator ->
                 val color = animator.animatedValue as Int
                 drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN)

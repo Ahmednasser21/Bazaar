@@ -22,7 +22,7 @@
         android:title="@string/favourite"/>
 
     <item
-        android:id="@+id/nav_me"
+        android:id="@+id/nav_profile"
         android:icon="@drawable/profile"
         android:title="@string/profile" />
 
