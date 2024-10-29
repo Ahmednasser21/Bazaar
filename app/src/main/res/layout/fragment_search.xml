@@ -8,16 +8,6 @@
     android:orientation="vertical"
     tools:context=".search.view.SearchFragment">
 
-    <TextView
-        android:id="@+id/textView15"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginVertical="2dp"
-        android:background="@color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sv_Searchbar" />
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/empty_search_animation"
@@ -26,7 +16,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/textView15"
+        app:layout_constraintTop_toBottomOf="@+id/sv_Searchbar"
         android:visibility="gone"
         app:lottie_autoPlay="true"
         app:lottie_loop="true"
@@ -36,10 +26,9 @@
         android:id="@+id/sv_Searchbar"
         android:layout_width="0dp"
         android:layout_height="50dp"
-        android:layout_marginHorizontal="8dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginHorizontal="24dp"
         android:background="@drawable/custom_et_backgroud"
-        android:backgroundTint="#26DB3022"
         android:searchIcon="@drawable/baseline_search"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -49,10 +38,10 @@
         android:id="@+id/rv_searchProuducts"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginVertical="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="8dp"
-        android:background="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
