@@ -42,7 +42,7 @@ class MeFragment : Fragment() {
     private lateinit var meFactory: MeViewModelFactory
     private lateinit var currencySharePrefs: SharedPreferences
     private lateinit var binding: FragmentMeBinding
-    private lateinit var moreOrders: TextView
+    //private lateinit var moreOrders: TextView
     lateinit var mAuth: FirebaseAuth
     private lateinit var userDataSharedPreferences: SharedPreferences
     private lateinit var customerID: String
@@ -50,24 +50,7 @@ class MeFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        meFactory = MeViewModelFactory(
-            CurrencyRepository(CurrencyRemoteDataSource(ExchangeRetrofitObj.service)),
-            repository = Repository.getInstance(ShopifyRemoteDataSource(ShopifyRetrofitObj.productService))
-        )
-        meViewModel = ViewModelProvider(this, meFactory)[MeViewModel::class.java]
 
-        val orderFactory = OrderViewModelFactory(
-            Repository.getInstance(
-                ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
-            )
-        )
-        orderViewModel =
-            ViewModelProvider(requireActivity(), orderFactory)[OrderViewModel::class.java]
-        userDataSharedPreferences = requireActivity().getSharedPreferences(
-            MyConstants.MY_SHARED_PREFERANCE,
-            Context.MODE_PRIVATE
-        )
-        customerID = userDataSharedPreferences.getString(MyConstants.CUSOMER_ID, "0").toString()
     }
 
 
@@ -76,10 +59,6 @@ class MeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        currencySharePrefs = requireActivity().applicationContext.getSharedPreferences(
-            "currencySharedPrefs",
-            Context.MODE_PRIVATE
-        )
         binding = FragmentMeBinding.inflate(inflater, container, false)
         val root: View = binding.root
         return root
@@ -88,102 +67,29 @@ class MeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        orderViewModel.getOrdersByCustomerID(customerID)
-        getOrderItem()
-        moreOrders = binding.moreOrders
-        moreOrders.setOnClickListener {
-            val action = MeFragmentDirections.actionNavMeToOrderFragment(customerID)
-            Navigation.findNavController(it).navigate(action)
-        }
-
-        mAuth = FirebaseAuth.getInstance()
-        mAuth.addAuthStateListener { firebaseAuth ->
-            if (mAuth.currentUser == null) {
-                context?.let {
-                    val intent = Intent(it, AuthActivity::class.java)
-                    startActivity(intent)
-                    activity?.finish()
-                } ?: Log.e("AccountFragment", "Context is null")
-            }
-        }
-        binding.btnLogout.setOnClickListener {
-
-            AlertDialog.Builder(context)
-                .setTitle("Confirm Sign out")
-                .setMessage("Are you sure that you want to Sign Out?")
-                .setPositiveButton("Yes") { dialog, _ ->
-                    mAuth.signOut()
-                }
-                .setNegativeButton("No") { dialog, _ ->
-                    dialog.dismiss()
-                }
-                .show()
-
+        binding.cardViewOrders.setOnClickListener{
 
         }
-    }
 
-    private fun getOrderItem() {
-        lifecycleScope.launch {
-            orderViewModel.ordersStateFlow.collectLatest { result ->
-                when (result) {
-                    is DataState.Loading -> {}
 
-                    is DataState.OnSuccess<*> -> {
-                        val ordersResponse = result.data as OrdersResponse
-                        if (ordersResponse.orders.isNotEmpty()){
-                            val firstOrder = ordersResponse.orders[0]
-                            withContext(Dispatchers.Main) {
-                                binding.priceValue.text = "${firstOrder.totalPrice} EGP"
-                                binding.createdAt.text = formatOrderDate(firstOrder.createdAt)
-                            }
+        binding.cardViewCurrency.setOnClickListener{
 
-                        }
-
-                    }
-
-                    is DataState.OnFailed -> {
-                        Snackbar.make(requireView(), "Failed to get data", Snackbar.LENGTH_SHORT)
-                            .show()
-                    }
-                }
-            }
         }
-    }
 
-    private fun formatOrderDate(apiDate: String): String {
-        val apiDateFormat =
-            java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", java.util.Locale.getDefault())
-        val readableDateFormat = java.text.SimpleDateFormat(
-            "MMMM dd, yyyy 'at' HH:mm a",
-            java.util.Locale.getDefault()
-        )
-        val date = apiDateFormat.parse(apiDate.replace("Z", "+0000"))
-        return readableDateFormat.format(date ?: "Unknown date")
+        binding.cardViewContactUs.setOnClickListener{
+            val action = MeFragmentDirections.actionNavProfileToContactUsFragment2()
+            Navigation.findNavController(view).navigate(action)
+        }
 
-    }
+        binding.cardViewAddresses.setOnClickListener{
+            val action = MeFragmentDirections.actionNavProfileToAddressFragment2()
+            Navigation.findNavController(view).navigate(action)
+        }
 
-
-    @SuppressLint("SetTextI18n", "DefaultLocale")
-    override fun onStart() {
-        super.onStart()
-//        val currency = currencySharePrefs.getFloat("currency", 1F)
-//        lifecycleScope.launch(Dispatchers.IO){
-//            notificationsViewModel.getCustomerById(8220771418416)
-//            notificationsViewModel.customer.collect{state ->
-//                withContext(Dispatchers.Main){
-//                    when(state){
-//                        DataState.Loading -> {}
-//                        is DataState.OnFailed -> {}
-//                        is DataState.OnSuccess<*>->{
-//                            val data = state.data as SingleCustomerResponse
-//                            binding.nameOfUser.text = "${data.customer.firstName} ${data.customer.lastName}"
-//                            binding.createdAt.text = data.customer.createdAt
-//                            binding.priceValue.text = String.format("%.2f", data.customer.totalSpent * currency)                        }
-//                    }
-//                }
-//            }
-//        }
+        binding.cardViewAboutUs.setOnClickListener{
+            val action = MeFragmentDirections.actionNavProfileToAboutUsFragment2()
+            Navigation.findNavController(view).navigate(action)
+        }
     }
 
 }
