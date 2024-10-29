@@ -11,7 +11,7 @@
         android:id="@+id/textView18"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
+        android:layout_marginTop="24dp"
         android:fontFamily="@font/metropolis_bold"
         android:text="@string/success"
         android:textColor="@color/black"
@@ -26,13 +26,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.1" />
+        app:layout_constraintGuide_percent="0.16" />
 
 
     <TextView
         android:id="@+id/textView19"
-        android:layout_width="255dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:minLines="2"
+        android:maxLines="2"
         android:layout_marginTop="4dp"
         android:fontFamily="@font/metropolis_semibold"
         android:text="@string/your_order_will_be_delivered_soon_thank_you_for_choosing_our_app"
@@ -48,11 +50,13 @@
         android:id="@+id/btn_continue_shopping"
         android:layout_width="160dp"
         android:layout_height="36dp"
+        android:minHeight="48dp"
         android:layout_marginTop="12dp"
         android:background="@drawable/custom_button_background"
         android:text="@string/continue_shopping"
         android:textAllCaps="false"
         android:textColor="@color/white"
+        android:fontFamily="@font/metropolis_medium"
         app:layout_constraintEnd_toEndOf="@+id/textView19"
         app:layout_constraintHorizontal_bias="0.494"
         app:layout_constraintStart_toStartOf="@+id/textView19"
