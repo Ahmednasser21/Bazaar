@@ -75,7 +75,7 @@ class ProductsAdapter(
                     paintFlags = paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
                 }
             } else {
-                binding.productContainer.elevation = 3f
+                binding.productContainer.elevation = 2f
                 binding.tvOldPrice.visibility = View.INVISIBLE
             }
 
