@@ -77,7 +77,7 @@ class NewAddressFragment : Fragment() {
                         country = "",
                         zip = "11511",
                         phone = binding.etPhone.text.toString(),
-                        name = "ahmed samy",
+                        name = "${binding.firstName.text} ${binding.lastName.text}",
                         province_code = null,
                         country_code = "EG",
                         country_name = binding.nonEditable.text.toString(),
