@@ -162,7 +162,7 @@ class LoginFragment : Fragment() {
             }
 
         }
-        binding.tvGoToSignUp.setOnClickListener {
+        binding.imgGoToSignup.setOnClickListener {
             val action = LoginFragmentDirections.actionLoginFragmentToSignUpFragment()
             Navigation.findNavController(binding.root).navigate(action)
 
@@ -211,6 +211,7 @@ class LoginFragment : Fragment() {
             authViewModel.customerByEmailStateFlow.collectLatest { result ->
                 when (result) {
                     is DataState.Loading -> {
+                        binding.progressBar2.visibility = View.VISIBLE
                         Log.d("TAG", "ObserveOnGettingCustomerByEmail: Loading")
                     }
 
@@ -219,9 +220,11 @@ class LoginFragment : Fragment() {
                             "TAG",
                             "ObserveOnGettingCustomerByEmail faliour and error msg is ->: ${result.msg}"
                         )
+                        binding.progressBar2.visibility = View.GONE
                     }
 
                     is DataState.OnSuccess<*> -> {
+                        binding.progressBar2.visibility = View.GONE
                         val customerPostResponse = result.data as CustomerByEmailResponce
                         val customerByEmail = customerPostResponse.customers/*.id*/
                         if (customerByEmail.isNullOrEmpty()) {

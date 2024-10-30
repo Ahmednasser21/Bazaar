@@ -159,7 +159,7 @@ class SignUpFragment : Fragment() {
 
         }
 
-        binding.tvBackToLogIn.setOnClickListener{
+        binding.imgGoToLogin.setOnClickListener{
 
           val action =  SignUpFragmentDirections.actionSignUpFragmentToLoginFragment()
             Navigation.findNavController(binding.root).navigate(action)

@@ -8,8 +8,20 @@
     android:padding="16dp"
     tools:context=".auth.view.LoginFragment">
 
+    <ProgressBar
+        android:id="@+id/progressBar2"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <ImageView
-        android:id="@+id/imageView3"
+        android:id="@+id/img_go_to_signup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -112,9 +124,9 @@
         android:fontFamily="@font/metropolis_medium"
         android:text="@string/tv_gotoSignUp"
         android:textColor="@color/black"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView3"
-        app:layout_constraintEnd_toStartOf="@+id/imageView3"
-        app:layout_constraintTop_toTopOf="@+id/imageView3" />
+        app:layout_constraintBottom_toBottomOf="@+id/img_go_to_signup"
+        app:layout_constraintEnd_toStartOf="@+id/img_go_to_signup"
+        app:layout_constraintTop_toTopOf="@+id/img_go_to_signup" />
 
     <TextView
         android:id="@+id/tv_guestMode"
