@@ -58,7 +58,7 @@ class AddressFragment : Fragment(), OnAddressClickListener {
 
     private fun setupUI() {
         binding.btnAddNewAddresss.setOnClickListener {
-            val action = AddressFragmentDirections.actionAddressFragmentToNewAddressFragment()
+            val action = AddressFragmentDirections.actionAddressFragment2ToNewAddressFragment()
             Navigation.findNavController(it).navigate(action)
         }
 

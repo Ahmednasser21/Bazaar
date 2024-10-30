@@ -121,6 +121,9 @@
         <argument
             android:name="totalPrice"
             app:argType="string" />
+        <action
+            android:id="@+id/action_choose_address_to_addressFragment2"
+            app:destination="@id/addressFragment2" />
     </fragment>
     <fragment
         android:id="@+id/paymentMethods2"
@@ -157,10 +160,19 @@
         android:id="@+id/addressFragment2"
         android:name="com.iti.itp.bazaar.settings.ui.addressFragment.view.AddressFragment"
         android:label="fragment_address"
-        tools:layout="@layout/fragment_address" />
+        tools:layout="@layout/fragment_address" >
+        <action
+            android:id="@+id/action_addressFragment2_to_newAddressFragment"
+            app:destination="@id/newAddressFragment" />
+    </fragment>
     <fragment
         android:id="@+id/contactUsFragment2"
         android:name="com.iti.itp.bazaar.settings.ui.ContactUsFragment"
         android:label="fragment_contact_us"
         tools:layout="@layout/fragment_contact_us" />
+    <fragment
+        android:id="@+id/newAddressFragment"
+        android:name="com.iti.itp.bazaar.settings.ui.newAddressFragment.view.NewAddressFragment"
+        android:label="fragment_new_address"
+        tools:layout="@layout/fragment_new_address" />
 </navigation>

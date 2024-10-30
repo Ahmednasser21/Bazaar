@@ -45,4 +45,15 @@ class MeViewModel(private val currencyRepository: CurrencyRepository, private va
             }
         }
     }
+
+
+    fun changeCurrency(base:String, target:String){
+        viewModelScope.launch {
+            currencyRepository.getExchangeRate(base, target).catch {
+                _currency.value = DataState.OnFailed(it)
+            }.collect{
+                _currency.value = DataState.OnSuccess(it)
+            }
+        }
+    }
 }

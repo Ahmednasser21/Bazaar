@@ -28,7 +28,6 @@ import com.iti.itp.bazaar.R
 import com.iti.itp.bazaar.auth.AuthActivity
 import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.databinding.ActivityMainBinding
-import com.iti.itp.bazaar.settings.SettingsActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -142,8 +141,7 @@ class MainActivity : AppCompatActivity() {
         return when (item.itemId) {
 
             R.id.nav_settings -> {
-                val intent = Intent(this, SettingsActivity::class.java)
-                startActivity(intent)
+               
                 true
             }
             else -> super.onOptionsItemSelected(item)

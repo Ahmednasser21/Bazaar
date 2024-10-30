@@ -24,7 +24,6 @@ import com.iti.itp.bazaar.mainActivity.ui.order.SharedOrderViewModel
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
 import com.iti.itp.bazaar.repo.Repository
-import com.iti.itp.bazaar.settings.SettingsActivity
 import com.iti.itp.bazaar.settings.ui.addressFragment.view.AddressAdapter
 import com.iti.itp.bazaar.settings.ui.addressFragment.view.AddressFragment
 import com.iti.itp.bazaar.settings.ui.addressFragment.view.OnAddressClickListener
@@ -74,8 +73,8 @@ class ChooseAddressFragment : Fragment(), OnAddressClickListener {
 
 
         binding.chooseAntoherAddress.setOnClickListener {
-            val intent = Intent(requireActivity(), SettingsActivity::class.java)
-            startActivity(intent)
+            val action = ChooseAddressFragmentDirections.actionChooseAddressToAddressFragment2()
+            Navigation.findNavController(requireView()).navigate(action)
         }
 
         lifecycleScope.launch(Dispatchers.IO){
