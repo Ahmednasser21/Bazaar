@@ -39,6 +39,7 @@ data class Order(
 
     val company: String?,
 
+    @SerializedName("confirmation_number")
     val confirmationNumber: String,
     val confirmed: Boolean,
     val contactEmail: String,
@@ -85,6 +86,7 @@ data class Order(
     val name: String,
     val note: String?,
     val number: Int,
+    @SerializedName("order_number")
     val orderNumber: Int,
     val orderStatusUrl: String,
     val paymentGatewayNames: List<String>,
@@ -112,6 +114,7 @@ data class Order(
 
     val billingAddress: Address,
     val customer: Customer,
+    @SerializedName("line_items")
     val lineItems: List<LineItem>,
     val shippingAddress: Address,
     val shippingLines: List<Any>
