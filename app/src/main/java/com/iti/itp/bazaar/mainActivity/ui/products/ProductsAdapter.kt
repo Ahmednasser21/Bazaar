@@ -12,6 +12,7 @@ import com.bumptech.glide.Glide
 import com.iti.itp.bazaar.R
 import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.databinding.ProductsItemBinding
+import com.iti.itp.bazaar.dto.LineItem
 import com.iti.itp.bazaar.network.products.Products
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
@@ -19,6 +20,7 @@ import com.iti.itp.bazaar.repo.Repository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.random.Random
 
 class ProductsAdapter(
@@ -28,20 +30,90 @@ class ProductsAdapter(
 ) : ListAdapter<Products, ProductsAdapter.CategoryProductViewHolder>(
     ProductsDiffUtils()
 ) {
-    private lateinit var context: Context
-    private lateinit var binding: ProductsItemBinding
+    private var lineItems: List<LineItem> = emptyList()
+    private var isLineItemsLoaded = false
+    private val coroutineScope = CoroutineScope(Dispatchers.Main)
+    private val TAG = "ProductsAdapter"
+
+    companion object {
+        private val productRatings = mutableMapOf<Long, Float>()
+        private val ratingList = listOf(1.8f, 1.4f, 2.3f, 3.1f, 3.4f, 4.2f, 4.7f, 4.9f)
+        private val discountList = listOf(15.00, 20.00, 30.00, 4.99, 10.00, 35.00)
+
+        fun getRatingForProduct(productId: Long): Float {
+            return productRatings.getOrPut(productId) {
+                ratingList[Random.nextInt(ratingList.size)]
+            }
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryProductViewHolder {
-        binding = ProductsItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        context = parent.context
+        val binding = ProductsItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+
+        if (!isLineItemsLoaded) {
+            coroutineScope.launch {
+                makeNetworkCallForFavoriteDraftOrder(parent.context)
+                isLineItemsLoaded = true
+            }
+        }
+
         return CategoryProductViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: CategoryProductViewHolder, position: Int) {
         val product = getItem(position)
-        holder.bindView(isSale, product, onProductClickListener, onFavouriteClickListener)
-        CoroutineScope(Dispatchers.IO).launch {
-            makeNetworkCallForFavoriteDraftOrder(context, product, holder.binding)
+
+        holder.binding.imgFav.setImageResource(R.drawable.favorite)
+
+        checkProductInFavorites(product.id.toString(), holder.binding)
+
+        holder.bindView(
+            isSale = isSale,
+            productDTO = product,
+            onProductClickListener = onProductClickListener,
+            onFavouriteClickListener = onFavouriteClickListener
+        )
+    }
+
+    private fun checkProductInFavorites(productId: String, binding: ProductsItemBinding) {
+        if (lineItems.isNotEmpty()) {
+            lineItems.forEach { lineItem ->
+                val lineItemString = lineItem.sku?.split("##")
+                val sku = lineItemString?.getOrNull(0)?.trim()
+
+                if (sku != null && productId.equals(sku, ignoreCase = true)) {
+                    binding.imgFav.setImageResource(R.drawable.filled_favorite)
+                    return@forEach
+                }
+            }
+        }
+    }
+
+    private suspend fun makeNetworkCallForFavoriteDraftOrder(context: Context) {
+        try {
+            withContext(Dispatchers.IO) {
+                val sharedPrefs = context.getSharedPreferences(
+                    MyConstants.MY_SHARED_PREFERANCE,
+                    Context.MODE_PRIVATE
+                )
+                val favoriteDraftOrderId = sharedPrefs.getString(
+                    MyConstants.FAV_DRAFT_ORDERS_ID,
+                    "0"
+                )
+                val repo = Repository.getInstance(
+                    ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
+                )
+
+                repo.getSpecificDraftOrder(favoriteDraftOrderId?.toLong() ?: 0).collect { response ->
+                    withContext(Dispatchers.Main) {
+                        lineItems = response.draft_order.line_items
+                        notifyDataSetChanged()
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error loading favorite draft orders", e)
+            lineItems = emptyList()
         }
     }
 
@@ -54,83 +126,71 @@ class ProductsAdapter(
             onProductClickListener: OnProductClickListener,
             onFavouriteClickListener: OnFavouriteClickListener
         ) {
-            Log.i("TAG", "bindView: ${productDTO.title}")
+            Log.i(TAG, "bindView: ${productDTO.title}")
+
             binding.tvProductName.text = extractProductName(productDTO.title)
+
             Glide.with(binding.root.context)
                 .load(productDTO.image?.src)
                 .into(binding.imgProduct)
-            binding.tvProductPrice.text = if (productDTO.variants.isNullOrEmpty()) {
-                ""
-            } else {
+
+            binding.tvProductPrice.text = if (!productDTO.variants.isNullOrEmpty()) {
                 "${productDTO.variants[0].price}EGP"
+            } else {
+                ""
             }
 
             binding.productContainer.setOnClickListener {
                 onProductClickListener.onProductClick(productDTO.id)
             }
+
             binding.imgFav.setOnClickListener {
                 onFavouriteClickListener.onFavProductClick()
             }
-            binding.productRatingBar.rating = ratingList[Random.nextInt(ratingList.size)]
-            binding.ratingOfTen.text = "(${binding.productRatingBar.rating * 2})"
+
+            val rating = getRatingForProduct(productDTO.id)
+            binding.productRatingBar.rating = rating
+            binding.ratingOfTen.text = "(${rating * 2})"
+
             binding.productVendor.text = productDTO.vendor
+
             if (isSale) {
-                binding.tvOldPrice.apply {
-                    text = if (productDTO.variants.isNullOrEmpty()) {
-                        ""
-                    } else {
-                        "${
-                            productDTO.variants[0].price.toDouble() + (discountList[Random.nextInt(
-                                discountList.size
-                            )])
-                        }EGP"
-                    }
-                    paintFlags = paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-                }
+                setupSalePrice(productDTO)
             } else {
-                binding.productContainer.elevation = 2f
-                binding.tvOldPrice.visibility = View.INVISIBLE
+                setupRegularPrice()
             }
         }
 
-        private val ratingList = listOf(1.8f, 1.4f, 2.3f, 3.1f, 3.4f, 4.2f, 4.7f, 4.9f)
-        private val discountList = listOf(15.00, 20.00, 30.00, 4.99, 10.00, 35.00)
+        private fun setupSalePrice(productDTO: Products) {
+            binding.tvOldPrice.apply {
+                visibility = View.VISIBLE
+                text = if (!productDTO.variants.isNullOrEmpty()) {
+                    val basePrice = productDTO.variants[0].price.toDouble()
+                    val discount = discountList[Random.nextInt(discountList.size)]
+                    "${basePrice + discount}EGP"
+                } else {
+                    ""
+                }
+                paintFlags = paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+            }
+        }
+
+        private fun setupRegularPrice() {
+            binding.productContainer.elevation = 2f
+            binding.tvOldPrice.visibility = View.INVISIBLE
+        }
 
         companion object {
+            private const val TAG = "CategoryProductViewHolder"
+
             fun extractProductName(fullName: String): String {
                 val delimiter = "|"
-                val parts = fullName.split(delimiter)
-                // Handle cases where there might be multiple delimiters
-                return when {
-                    parts.size > 1 -> parts.subList(1, parts.size)
-                        .joinToString("|")
-                        .trim()
-                    else -> fullName.trim()
-                }
-            }
-        }
-    }
-
-    private suspend fun makeNetworkCallForFavoriteDraftOrder(
-        context: Context,
-        product: Products,
-        itemBinding: ProductsItemBinding
-    ) {
-        val sharedPrefs =
-            context.getSharedPreferences(MyConstants.MY_SHARED_PREFERANCE, Context.MODE_PRIVATE)
-        val favoriteDraftOrderId = sharedPrefs.getString(MyConstants.FAV_DRAFT_ORDERS_ID, "0")
-        val repo = Repository.getInstance(ShopifyRemoteDataSource(ShopifyRetrofitObj.productService))
-
-        repo.getSpecificDraftOrder(favoriteDraftOrderId?.toLong() ?: 0).collect { response ->
-            val productId = product.id.toString()
-            response.draft_order.line_items.forEach { lineItem ->
-                val lineItemString = lineItem.sku?.split("##")
-                val sku = lineItemString?.get(0)?.trim() ?: return@forEach
-                Log.i("TAG", "productid is:$productId and itTitle is:$sku")
-
-                if (productId.equals(sku, ignoreCase = true)) {
-                    CoroutineScope(Dispatchers.Main).launch {
-                        itemBinding.imgFav.setImageResource(R.drawable.filled_favorite)
+                return fullName.split(delimiter).let { parts ->
+                    when {
+                        parts.size > 1 -> parts.subList(1, parts.size)
+                            .joinToString(delimiter)
+                            .trim()
+                        else -> fullName.trim()
                     }
                 }
             }

@@ -85,19 +85,13 @@ class HomeFragment : Fragment(), OnBrandClickListener, OnProductClickListener,
         categoriesViewModel =
             ViewModelProvider(this, categoriesFactory)[CategoriesViewModel::class.java]
         searchViewModel =
-            ViewModelProvider(this, searchFactory)[SearchViewModel::class.java]
-        homeViewModel = ViewModelProvider(this, factory)[HomeViewModel::class.java]
+            ViewModelProvider(requireActivity(), searchFactory)[SearchViewModel::class.java]
+        homeViewModel = ViewModelProvider(requireActivity(), factory)[HomeViewModel::class.java]
         brandsAdapter = BrandsAdapter(this)
         saleProductsAdapter = ProductsAdapter(true,this, this)
         binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
         return root
-    }
-
-    override fun onStart() {
-        super.onStart()
-        getCategoryProducts()
-        Log.i(TAG, "onStart: refreshed")
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -275,17 +269,15 @@ class HomeFragment : Fragment(), OnBrandClickListener, OnProductClickListener,
     }
 
     private fun getCategoryProducts() {
-        lifecycleScope.launch(Dispatchers.IO)  {
+        lifecycleScope.launch {
             categoriesViewModel.categoryProductStateFlow.collectLatest { result ->
                 when (result) {
                     is DataState.Loading -> {}
-
                     is DataState.OnSuccess<*> -> {
                         val productResponse = result.data as ProductResponse
                         val productsList = productResponse.products
                         getListWithProductPrice(productsList)
                     }
-
                     is DataState.OnFailed -> {
                         Snackbar.make(requireView(), "Failed to get data", Snackbar.LENGTH_SHORT)
                             .show()
@@ -295,42 +287,33 @@ class HomeFragment : Fragment(), OnBrandClickListener, OnProductClickListener,
         }
     }
 
-    private fun getListWithProductPrice(categoryProducts: List<Products>): List<Products> {
-        var filteredProducts: List<Products> = listOf()
-        lifecycleScope.launch(Dispatchers.IO) {
+    private fun getListWithProductPrice(categoryProducts: List<Products>) {
+        lifecycleScope.launch {
             searchViewModel.searchStateFlow.collectLatest { result ->
                 when (result) {
                     is DataState.Loading -> {
-                        withContext(Dispatchers.Main) {
-                            saleRecycler.visibility = View.INVISIBLE
-                        }
+                        saleRecycler.visibility = View.INVISIBLE
                     }
-
                     is DataState.OnSuccess<*> -> {
                         val productResponse = result.data as ProductResponse
                         val productsList = productResponse.products
-
-                        filteredProducts = productsList.filter { product ->
+                        val filteredProducts = productsList.filter { product ->
                             categoryProducts.any { it.id == product.id }
                         }
-                        withContext(Dispatchers.Main){
-                            saleProgressBar.visibility = View.GONE
-                            saleRecycler.visibility = View.VISIBLE
-                            saleProductsAdapter.submitList(filteredProducts)
-                        }
+                        saleProgressBar.visibility = View.GONE
+                        saleRecycler.visibility = View.VISIBLE
+                        saleProductsAdapter.submitList(filteredProducts)
                     }
                     is DataState.OnFailed -> {
-                        withContext(Dispatchers.Main){
-                            saleProgressBar.visibility = View.GONE
-                            Snackbar.make(requireView(), "Failed to get data", Snackbar.LENGTH_SHORT)
-                                .show()
-                        }
+                        saleProgressBar.visibility = View.GONE
+                        Snackbar.make(requireView(), "Failed to get data", Snackbar.LENGTH_SHORT)
+                            .show()
                     }
                 }
             }
         }
-        return filteredProducts
     }
+
 
     override fun onCategoryClick(categoryName: String) {
        val action = HomeFragmentDirections.actionNavHomeToNavCategories(categoryName)

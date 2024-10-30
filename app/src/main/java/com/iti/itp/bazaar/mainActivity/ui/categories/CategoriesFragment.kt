@@ -32,8 +32,10 @@ import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
 import com.iti.itp.bazaar.repo.Repository
 import com.iti.itp.bazaar.search.viewModel.SearchViewModel
 import com.iti.itp.bazaar.search.viewModel.SearchViewModelFactory
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private const val TAG = "CategoriesFragment"
 
@@ -88,7 +90,7 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteClickL
         super.onViewCreated(view, savedInstanceState)
 
         initialiseUI()
-        val args:CategoriesFragmentArgs by navArgs()
+        val args: CategoriesFragmentArgs by navArgs()
         val categoryName = args.categoryName
 
         when (categoryName) {
@@ -224,24 +226,24 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteClickL
             categoriesViewModel.categoryProductStateFlow.collectLatest { result ->
                 when (result) {
                     is DataState.Loading -> {}
-
                     is DataState.OnSuccess<*> -> {
                         categoriesProg.visibility = View.GONE
                         categoryProductsRec.visibility = View.VISIBLE
                         val productResponse = result.data as ProductResponse
                         val productsList = productResponse.products
                         Log.i(TAG, "getCategoryProducts:${productsList}")
+
                         if (productsList.isEmpty()) {
                             setAnimationVisible()
                         } else {
                             setAnimationInvisible()
                         }
+
                         if (categoryID != 480514900272) {
-                            productsAdapter.submitList(getListWithProductPrice(productsList))
+                            getListWithProductPrice(productsList)
                         } else {
                             getListWithProductPrice(productsList)
                         }
-
                     }
 
                     is DataState.OnFailed -> {
@@ -254,8 +256,8 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteClickL
         }
     }
 
-    private fun getListWithProductPrice(categoryProducts: List<Products>): List<Products> {
-        var filteredProducts: List<Products> = listOf()
+
+    private fun getListWithProductPrice(categoryProducts: List<Products>) {
         lifecycleScope.launch {
             searchViewModel.searchStateFlow.collectLatest { result ->
                 when (result) {
@@ -270,23 +272,30 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteClickL
                         val productResponse = result.data as ProductResponse
                         val productsList = productResponse.products
                         Log.i(TAG, "getCategoryProducts:${productsList}")
+
                         if (productsList.isEmpty()) {
                             setAnimationVisible()
                         } else {
                             setAnimationInvisible()
                         }
-                        filteredProducts = productsList.filter { product ->
+
+                        val filteredProducts = productsList.filter { product ->
                             categoryProducts.any { it.id == product.id }
                         }
+
                         if (categoryID == 480514900272) {
                             val filteredList =
                                 productsList.filter { !it.image?.src.isNullOrBlank() }
-                            products = filteredList
-                            productsAdapter.submitList(filteredList)
+                            withContext(Dispatchers.Main) {
+                                products = filteredList
+                                productsAdapter.submitList(filteredList)
+                            }
                         } else {
-                            products = filteredProducts
+                            withContext(Dispatchers.Main) {
+                                products = filteredProducts
+                                productsAdapter.submitList(filteredProducts)
+                            }
                         }
-
                     }
 
                     is DataState.OnFailed -> {
@@ -297,8 +306,8 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteClickL
                 }
             }
         }
-        return filteredProducts
     }
+
 
     private fun setAnimationVisible() {
         binding.emptyBoxAnimation.visibility = View.VISIBLE

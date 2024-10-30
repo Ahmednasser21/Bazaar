@@ -16,7 +16,7 @@ object ShopifyRetrofitObj {
 
     private val onlineInterceptor: Interceptor = Interceptor { chain ->
         val response = chain.proceed(chain.request())
-        val maxAge = 0
+        val maxAge =0
         response.newBuilder()
             .header("Cache-Control", "public, max-age=$maxAge")
             .removeHeader("Pragma")
