@@ -78,7 +78,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/metropolis_semibold"
-                android:text="Already have 12 orders"
                 android:textColor="@color/grey_font"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/my_orders"

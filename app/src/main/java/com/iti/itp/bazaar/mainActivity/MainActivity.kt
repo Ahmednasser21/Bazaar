@@ -6,8 +6,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.PorterDuff
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -123,29 +121,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun disableEdgeToEdge() {
         WindowCompat.setDecorFitsSystemWindows(window, true)
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        val isNavMe = navController.currentDestination?.id == R.id.nav_profile
-        menu.findItem(R.id.nav_settings)?.isVisible = isNavMe
-        menu.findItem(R.id.nav_favourite)?.isVisible = !isNavMe
-        return super.onPrepareOptionsMenu(menu)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.action_menu, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-
-            R.id.nav_settings -> {
-               
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
     }
 
     private fun hideToolBar() {

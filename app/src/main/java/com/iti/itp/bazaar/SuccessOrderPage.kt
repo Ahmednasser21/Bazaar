@@ -5,7 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.navigation.Navigation
 import com.iti.itp.bazaar.databinding.FragmentSuccessOrderPageBinding
 
@@ -17,7 +17,7 @@ class SuccessOrderPage : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         binding = FragmentSuccessOrderPageBinding.inflate(inflater, container, false)
         return binding.root
@@ -29,15 +29,10 @@ class SuccessOrderPage : Fragment() {
             navigateHome(it)
         }
         requireActivity().onBackPressedDispatcher.addCallback(
-            viewLifecycleOwner,
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    navigateHome(requireView())
-                }
-            })
+            viewLifecycleOwner){navigateHome(requireView())}
     }
 
-    fun navigateHome(view: View) {
+    private fun navigateHome(view: View) {
         val action = SuccessOrderPageDirections.actionSuccessOrderPageToNavHome()
         Navigation.findNavController(view).navigate(action)
     }
