@@ -342,6 +342,7 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
 
         // Set the rating and review to the UI
         binding!!.rbProuductRatingBar.rating = randomRating
+        binding?.let { it.ratingOfTen.text  = "(${it.rbProuductRatingBar.rating*2})"}
         binding!!.rbProuductRatingBar.setIsIndicator(true) // to make the rating bar unchangable
         //binding!!.tvProuductReview.text = randomReview
         Log.d("TAG", "getProductDetails: url sora  ${productsList.get(0).images.get(0).src} ")
