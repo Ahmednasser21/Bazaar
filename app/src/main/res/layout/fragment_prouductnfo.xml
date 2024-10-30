@@ -97,7 +97,7 @@
                 app:layout_constraintTop_toTopOf="@+id/color_card_view" />
 
             <ImageView
-                android:id="@+id/img_fav"
+                android:id="@+id/ivAddProuductToFavorite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/favorite"

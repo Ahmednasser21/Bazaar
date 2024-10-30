@@ -1,8 +1,10 @@
 package com.iti.itp.bazaar.productInfo.view
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Context
 import android.content.SharedPreferences
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -55,18 +57,11 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
     lateinit var colorBottomSheetBinding: ColorItemBottomSheetBinding
     private lateinit var sizeDialog: BottomSheetDialog
     private lateinit var colorDialog: BottomSheetDialog
-
-    //lateinit var availableSizesAdapter: AvailableSizesAdapter
-    //lateinit var availableColorsAdapter: AvailableColorAdapter
-    //lateinit var CurrencySharedPreferences: SharedPreferences
+    private lateinit var customerId: String
     lateinit var mySharedPrefrence: SharedPreferences
     lateinit var draftOrderRequest: DraftOrderRequest
 
-    // lateinit var IsGuestMode: String
-    //var conversionRate: Double? = 0.0
-    //var choosenSize: String? = null
-    //var choosenColor: String? = null
-    //lateinit var FavDraftOrderId: String
+    lateinit var FavDraftOrderId: String
     var productTitle: String = ""
     lateinit var proudct: Products
     var IS_Liked = false
@@ -103,6 +98,7 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
 //        Currentcurrency = CurrencySharedPreferences.getFloat("currency", 1F) ?: 1F
 //        Log.d("TAG", "onViewCreated: ek currency rate is :$Currentcurrency ")
 //        IsGuestMode = mySharedPrefrence.getString(MyConstants.IS_GUEST, "false") ?: "false"
+        customerId = mySharedPrefrence.getString(MyConstants.CUSOMER_ID, "0").toString()
 
         binding = FragmentProuductnfoBinding.inflate(inflater, container, false)
         return binding!!.root
@@ -113,9 +109,9 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
         super.onViewCreated(view, savedInstanceState)
 
 
-//        FavDraftOrderId = mySharedPrefrence.getString(MyConstants.FAV_DRAFT_ORDERS_ID, "") ?: ""
+        FavDraftOrderId = mySharedPrefrence.getString(MyConstants.FAV_DRAFT_ORDERS_ID, "") ?: ""
         cartDraftOrderId = mySharedPrefrence.getString(MyConstants.CART_DRAFT_ORDER_ID, "0")
-//        Log.d("TAG", "onViewCreated fav draft order id : ${FavDraftOrderId} ")
+        Log.d("TAG", "onViewCreated fav draft order id : ${FavDraftOrderId} ")
         binding?.sizeCardView?.setOnClickListener {
             showSizeBottomSheet()
         }
@@ -150,8 +146,6 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
                     Snackbar.LENGTH_SHORT
                 ).show()
             } else {
-                // samy's work
-                // chosenSize, chosenColor, product (global variable taken its value when success in getProductDetails())
                 viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                     productInfoViewModel.getPriceRules()
                     productInfoViewModel.getSpecificDraftOrder(cartDraftOrderId?.toLong()!!)
@@ -177,7 +171,7 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
                                     LineItem(
                                         sku = ProuductnfoFragmentArgs.fromBundle(
                                             requireArguments()
-                                        ).productId.toString()+"##"+binding?.tvColor?.text+"##"+binding?.tvSize?.text,
+                                        ).productId.toString() + "##" + binding?.tvColor?.text + "##" + binding?.tvSize?.text,
                                         id = ProuductnfoFragmentArgs.fromBundle(
                                             requireArguments()
                                         ).productId,
@@ -239,134 +233,49 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
 
         //getting the specificFavDraftOrder
 
-        //getSpecificDraftOrderById(FavDraftOrderId.toLong())
+        getSpecificDraftOrderById(FavDraftOrderId.toLong())
         //handel btn add to favourite
-//        binding!!.ivAddProuductToFavorite.setOnClickListener {
-//            when (IsGuestMode) {
-//                "true" -> {
-//                    Snackbar.make(
-//                        requireView(),
-//                        "you cant add favorite in guest mode",
-//                        Snackbar.LENGTH_SHORT
-//                    ).show()
-//                }
-//
-//                else -> {
-//                    Log.d("TAG", "onViewCreated:prouductInfo el fav click sh8al  ")
-//                    if (IS_Liked) { // kda el button pressed >> ezan ha3ml delete
-//                        Log.d(
-//                            "TAG",
-//                            "onViewCreated: prouductInfo case en el product da is liked (case if ) w hamsa7 ${IS_Liked}  "
-//                        )
-//
-//                        AlertDialog.Builder(context)
-//                            .setTitle("Confirm item Delete")
-//                            .setMessage("Are you sure that you want to delete this item from your favourites?")
-//                            .setPositiveButton("Yes") { dialog, _ ->
-//                                lifecycleScope.launch {
-//                                    binding!!.ivAddProuductToFavorite.setColorFilter(Color.BLACK)
-//                                    var currentDraftOrderItems: MutableList<LineItem> =
-//                                        mutableListOf() // to store my previous liked products
-//
-//                                    draftOrderRequest.draft_order.line_items.forEach {
-//                                        Log.d(
-//                                            "TAG",
-//                                            "onViewCreated: de el list abl el ta3del  ${it.title} "
-//                                        )
-//                                    }
-//                                    draftOrderRequest.draft_order.line_items.forEach {
-//                                        if (it.title != productTitle)
-//
-//                                            currentDraftOrderItems.add(it) // getting the old list of line_items
-//                                    }
-//
-//                                    currentDraftOrderItems.forEach {
-//                                        Log.d(
-//                                            "TAG",
-//                                            "onViewCreated: de el list ba3d el ta3del  ${it.title} "
-//                                        )
-//
-//                                    }
-//
-//                                    val draft = draftOrderRequest.draft_order
-//                                    draft.line_items = currentDraftOrderItems
-//                                    ProductInfoViewModel.DeleteLineItemFromDraftOrder(
-//                                        FavDraftOrderId.toLong(),
-//                                        UpdateDraftOrderRequest(draft)
-//                                    )
-//
-////                     // now i want to add this list to my new liked item
-//                                    currentDraftOrderItems.add(
-//                                        draftOrderRequest(proudct).draft_order.line_items.get(
-//                                            0
-//                                        )
-//                                    )
-//                                    var updatedDraftOrder = draftOrderRequest(proudct).draft_order
-//                                    updatedDraftOrder.line_items = currentDraftOrderItems
-//                                    ProductInfoViewModel.updateDraftOrder(
-//                                        FavDraftOrderId.toLong(),
-//                                        UpdateDraftOrderRequest(updatedDraftOrder)
-//                                    )
-//                                }
-//
-//                                IS_Liked = false
-//
-//                            }
-//                            .setNegativeButton("No") { dialog, _ ->
-//                                dialog.dismiss()
-//                            }
-//                            .show()
-//
-//
-//                    } else { // kda ha3ml add
-//                        Log.d(
-//                            "TAG",
-//                            "onViewCreated: prouductInfo case en el product da is not  liked (case else ) w h3mel add  ${IS_Liked}  "
-//                        )
-//                        lifecycleScope.launch {
-//                            var currentDraftOrderItems: MutableList<LineItem> =
-//                                mutableListOf() // to store my previous liked products
-//                            draftOrderRequest.draft_order.line_items.forEach {
-//                                currentDraftOrderItems.add(it) // getting the old list of line_items
-//                            }
-//                            // now i want to add this list to my new liked item
-//                            currentDraftOrderItems.add(
-//                                draftOrderRequest(proudct).draft_order.line_items.get(
-//                                    0
-//                                )
-//                            )
-//                            var updatedDraftOrder = draftOrderRequest(proudct).draft_order
-//                            updatedDraftOrder.line_items = currentDraftOrderItems
-//                            ProductInfoViewModel.updateDraftOrder(
-//                                FavDraftOrderId.toLong(),
-//                                UpdateDraftOrderRequest(updatedDraftOrder)
-//                            )
-//                            binding!!.ivAddProuductToFavorite.setColorFilter(Color.BLUE)
-//
-//
-//                        }
-//                        Snackbar.make(
-//                            requireView(),
-//                            "this products was saved to your favorite",
-//                            2000
-//                        ).show()
-//
-//
-//
-//                        IS_Liked = true
-//                    }
-//
-//                    Log.d(
-//                        "TAG",
-//                        "onViewCreated:  sho8l el zrarez 5elels wel isliked b2a  ${IS_Liked} "
-//                    )
-//
-//
-//                }
-//            }
-//
-//        }
-//
+        binding!!.ivAddProuductToFavorite.setOnClickListener {
+            val originalList = draftOrderRequest.draft_order.line_items.toMutableList()
+            var alreadyInFavorites = false
+
+
+            // Check if the product is already in favorites
+            val x = originalList.any {//0
+                val string = it.sku?.split("##")
+                val id = string?.get(0)
+                id == proudct.title
+            }
+
+            if (x) {
+                Snackbar.make(requireView(), "This item is already in your favorite list", 2000)
+                    .show()
+                Log.i("TAG", "onViewCreated: ${proudct.id}")
+            } else {
+                originalList.add(
+                    LineItem(
+                        sku = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId.toString() + "##" + proudct.image?.src,
+                        id = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
+                        variant_title = "dgldsjglk",
+                        product_id = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
+                        title = proudct.title,
+                        price = proudct.variants[0].price,
+                        quantity = 1
+                    )
+                )
+
+                val draftOrderRequest = UpdateDraftOrderRequest(
+                    DraftOrder(
+                        originalList,
+                        applied_discount = null,
+                        customer = Customer(customerId.toLong()),
+                        use_customer_default_address = true,
+                    )
+                )
+
+                productInfoViewModel.updateDraftOrder(FavDraftOrderId.toLong(), draftOrderRequest)
+            }
+        }
     }
 
     private fun getProductDetails() {

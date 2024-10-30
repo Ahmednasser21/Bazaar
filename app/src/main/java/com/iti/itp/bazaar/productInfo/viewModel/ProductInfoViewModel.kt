@@ -181,7 +181,7 @@ class ProductInfoViewModel (private val repo: Repository, private val currencyRe
         }
     }
 
-    fun DeleteLineItemFromDraftOrder(draftOrderId:Long, updateDraftOrderRequest: UpdateDraftOrderRequest){
+    fun deleteLineItemFromDraftOrder(draftOrderId:Long, updateDraftOrderRequest: UpdateDraftOrderRequest){
         viewModelScope.launch(Dispatchers.IO){
             repo.updateDraftOrderRequest(draftOrderId, updateDraftOrderRequest).catch {
                 _deleteLineItemFromDraftOrder.value = DataState.OnFailed(it)

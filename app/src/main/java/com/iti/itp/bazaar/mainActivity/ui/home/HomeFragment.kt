@@ -83,15 +83,21 @@ class HomeFragment : Fragment(), OnBrandClickListener, OnProductClickListener,
             )
         )
         categoriesViewModel =
-            ViewModelProvider(requireActivity(), categoriesFactory)[CategoriesViewModel::class.java]
+            ViewModelProvider(this, categoriesFactory)[CategoriesViewModel::class.java]
         searchViewModel =
-            ViewModelProvider(requireActivity(), searchFactory)[SearchViewModel::class.java]
+            ViewModelProvider(this, searchFactory)[SearchViewModel::class.java]
         homeViewModel = ViewModelProvider(this, factory)[HomeViewModel::class.java]
         brandsAdapter = BrandsAdapter(this)
         saleProductsAdapter = ProductsAdapter(true,this, this)
         binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
         return root
+    }
+
+    override fun onStart() {
+        super.onStart()
+        getCategoryProducts()
+        Log.i(TAG, "onStart: refreshed")
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

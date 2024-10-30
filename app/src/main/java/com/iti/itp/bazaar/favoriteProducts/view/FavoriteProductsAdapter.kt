@@ -29,6 +29,7 @@ class FavoriteProductsAdapter (var onClick : OnFavProductCardClick , var onDelet
         holder.binding.tvFavProductName.text = currentFavProduct.title
 
         val message = currentFavProduct.sku?.split("##")
+        val productId = message?.get(0)
 
         Glide.with(holder.itemView.context).load(message?.get(1)).into(holder.binding.ivFavImageProduct)
 
