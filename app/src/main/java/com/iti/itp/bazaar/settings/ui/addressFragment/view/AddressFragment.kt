@@ -26,7 +26,9 @@ import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
 import com.iti.itp.bazaar.repo.Repository
 import com.iti.itp.bazaar.settings.ui.addressFragment.viewModel.AddressViewModel
 import com.iti.itp.bazaar.settings.ui.addressFragment.viewModel.AddressViewModelFactory
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AddressFragment : Fragment(), OnAddressClickListener {
     private lateinit var binding: FragmentAddressBinding
@@ -179,10 +181,8 @@ class AddressFragment : Fragment(), OnAddressClickListener {
                     customerAddress.id!!,
                     customerAddressResponse
                 )
-
-                view?.let { view ->
-                    Navigation.findNavController(view).navigateUp()
-                }
+                // Update the adapter immediately after successful API call
+                adapter.updateDefaultAddress(newAddress)
             } catch (e: Exception) {
                 showMessage("Failed to update address: ${e.message}")
             }

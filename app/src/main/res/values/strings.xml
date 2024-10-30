@@ -96,4 +96,5 @@
     <string name="success">Success!</string>
     <string name="your_order_will_be_delivered_soon_thank_you_for_choosing_our_app">Your order will be delivered soon.\nThank you for choosing our app!</string>
     <string name="continue_shopping">Continue shopping</string>
+    <string name="use_as_shipping_address">Use as shipping address</string>
 </resources>

@@ -40,27 +40,53 @@
                 android:id="@+id/cityValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="48dp"
+                android:layout_marginTop="40dp"
                 android:ellipsize="end"
-                android:fontFamily="@font/metropolis_regular"
+                android:fontFamily="@font/metropolis_semibold"
                 android:maxLines="1"
                 android:textColor="@color/black"
                 app:layout_constraintStart_toStartOf="@+id/countryValue"
                 app:layout_constraintTop_toBottomOf="@+id/countryValue" />
 
-            <TextView
-                android:id="@+id/phoneValue"
+
+            <CheckBox
+                android:id="@+id/default_address"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:ellipsize="end"
-                android:fontFamily="@font/metropolis_regular"
-                android:maxLines="1"
-                android:textColor="@color/black"
+                android:layout_marginStart="16dp"
+                android:layout_marginBottom="4dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/cityValue"
-                app:layout_constraintTop_toBottomOf="@+id/cityValue"
-                app:layout_constraintVertical_bias="0.21" />
+                app:layout_constraintStart_toStartOf="parent" />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:ellipsize="end"
+                android:fontFamily="@font/metropolis_semibold"
+                android:maxLines="1"
+                android:text="@string/use_as_shipping_address"
+                android:textColor="@color/black"
+                app:layout_constraintBottom_toBottomOf="@+id/default_address"
+                app:layout_constraintStart_toEndOf="@+id/default_address"
+                app:layout_constraintTop_toTopOf="@+id/default_address" />
+
+
+            <TextView
+                android:id="@+id/edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="@font/metropolis_semibold"
+                android:maxLines="1"
+                android:text="@string/edit"
+                android:layout_marginEnd="16dp"
+                android:textColor="@color/primaryColor"
+                app:layout_constraintBottom_toBottomOf="@+id/countryValue"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/countryValue" />
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

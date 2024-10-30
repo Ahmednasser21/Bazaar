@@ -53,20 +53,6 @@ class NewAddressFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         customerId = draftOrderSharedPreferences.getString(MyConstants.CUSOMER_ID, "0")
         Log.i("TAG", "onViewCreated: $customerId")
-//        val customerAddress = AddedCustomerAddress(
-//            address1 = "${binding.governorate.text}",
-//            address2 = "${binding.etCity.text}",
-//            city = "${binding.governorate.text}",
-//            country_name = "${binding.nonEditable.text}",
-//            first_name = "ahmed1",
-//            last_name = "samy1",
-//            company = "esfd1",
-//            phone = "01010095281",
-//            country_code = "EG"
-//        )
-//        val address = AddedAddressRequest(customerAddress)
-
-
 
         binding.btnAddAddress.setOnClickListener {
             val address = AddAddressResponse(

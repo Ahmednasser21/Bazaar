@@ -20,7 +20,7 @@ data class CustomerAddress(
     val province_code: String?,
     val country_code: String?,
     val country_name: String?,
-    val default: Boolean?
+    var default: Boolean?
 )
 
 data class AddAddressResponse(val customer_address:CustomerAddress)
