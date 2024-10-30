@@ -89,7 +89,12 @@ class AddressFragment : Fragment(), OnAddressClickListener {
             .setTitle("Delete Address")
             .setMessage("Are you sure you want to delete this address?")
             .setPositiveButton("Delete") { _, _ ->
-                deleteAddress(address)
+                if (address.default == true){
+                    showMessage("Must keep one address at least")
+                    adapter.notifyItemChanged(position)
+                }else{
+                    deleteAddress(address)
+                }
             }
             .setNegativeButton("Cancel") { dialog, _ ->
                 dialog.dismiss()

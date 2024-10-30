@@ -25,7 +25,7 @@ class AddressAdapter(private val addressListener: OnAddressClickListener) :
         return AddressViewHolder(binding)
     }
 
-    @SuppressLint("ResourceAsColor")
+    @SuppressLint("ResourceAsColor", "SetTextI18n")
     override fun onBindViewHolder(holder: AddressViewHolder, @SuppressLint("RecyclerView") position: Int) {
         val currentItem = getItem(position)
         val checkBox = holder.binding.defaultAddress
@@ -35,7 +35,12 @@ class AddressAdapter(private val addressListener: OnAddressClickListener) :
 
         with(holder.binding) {
             countryValue.text = currentItem.country
-            cityValue.text = currentItem.city
+
+            if (currentItem.address1!= null && currentItem.address2 != null){
+                cityValue.text = "${capitalizeFirstLetter(currentItem.city?:"unknown")}, ${capitalizeFirstLetter(currentItem.address1)}, ${capitalizeFirstLetter(currentItem.address2)}"
+            }else{
+                cityValue.text = currentItem.city
+            }
 
             // Remove the listener temporarily to avoid callback loops
             defaultAddress.setOnCheckedChangeListener(null)
@@ -87,6 +92,14 @@ class AddressAdapter(private val addressListener: OnAddressClickListener) :
 
             // Submit the updated list
             submitList(currentList)
+        }
+    }
+
+    private fun capitalizeFirstLetter(input: String): String {
+        return if (input.isNotEmpty()) {
+            input[0].uppercaseChar() + input.substring(1)
+        } else {
+            input
         }
     }
 }

@@ -50,9 +50,9 @@
     <string name="phone">Phone:</string>
     <string name="city_text">Address:</string>
     <string name="add_new_address">Add new address</string>
-    <string name="enter_your_governorate">Enter your governorate</string>
-    <string name="enter_your_phone_number">Enter your phone number</string>
-    <string name="enter_your_city">Enter your city</string>
+    <string name="enter_your_governorate">Governorate</string>
+    <string name="enter_your_phone_number">Number</string>
+    <string name="enter_your_city">City</string>
     <string name="main_fab">Main FAB</string>
     <string name="women">WOMEN</string>
     <string name="sale">Sale</string>
@@ -97,4 +97,8 @@
     <string name="your_order_will_be_delivered_soon_thank_you_for_choosing_our_app">Your order will be delivered soon.\nThank you for choosing our app!</string>
     <string name="continue_shopping">Continue shopping</string>
     <string name="use_as_shipping_address">Use as shipping address</string>
+    <string name="full_name">Full name</string>
+    <string name="building_number">building number</string>
+    <string name="street_name">Street name</string>
+    <string name="last_name">Last name</string>
 </resources>

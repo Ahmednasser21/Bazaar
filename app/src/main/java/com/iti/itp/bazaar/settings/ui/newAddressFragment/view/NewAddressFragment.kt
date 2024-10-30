@@ -55,34 +55,46 @@ class NewAddressFragment : Fragment() {
         Log.i("TAG", "onViewCreated: $customerId")
 
         binding.btnAddAddress.setOnClickListener {
-            val address = AddAddressResponse(
-                CustomerAddress(
-                    id = customerId?.toLong()?:0,
-                    customer_id = customerId?.toLong()?:0,
-                    first_name = "ahmed",
-                    last_name = "samy",
-                    company = "ahmed's company",
-                    address1 = binding.etCity.text.toString(),
-                    address2 = null,
-                    city = binding.etCity.text.toString(),
-                    province = null,
-                    country = binding.governorate.text.toString(),
-                    zip = "11511",
-                    phone = binding.etPhone.text.toString(),
-                    name = "ahmed samy",
-                    province_code = null,
-                    country_code = "EG",
-                    country_name = binding.nonEditable.text.toString(),
-                    default = false,
+            if (binding.etCity.text.trim().isEmpty() || binding.governorate.text.trim()
+                    .isEmpty() || binding.etPhone.text.trim().isEmpty()
+                || binding.streetName.text.trim().isEmpty() || binding.buildingNumber.text.trim()
+                    .isEmpty() || binding.lastName.text.trim().isEmpty()
+                || binding.firstName.text.trim().isEmpty()
+            ) {
+                Snackbar.make(requireView(), "All fields are required", 2000).show()
+            } else {
+                val address = AddAddressResponse(
+                    CustomerAddress(
+                        id = customerId?.toLong() ?: 0,
+                        customer_id = customerId?.toLong() ?: 0,
+                        first_name = "${binding.firstName.text}",
+                        last_name = "${binding.lastName.text}",
+                        company = "ahmed's company",
+                        address1 = "${binding.streetName.text}",
+                        address2 = "${binding.buildingNumber.text}",
+                        city = "${binding.governorate.text}, ${binding.etCity.text}",
+                        province = null,
+                        country = "",
+                        zip = "11511",
+                        phone = binding.etPhone.text.toString(),
+                        name = "ahmed samy",
+                        province_code = null,
+                        country_code = "EG",
+                        country_name = binding.nonEditable.text.toString(),
+                        default = false,
+                    )
                 )
-            )
-            newAddressViewModel.addNewAddress(customerId?.toLong()?:0,address)
-            binding.etCity.text.clear()
-            binding.governorate.text.clear()
-            binding.etPhone.text.clear()
-            Snackbar.make(requireView(),"Address is added", 2000).show()
+                newAddressViewModel.addNewAddress(customerId?.toLong() ?: 0, address)
+                binding.etCity.text.clear()
+                binding.governorate.text.clear()
+                binding.etPhone.text.clear()
+                binding.streetName.text.clear()
+                binding.buildingNumber.text.clear()
+                binding.lastName.text.clear()
+                binding.firstName.text.clear()
+                Snackbar.make(requireView(), "Address is added", 2000).show()
+            }
         }
-
 
     }
 }

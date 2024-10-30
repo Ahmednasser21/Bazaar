@@ -105,7 +105,11 @@ class ChooseAddressFragment : Fragment(), OnAddressClickListener {
                             sharedOrderViewModel.updateBillingAddress(orderAddress)
                             sharedOrderViewModel.updateShippingAddress(orderAddress)
                             binding.countryValue.text = defaultAddress?.country?:"unknown country"
-                            binding.cityValue.text = defaultAddress?.city?: "unknown city"
+                            binding.cityValue.text = if (defaultAddress?.address1!= null && defaultAddress.address2 != null){
+                                "${capitalizeFirstLetter(defaultAddress.city!!)}, ${capitalizeFirstLetter(defaultAddress.address1)}, ${capitalizeFirstLetter(defaultAddress.address2)}"
+                            }else{
+                                defaultAddress?.city?:"unknown city"
+                            }
                             binding.phoneValue.text = defaultAddress?.phone?: "unknown phone"
                         }
                     }
@@ -149,6 +153,14 @@ class ChooseAddressFragment : Fragment(), OnAddressClickListener {
 
     override fun onAddressClick(customerAddress: CustomerAddress) {
 
+    }
+
+    private fun capitalizeFirstLetter(input: String): String {
+        return if (input.isNotEmpty()) {
+            input[0].uppercaseChar() + input.substring(1)
+        } else {
+            input
+        }
     }
 
 
