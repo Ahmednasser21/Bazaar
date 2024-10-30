@@ -9,7 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
-import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -98,12 +98,7 @@ class HomeFragment : Fragment(), OnBrandClickListener, OnProductClickListener,
         super.onViewCreated(view, savedInstanceState)
 
         requireActivity().onBackPressedDispatcher.addCallback(
-            viewLifecycleOwner,
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    showExitAlertDialog()
-                }
-            })
+            viewLifecycleOwner){showExitAlertDialog()}
         categoriesRec = binding.recCategoriesHome.apply {
             adapter = CategoriesAdapter(categoriesList(),this@HomeFragment)
             layoutManager = LinearLayoutManager(requireContext(), HORIZONTAL, false)
@@ -118,7 +113,7 @@ class HomeFragment : Fragment(), OnBrandClickListener, OnProductClickListener,
         lifecycleScope.launch {
             homeViewModel.priceRules.collect { state ->
                 when (state) {
-                    is DataState.Loading -> ""
+                    is DataState.Loading -> {}
                     is DataState.OnFailed -> Snackbar.make(
                         requireView(),
                         "Failed to get coupons",
@@ -137,19 +132,19 @@ class HomeFragment : Fragment(), OnBrandClickListener, OnProductClickListener,
             override fun onItemSelected(position: Int) {
                 when (position) {
                     0 -> {
-                        val clip = ClipData.newPlainText("ad", list.get(position).title)
+                        val clip = ClipData.newPlainText("ad", list[position].title)
                         clipboard.setPrimaryClip(clip)
                         Snackbar.make(view, "Coupon is copied", 2000).show()
                     }
 
                     1 -> {
-                        val clip = ClipData.newPlainText("ad", list.get(position).title)
+                        val clip = ClipData.newPlainText("ad", list[position].title)
                         clipboard.setPrimaryClip(clip)
                         Snackbar.make(view, "Coupon is copied", 2000).show()
                     }
 
                     2 -> {
-                        val clip = ClipData.newPlainText("ad", list.get(position).title)
+                        val clip = ClipData.newPlainText("ad", list[position].title)
                         clipboard.setPrimaryClip(clip)
                         Snackbar.make(view, "Coupon is copied", 2000).show()
                     }

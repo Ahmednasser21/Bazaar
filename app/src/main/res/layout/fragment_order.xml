@@ -14,8 +14,8 @@
         android:layout_marginStart="32dp"
         android:layout_marginTop="32dp"
         android:text="@string/my_orders"
+        android:textColor="@color/primaryColor"
         android:textSize="16dp"
-        android:textColor="#DD2C00"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
