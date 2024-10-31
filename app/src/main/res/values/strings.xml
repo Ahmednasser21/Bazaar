@@ -109,4 +109,5 @@
     <string name="confirmed">Confirmed</string>
     <string name="delete">Delete</string>
     <string name="first_name">First name</string>
+    <string name="cash_on_delivery_cod">Cash on delivery (COD)</string>
 </resources>

@@ -1,8 +1,5 @@
 package com.iti.itp.bazaar.shoppingCartActivity.shoppingCartFragment.view
 
-import ReceivedDraftOrder
-import ReceivedLineItem
-import ReceivedOrdersResponse
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
@@ -50,12 +47,12 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
     private lateinit var firstDraftOrder: DraftOrder
     private lateinit var adapter: ItemAdapter
     private val currencyFormatter = NumberFormat.getNumberInstance(Locale.US)
-    private lateinit var currencySharedPreferences:SharedPreferences
+    private lateinit var currencySharedPreferences: SharedPreferences
     private lateinit var draftOrderSharedPreferences: SharedPreferences
-    private var customerId:String? = null
-    private var draftOrderId:String? = null
-    private lateinit var priceRules:PriceRulesResponse
-    private var matchingRule: PriceRuleDto?= null
+    private var customerId: String? = null
+    private var draftOrderId: String? = null
+    private lateinit var priceRules: PriceRulesResponse
+    private var matchingRule: PriceRuleDto? = null
     private var appliedDiscountPercentage: Double = 0.0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,15 +60,22 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
         factory = ShoppingCartFragmentViewModelFactory(
             Repository.getInstance(ShopifyRemoteDataSource(ShopifyRetrofitObj.productService))
         )
-        shoppingCartViewModel = ViewModelProvider(this, factory)[ShoppingCartFragmentViewModel::class.java]
+        shoppingCartViewModel =
+            ViewModelProvider(this, factory)[ShoppingCartFragmentViewModel::class.java]
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        draftOrderSharedPreferences = requireActivity().getSharedPreferences(MyConstants.MY_SHARED_PREFERANCE, Context.MODE_PRIVATE)
-        currencySharedPreferences = requireActivity().applicationContext.getSharedPreferences("currencySharedPrefs", Context.MODE_PRIVATE)
+        draftOrderSharedPreferences = requireActivity().getSharedPreferences(
+            MyConstants.MY_SHARED_PREFERANCE,
+            Context.MODE_PRIVATE
+        )
+        currencySharedPreferences = requireActivity().applicationContext.getSharedPreferences(
+            "currencySharedPrefs",
+            Context.MODE_PRIVATE
+        )
         binding = FragmentShoppingCartBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -89,8 +93,8 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
     private fun setupUI() {
         binding.btnProceedToCheckout.setOnClickListener {
             if (firstDraftOrder.line_items.size <= 1) {
-                Snackbar.make(requireView(),"Your cart is empty", 2000).show()
-            }else{
+                Snackbar.make(requireView(), "Your cart is empty", 2000).show()
+            } else {
                 updateDraftOrderToAPI()
             }
         }
@@ -104,7 +108,7 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
 
     private fun observeCartData() {
         lifecycleScope.launch(Dispatchers.IO) {
-            shoppingCartViewModel.getSpecificDraftOrder(draftOrderId?.toLong()?:0)
+            shoppingCartViewModel.getSpecificDraftOrder(draftOrderId?.toLong() ?: 0)
             shoppingCartViewModel.specificDraftOrder.collect { state ->
                 withContext(Dispatchers.Main) {
                     handleCartState(state)
@@ -137,7 +141,8 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
             tvTotalPriceValue.visibility = View.GONE
             btnProceedToCheckout.visibility = View.GONE
         }
-        Toast.makeText(requireContext(), message ?: "Failed to load cart", Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), message ?: "Failed to load cart", Toast.LENGTH_SHORT)
+            .show()
     }
 
     private fun handleSuccess(data: DraftOrderRequest) {
@@ -219,14 +224,14 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
             }
         }
 
-        if (firstDraftOrder.line_items.isEmpty() || firstDraftOrder.line_items.size == 1){
+        if (firstDraftOrder.line_items.isEmpty() || firstDraftOrder.line_items.size == 1) {
             binding.emptyBoxAnimation.visibility = View.VISIBLE
             binding.itemsRv.visibility = View.INVISIBLE
             binding.couponsConstraint.visibility = View.INVISIBLE
             binding.couponsCardView.visibility = View.INVISIBLE
             binding.couponsEditText.visibility = View.INVISIBLE
             binding.couponsImageButton.visibility = View.INVISIBLE
-        }else{
+        } else {
             binding.emptyBoxAnimation.visibility = View.GONE
             binding.itemsRv.visibility = View.VISIBLE
             binding.couponsConstraint.visibility = View.VISIBLE
@@ -268,21 +273,22 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
             adapter = adapter,
             onDelete = { deletedItem ->
                 // Remove the item from the local list
-                val updatedLineItems = firstDraftOrder.line_items?.toMutableList() ?: mutableListOf()
+                val updatedLineItems =
+                    firstDraftOrder.line_items?.toMutableList() ?: mutableListOf()
                 updatedLineItems.removeAll { it.id == deletedItem.id }
 
                 // Update the UI immediately
                 firstDraftOrder = firstDraftOrder.copy(line_items = updatedLineItems)
                 adapter.submitList(updatedLineItems)
 
-                if (updatedLineItems.isEmpty() || updatedLineItems.size == 1){
+                if (updatedLineItems.isEmpty() || updatedLineItems.size == 1) {
                     binding.emptyBoxAnimation.visibility = View.VISIBLE
                     binding.itemsRv.visibility = View.INVISIBLE
                     binding.couponsConstraint.visibility = View.INVISIBLE
                     binding.couponsCardView.visibility = View.INVISIBLE
                     binding.couponsEditText.visibility = View.INVISIBLE
                     binding.couponsImageButton.visibility = View.INVISIBLE
-                }else{
+                } else {
                     binding.emptyBoxAnimation.visibility = View.GONE
                     binding.itemsRv.visibility = View.VISIBLE
                     binding.couponsConstraint.visibility = View.VISIBLE
@@ -307,16 +313,29 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
                         val updateRequest = UpdateDraftOrderRequest(
                             DraftOrder(
                                 line_items = updatedLineItems,
-                                applied_discount = AppliedDiscount(null,matchingRule?.valueType,matchingRule?.value, matchingRule?.value,matchingRule?.title),
+                                applied_discount = AppliedDiscount(
+                                    null,
+                                    matchingRule?.valueType,
+                                    matchingRule?.value,
+                                    matchingRule?.value,
+                                    matchingRule?.title
+                                ),
                                 customer = firstDraftOrder.customer,
                                 use_customer_default_address = firstDraftOrder.use_customer_default_address
                             )
                         )
 
-                        shoppingCartViewModel.updateDraftOrder(draftOrderId?.toLong() ?: 0, updateRequest)
+                        shoppingCartViewModel.updateDraftOrder(
+                            draftOrderId?.toLong() ?: 0,
+                            updateRequest
+                        )
 
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(requireContext(), "Item deleted successfully", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                requireContext(),
+                                "Item deleted successfully",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     } catch (e: Exception) {
                         withContext(Dispatchers.Main) {
@@ -422,7 +441,7 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                shoppingCartViewModel.updateDraftOrder(draftOrderId?.toLong()?:0, updateRequest!!)
+                shoppingCartViewModel.updateDraftOrder(draftOrderId?.toLong() ?: 0, updateRequest!!)
 
                 withContext(Dispatchers.Main) {
                     handleUpdateSuccess()
@@ -440,7 +459,7 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
             btnProceedToCheckout.isEnabled = true
             progressBar.visibility = View.GONE
         }
-        Toast.makeText(requireContext(), "Cart updated successfully", Toast.LENGTH_SHORT).show()
+        Snackbar.make(requireView(), "Cart updated successfully", Snackbar.LENGTH_SHORT).show()
 
         // Use the discounted total price when navigating
         val finalTotal = if (appliedDiscountPercentage > 0) {
@@ -450,9 +469,11 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
         }
 
         Navigation.findNavController(requireView())
-            .navigate(ShoppingCartFragmentDirections.actionNavCartToChooseAddressFragment2(
-                "$finalTotal EGP"
-            ))
+            .navigate(
+                ShoppingCartFragmentDirections.actionNavCartToChooseAddressFragment2(
+                    "$finalTotal EGP"
+                )
+            )
     }
 
     private fun handleUpdateError(e: Exception) {
@@ -461,23 +482,23 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
             progressBar.visibility = View.GONE
         }
         Log.e("ShoppingCart", "Failed to update cart: ${e.message}", e)
-        Toast.makeText(
-            requireContext(),
+        Snackbar.make(
+            requireView(),
             "Failed to update cart: ${e.message ?: "Unknown error"}",
-            Toast.LENGTH_SHORT
+            Snackbar.LENGTH_SHORT
         ).show()
     }
 
-    private fun getPriceRules(){
-        lifecycleScope.launch{
+    private fun getPriceRules() {
+        lifecycleScope.launch {
             shoppingCartViewModel.getPriceRules()
         }
     }
 
-    private fun observePriceRules(){
-        lifecycleScope.launch{
-            shoppingCartViewModel.priceRules.collect{
-                when(it){
+    private fun observePriceRules() {
+        lifecycleScope.launch {
+            shoppingCartViewModel.priceRules.collect {
+                when (it) {
                     DataState.Loading -> {}
                     is DataState.OnFailed -> {}
                     is DataState.OnSuccess<*> -> {

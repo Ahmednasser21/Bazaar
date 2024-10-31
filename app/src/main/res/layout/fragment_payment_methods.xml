@@ -17,13 +17,13 @@
 
 
         <RadioButton
+            android:fontFamily="@font/metropolis_bold"
+            android:textColor="@color/primaryColor"
             android:id="@+id/paymob"
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:text="@string/paypal"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/brown"/>
+            android:textSize="18sp" />
 
         <View
             android:layout_width="match_parent"
@@ -34,10 +34,10 @@
             android:id="@+id/cashOnDelivery"
             android:layout_width="match_parent"
             android:layout_height="100dp"
-            android:text="Cash on delivery (COD)"
+            android:text="@string/cash_on_delivery_cod"
             android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/brown"/>
+            android:fontFamily="@font/metropolis_bold"
+            android:textColor="@color/primaryColor"/>
     </RadioGroup>
 
 
@@ -47,9 +47,11 @@
         android:layout_height="50dp"
         android:layout_marginBottom="12dp"
         android:background="@drawable/custom_button_background"
-        android:text="@string/continue_to_payment"
+        android:text="@string/place_order"
+        android:fontFamily="@font/metropolis_medium"
         android:textColor="@color/white"
         android:textSize="16sp"
+        android:textAllCaps="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"

@@ -3,6 +3,7 @@ package com.iti.itp.bazaar.mainActivity.ui.me
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -17,6 +18,7 @@ import androidx.navigation.Navigation
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.iti.itp.bazaar.R
+import com.iti.itp.bazaar.auth.AuthActivity
 import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.databinding.FragmentMeBinding
 import com.iti.itp.bazaar.dto.ListOfAddresses
@@ -88,6 +90,14 @@ class MeFragment : Fragment() {
 
         getOrdersCount()
         getAddressCount()
+
+        binding.btnLogout.setOnClickListener {
+            FirebaseAuth.getInstance().signOut()
+            val intent = Intent(requireActivity(), AuthActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+        }
+
 
         binding.cardViewOrders.setOnClickListener {
             val action = MeFragmentDirections.actionNavMeToOrderFragment(customerID)
@@ -194,9 +204,12 @@ class MeFragment : Fragment() {
             meViewModel.getCustomerById(customerID.toLong())
             meViewModel.customer.collect{
                 when(it){
-                    DataState.Loading -> Snackbar.make(requireView(), "loading customer data", 2000).show()
-                    is DataState.OnFailed -> Snackbar.make(requireView(), "failed to get customer data", 2000).show()
+                    DataState.Loading -> {binding.progressBar3.visibility = View.VISIBLE}
+                    is DataState.OnFailed ->{
+                        binding.progressBar3.visibility = View.GONE
+                        Snackbar.make(requireView(), "failed to get customer data", 2000).show()}
                     is DataState.OnSuccess<*> -> {
+                        binding.progressBar3.visibility = View.GONE
                         val data = it.data as SingleCustomerResponse
                         binding.customerName.text = auth.currentUser?.displayName
                         binding.customerEmail.text = data.customer.email
@@ -212,7 +225,7 @@ class MeFragment : Fragment() {
             meViewModel.getAddressCount(customerID.toLong())
             meViewModel.addresses.collect{
                 when(it){
-                    DataState.Loading -> Snackbar.make(requireView(), "loading addresses", 2000).show()
+                    DataState.Loading -> {}
                     is DataState.OnFailed -> Snackbar.make(requireView(), "failed to get addresses count", 2000).show()
                     is DataState.OnSuccess<*> -> {
                         val response = it.data as ListOfAddresses
@@ -222,7 +235,6 @@ class MeFragment : Fragment() {
             }
         }
     }
-
 
 
 }
