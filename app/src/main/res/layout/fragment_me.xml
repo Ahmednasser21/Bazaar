@@ -15,7 +15,6 @@
         android:layout_marginStart="32dp"
         android:layout_marginTop="40dp"
         android:fontFamily="@font/metropolis_semibold"
-        android:text="Ahmed samy"
         android:textColor="@color/black"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -27,7 +26,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/metropolis_semibold"
-        android:text="ahmbdelkhalek@gmail.com"
         android:textColor="@color/grey_font"
         app:layout_constraintStart_toStartOf="@+id/customer_name"
         app:layout_constraintTop_toBottomOf="@+id/customer_name" />
