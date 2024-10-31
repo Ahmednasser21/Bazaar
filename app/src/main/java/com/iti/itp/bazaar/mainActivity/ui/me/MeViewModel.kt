@@ -24,6 +24,9 @@ class MeViewModel(private val currencyRepository: CurrencyRepository, private va
     private val _customer = MutableStateFlow<DataState>(DataState.Loading)
     val customer = _customer.asStateFlow()
 
+    private val _addresses = MutableStateFlow<DataState>(DataState.Loading)
+    val addresses = _addresses.asStateFlow()
+
     fun getCurrency(base:String, target:String){
         viewModelScope.launch(Dispatchers.IO) {
             currencyRepository.getExchangeRate(base, target).catch {
@@ -53,6 +56,17 @@ class MeViewModel(private val currencyRepository: CurrencyRepository, private va
                 _currency.value = DataState.OnFailed(it)
             }.collect{
                 _currency.value = DataState.OnSuccess(it)
+            }
+        }
+    }
+
+    fun getAddressCount(customerId: Long){
+        viewModelScope.launch {
+            repository.getAddressForCustomer(customerId).catch {
+                _addresses.value = DataState.OnFailed(it)
+                Log.e(TAG, "failed to getAddressCount: ${it.message}")
+            }.collect{
+                _addresses.value = DataState.OnSuccess(it)
             }
         }
     }

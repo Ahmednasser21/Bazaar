@@ -19,6 +19,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.iti.itp.bazaar.R
 import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.databinding.FragmentMeBinding
+import com.iti.itp.bazaar.dto.ListOfAddresses
 import com.iti.itp.bazaar.dto.SingleCustomerResponse
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.mainActivity.ui.order.OrderViewModel
@@ -86,6 +87,7 @@ class MeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         getOrdersCount()
+        getAddressCount()
 
         binding.cardViewOrders.setOnClickListener {
             val action = MeFragmentDirections.actionNavMeToOrderFragment(customerID)
@@ -198,6 +200,23 @@ class MeFragment : Fragment() {
                         val data = it.data as SingleCustomerResponse
                         binding.customerName.text = auth.currentUser?.displayName
                         binding.customerEmail.text = data.customer.email
+                    }
+                }
+            }
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    fun getAddressCount(){
+        lifecycleScope.launch {
+            meViewModel.getAddressCount(customerID.toLong())
+            meViewModel.addresses.collect{
+                when(it){
+                    DataState.Loading -> Snackbar.make(requireView(), "loading addresses", 2000).show()
+                    is DataState.OnFailed -> Snackbar.make(requireView(), "failed to get addresses count", 2000).show()
+                    is DataState.OnSuccess<*> -> {
+                        val response = it.data as ListOfAddresses
+                        binding.addressCount.text = "${response.addresses.size} Addresses"
                     }
                 }
             }
