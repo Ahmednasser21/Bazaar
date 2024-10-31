@@ -20,6 +20,7 @@ import com.example.productinfoform_commerce.productInfo.viewModel.ProuductIfonVi
 import com.example.productinfoform_commerce.productInfo.viewModel.ProductInfoViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
+import com.iti.itp.bazaar.R
 import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.databinding.ColorItemBottomSheetBinding
 import com.iti.itp.bazaar.databinding.FragmentProuductnfoBinding
@@ -234,17 +235,16 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
         //getting the specificFavDraftOrder
 
         getSpecificDraftOrderById(FavDraftOrderId.toLong())
+
         //handel btn add to favourite
         binding!!.ivAddProuductToFavorite.setOnClickListener {
             val originalList = draftOrderRequest.draft_order.line_items.toMutableList()
-            var alreadyInFavorites = false
-
 
             // Check if the product is already in favorites
             val x = originalList.any {//0
                 val string = it.sku?.split("##")
                 val id = string?.get(0)
-                id == proudct.title
+                id == proudct.id.toString()
             }
 
             if (x) {
@@ -274,8 +274,13 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
                 )
 
                 productInfoViewModel.updateDraftOrder(FavDraftOrderId.toLong(), draftOrderRequest)
+                binding!!.ivAddProuductToFavorite.setImageResource(R.drawable.filled_favorite)
             }
         }
+
+
+
+
     }
 
     private fun getProductDetails() {
@@ -503,6 +508,52 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
                             }
                         }
 
+                        val originalList = draftOrderRequest.draft_order.line_items.toMutableList()
+
+                        // Check if the product is already in favorites
+                        val x = originalList.any {//0
+                            val string = it.sku?.split("##")
+                            val id = string?.get(0)
+                            id == proudct.id.toString()
+                        }
+
+                        if (x) {
+                            getProductDetails()
+                            lifecycleScope.launch(Dispatchers.IO){
+                                withContext(Dispatchers.Main){
+                                    binding!!.ivAddProuductToFavorite.setImageResource(R.drawable.filled_favorite)
+                                    binding!!.ivAddProuductToFavorite.setOnClickListener {
+                                        // Remove the item by filtering out the matching SKU
+                                        val updatedLineItems = draftOrderRequest.draft_order.line_items.filter { lineItem ->
+                                            val skuParts = lineItem.sku?.split("##")
+                                            skuParts?.firstOrNull() != proudct.id.toString()
+                                        }
+
+                                        val updateRequest = UpdateDraftOrderRequest(
+                                            DraftOrder(
+                                                line_items = updatedLineItems,
+                                                applied_discount = null,
+                                                customer = Customer(customerId.toLong()),
+                                                use_customer_default_address = true,
+                                            )
+                                        )
+
+                                        productInfoViewModel.updateDraftOrder(FavDraftOrderId, updateRequest)
+                                        binding!!.ivAddProuductToFavorite.setImageResource(R.drawable.favorite)
+
+                                        // Show feedback to user
+                                        Snackbar.make(
+                                            requireView(),
+                                            "Removed from favorites",
+                                            Snackbar.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                            }
+
+
+                        }
+
 //                        if (IS_Liked) {
 //                            binding?.ivAddProuductToFavorite?.setColorFilter(Color.BLUE)
 //                        } else {
@@ -517,6 +568,11 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
 
         }
 
+    }
+
+    override fun onStart() {
+        super.onStart()
+        getProductDetails()
     }
 
     private fun draftOrderRequest(prduct: Products): DraftOrderRequest {
