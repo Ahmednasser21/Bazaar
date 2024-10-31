@@ -74,7 +74,7 @@ class FavoriteProductsFragment : Fragment(), OnFavProductCardClick, OnFavProduct
             ), CurrencyRepository(CurrencyRemoteDataSource(ExchangeRetrofitObj.service))
         )
         productInfoViewModel =
-            ViewModelProvider(this, vmFActory).get(ProductInfoViewModel::class.java)
+            ViewModelProvider(requireActivity(), vmFActory).get(ProductInfoViewModel::class.java)
 
         FavAdapter = FavoriteProductsAdapter(this, this)
         binding.rvFavProducts.apply {

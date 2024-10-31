@@ -3,6 +3,7 @@ package com.iti.itp.bazaar.mainActivity.ui.home
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -20,23 +21,32 @@ import androidx.recyclerview.widget.RecyclerView.HORIZONTAL
 import com.denzcoskun.imageslider.constants.ScaleTypes
 import com.denzcoskun.imageslider.interfaces.ItemClickListener
 import com.denzcoskun.imageslider.models.SlideModel
+import com.example.productinfoform_commerce.productInfo.viewModel.ProductInfoViewModel
+import com.example.productinfoform_commerce.productInfo.viewModel.ProuductIfonViewModelFactory
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.R
+import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.databinding.FragmentHomeBinding
+import com.iti.itp.bazaar.dto.DraftOrder
+import com.iti.itp.bazaar.dto.DraftOrderRequest
 import com.iti.itp.bazaar.dto.PriceRuleDto
+import com.iti.itp.bazaar.handlers.FavoritesHandler
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.mainActivity.ui.categories.CategoriesViewModel
 import com.iti.itp.bazaar.mainActivity.ui.categories.CategoriesViewModelFactory
 import com.iti.itp.bazaar.mainActivity.ui.products.OnFavouriteClickListener
 import com.iti.itp.bazaar.mainActivity.ui.products.OnProductClickListener
 import com.iti.itp.bazaar.mainActivity.ui.products.ProductsAdapter
+import com.iti.itp.bazaar.network.exchangeCurrencyApi.CurrencyRemoteDataSource
+import com.iti.itp.bazaar.network.exchangeCurrencyApi.ExchangeRetrofitObj
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
 import com.iti.itp.bazaar.network.products.Products
 import com.iti.itp.bazaar.network.responses.PriceRulesResponse
 import com.iti.itp.bazaar.network.responses.ProductResponse
 import com.iti.itp.bazaar.network.responses.SmartCollectionsResponse
+import com.iti.itp.bazaar.repo.CurrencyRepository
 import com.iti.itp.bazaar.repo.Repository
 import com.iti.itp.bazaar.search.viewModel.SearchViewModel
 import com.iti.itp.bazaar.search.viewModel.SearchViewModelFactory
@@ -61,6 +71,14 @@ class HomeFragment : Fragment(), OnBrandClickListener, OnProductClickListener,
     private lateinit var categoriesViewModel: CategoriesViewModel
     private lateinit var searchViewModel: SearchViewModel
     private lateinit var saleProductsAdapter: ProductsAdapter
+    private lateinit var productInfoViewModel: ProductInfoViewModel
+    private lateinit var productInfoViewModelFactory: ProuductIfonViewModelFactory
+    private lateinit var sharedPrefs:SharedPreferences
+    private var customerId:String? = null
+    private var FavoriteDraftOrderId:String? = null
+    var draftOrder:DraftOrderRequest? = null
+    private lateinit var favoritesHandler: FavoritesHandler
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -89,6 +107,14 @@ class HomeFragment : Fragment(), OnBrandClickListener, OnProductClickListener,
         homeViewModel = ViewModelProvider(requireActivity(), factory)[HomeViewModel::class.java]
         brandsAdapter = BrandsAdapter(this)
         saleProductsAdapter = ProductsAdapter(true,this, this)
+        productInfoViewModelFactory = ProuductIfonViewModelFactory(
+            Repository.getInstance(
+                ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
+            ), CurrencyRepository(CurrencyRemoteDataSource(ExchangeRetrofitObj.service))
+        )
+        productInfoViewModel =
+            ViewModelProvider(this, productInfoViewModelFactory).get(ProductInfoViewModel::class.java)
+        sharedPrefs = requireActivity().getSharedPreferences(MyConstants.MY_SHARED_PREFERANCE, Context.MODE_PRIVATE)
         binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
         return root
@@ -97,6 +123,15 @@ class HomeFragment : Fragment(), OnBrandClickListener, OnProductClickListener,
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        favoritesHandler = FavoritesHandler(productInfoViewModel, sharedPrefs)
+
+        // 2. Initialize the cache (optional, but recommended)
+        lifecycleScope.launch {
+            favoritesHandler.initialize()
+        }
+
+        customerId = sharedPrefs.getString(MyConstants.CUSOMER_ID, "0")
+        FavoriteDraftOrderId = sharedPrefs.getString(MyConstants.FAV_DRAFT_ORDERS_ID, "0")
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner){showExitAlertDialog()}
         categoriesRec = binding.recCategoriesHome.apply {
@@ -259,7 +294,24 @@ class HomeFragment : Fragment(), OnBrandClickListener, OnProductClickListener,
         return categoriesList
     }
 
-    override fun onFavProductClick() {
+    override fun onFavProductClick(product: Products) {
+        favoritesHandler.addProductToFavorites(
+            product = product,
+            onAdded = {
+                // Handle success (e.g., update UI)
+                Snackbar.make(requireView(),"added successfully", 2000).show()
+            },
+            onAlreadyExists = {
+                // Handle already in favorites case
+                favoritesHandler.removeFromFavorites(
+                    product = product,
+                    onRemoved = {
+                        // Handle successful removal
+                        Snackbar.make(requireView(),"removed successfully", 2000).show()
+                    }
+                )
+            }
+        )
 
     }
 
@@ -318,6 +370,19 @@ class HomeFragment : Fragment(), OnBrandClickListener, OnProductClickListener,
     override fun onCategoryClick(categoryName: String) {
        val action = HomeFragmentDirections.actionNavHomeToNavCategories(categoryName)
         Navigation.findNavController(requireView()).navigate(action)
+    }
+
+    suspend fun getSpecificDraftOrder(){
+        productInfoViewModel.getSpecificDraftOrder(FavoriteDraftOrderId?.toLong()?:0)
+        productInfoViewModel.specificDraftOrders.collect{
+            when(it){
+                DataState.Loading -> {}
+                is DataState.OnFailed -> {}
+                is DataState.OnSuccess<*> -> {
+                    draftOrder = it.data as DraftOrderRequest
+                }
+            }
+        }
     }
 
 }

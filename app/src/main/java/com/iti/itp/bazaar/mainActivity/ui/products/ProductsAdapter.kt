@@ -2,10 +2,13 @@ package com.iti.itp.bazaar.mainActivity.ui.products
 
 import android.content.Context
 import android.graphics.Paint
+import android.os.Build
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -30,12 +33,15 @@ class ProductsAdapter(
 ) : ListAdapter<Products, ProductsAdapter.CategoryProductViewHolder>(
     ProductsDiffUtils()
 ) {
+
     private var lineItems: List<LineItem> = emptyList()
     private var isLineItemsLoaded = false
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
     private val TAG = "ProductsAdapter"
 
     companion object {
+        // Add this as a class property
+        private var isFavorite = false
         private val productRatings = mutableMapOf<Long, Float>()
         private val ratingList = listOf(1.8f, 1.4f, 2.3f, 3.1f, 3.4f, 4.2f, 4.7f, 4.9f)
         private val discountList = listOf(15.00, 20.00, 30.00, 4.99, 10.00, 35.00)
@@ -60,6 +66,7 @@ class ProductsAdapter(
         return CategoryProductViewHolder(binding)
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onBindViewHolder(holder: CategoryProductViewHolder, position: Int) {
         val product = getItem(position)
 
@@ -83,6 +90,7 @@ class ProductsAdapter(
 
                 if (sku != null && productId.equals(sku, ignoreCase = true)) {
                     binding.imgFav.setImageResource(R.drawable.filled_favorite)
+                    isFavorite = true
                     return@forEach
                 }
             }
@@ -120,6 +128,8 @@ class ProductsAdapter(
     class CategoryProductViewHolder(val binding: ProductsItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
+
+        @RequiresApi(Build.VERSION_CODES.Q)
         fun bindView(
             isSale: Boolean,
             productDTO: Products,
@@ -144,10 +154,18 @@ class ProductsAdapter(
                 onProductClickListener.onProductClick(productDTO.id)
             }
 
-            binding.imgFav.setOnClickListener {
-                onFavouriteClickListener.onFavProductClick()
-            }
 
+
+            binding.imgFav.setOnClickListener {
+                onFavouriteClickListener.onFavProductClick(productDTO)
+                if (!isFavorite) {
+                    binding.imgFav.setImageResource(R.drawable.filled_favorite)
+                    isFavorite = true
+                } else {
+                    binding.imgFav.setImageResource(R.drawable.favorite)
+                    isFavorite = false
+                }
+            }
             val rating = getRatingForProduct(productDTO.id)
             binding.productRatingBar.rating = rating
             binding.ratingOfTen.text = "(${rating * 2})"

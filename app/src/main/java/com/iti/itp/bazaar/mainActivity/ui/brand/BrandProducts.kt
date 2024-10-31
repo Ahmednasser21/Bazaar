@@ -21,6 +21,7 @@ import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.mainActivity.ui.products.ProductsAdapter
 import com.iti.itp.bazaar.mainActivity.ui.products.OnFavouriteClickListener
 import com.iti.itp.bazaar.mainActivity.ui.products.OnProductClickListener
+import com.iti.itp.bazaar.network.products.Products
 import com.iti.itp.bazaar.network.responses.ProductResponse
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
@@ -106,7 +107,9 @@ class BrandProducts : Fragment(), OnProductClickListener, OnFavouriteClickListen
         Navigation.findNavController(binding.root).navigate(action)
     }
 
-    override fun onFavProductClick() {
+    override fun onFavProductClick(product: Products) {
 
     }
+
+
 }

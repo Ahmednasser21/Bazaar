@@ -324,8 +324,9 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteClickL
         Navigation.findNavController(binding.root).navigate(action)
     }
 
-    override fun onFavProductClick() {
 
+
+    override fun onFavProductClick(product: Products) {
     }
 
 }
