@@ -18,6 +18,7 @@ import androidx.navigation.Navigation
 import com.google.android.material.snackbar.Snackbar
 
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.UserProfileChangeRequest
 import com.iti.itp.bazaar.R
 import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.auth.firebase.FirebaseRemotDataSource
@@ -130,31 +131,39 @@ class SignUpFragment : Fragment() {
             val password = binding.etPassword.text.toString()
             val rePassword = binding.etReEnterPassword .text.toString()
 
-            if (isEmailValid(email))
-            {
-                if (isPasswordValid(password))
+            if (email.isNotEmpty() || password.isNotEmpty() || binding.etFirstName.text.toString().isNotEmpty()||
+                binding.etLastName.text.toString().isNotEmpty()){
+
+                if (isEmailValid(email))
                 {
-                    if (isPasswordMatching(password,rePassword))
+                    if (isPasswordValid(password))
                     {
-                        signUp(email,password)
+                        if (isPasswordMatching(password,rePassword))
+                        {
+                            signUp(email,password)
+                        }
+                        else {
+                            binding.etReEnterPassword .error = "Passwords do not match"
+                            // binding.etReEnterPassword.background.setTint(Color.RED)
+                        }
                     }
                     else {
-                        binding.etReEnterPassword .error = "Passwords do not match"
-                       // binding.etReEnterPassword.background.setTint(Color.RED)
+                        binding.etPassword .error = "password isn't valid  "
+                        Snackbar.make(requireView(), "passwprd must be more than 8 letter and conatines simpols.", 2000)
+                            .show()
+                        //binding.etReEnterPassword.background.setTint(Color.RED)
                     }
                 }
                 else {
-                    binding.etPassword .error = "password isn't valid  "
-                    Snackbar.make(requireView(), "passwprd must be more than 8 letter and conatines simpols.", 2000)
-                        .show()
-                    //binding.etReEnterPassword.background.setTint(Color.RED)
-                }
-            }
-            else {
-                binding.etEmail .error = "Email isn't valid    "
-              //  binding.etReEnterPassword.background.setTint(Color.RED)
+                    binding.etEmail .error = "Email isn't valid    "
+                    //  binding.etReEnterPassword.background.setTint(Color.RED)
 
+                }
+            }else{
+                Snackbar.make(requireView(),"All fields are required", 2000).show()
             }
+
+
 
 
         }
@@ -191,6 +200,14 @@ class SignUpFragment : Fragment() {
         return password == confirmPassword
     }
 
+    private fun capitalizeFirstLetter(input: String): String {
+        return if (input.isNotEmpty()) {
+            input[0].uppercaseChar() + input.substring(1)
+        } else {
+            input
+        }
+    }
+
     fun signUp (email :String , password:String ){
         authViewModel.signUp(email, password)
             .addOnCompleteListener(requireActivity()) { task ->
@@ -199,6 +216,11 @@ class SignUpFragment : Fragment() {
                     Snackbar.make(requireView(), "Authentication success .. Please Verfiy this Email", 2000)
                         .show()
                     //navigateToLogin()
+                    val user = mAuth.currentUser
+                    val profileUpdates = UserProfileChangeRequest.Builder()
+                        .setDisplayName("${capitalizeFirstLetter("${binding.etFirstName.text}")} ${capitalizeFirstLetter("${binding.etLastName.text}" )} ")
+                        .build()
+                    user?.updateProfile(profileUpdates)
 
                     customerRequest.customer.email = email
                     customerRequest.customer.password=password
@@ -216,6 +238,7 @@ class SignUpFragment : Fragment() {
                                 Snackbar.make(requireView(), "Failed to send verification email.", 2000).show()
                             }
                         }
+                    //navigateToLogin()
 
                 } else {
                     Snackbar.make(requireView(), "Authentication failed.", 2000)

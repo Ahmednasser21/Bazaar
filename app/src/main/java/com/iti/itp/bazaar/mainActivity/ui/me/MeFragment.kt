@@ -1,5 +1,6 @@
 package com.iti.itp.bazaar.mainActivity.ui.me
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.content.SharedPreferences
@@ -18,14 +19,19 @@ import com.google.firebase.auth.FirebaseAuth
 import com.iti.itp.bazaar.R
 import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.databinding.FragmentMeBinding
+import com.iti.itp.bazaar.dto.SingleCustomerResponse
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.mainActivity.ui.order.OrderViewModel
 import com.iti.itp.bazaar.mainActivity.ui.order.OrderViewModelFactory
+import com.iti.itp.bazaar.network.exchangeCurrencyApi.CurrencyRemoteDataSource
+import com.iti.itp.bazaar.network.exchangeCurrencyApi.ExchangeRetrofitObj
 import com.iti.itp.bazaar.network.responses.ExchangeRateResponse
 import com.iti.itp.bazaar.network.responses.OrdersResponse
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
+import com.iti.itp.bazaar.repo.CurrencyRepository
 import com.iti.itp.bazaar.repo.Repository
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -41,6 +47,7 @@ class MeFragment : Fragment() {
     lateinit var mAuth: FirebaseAuth
     private lateinit var userDataSharedPreferences: SharedPreferences
     private lateinit var customerID: String
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,6 +74,9 @@ class MeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        meFactory = MeViewModelFactory(CurrencyRepository(CurrencyRemoteDataSource(ExchangeRetrofitObj.service)),
+            Repository.getInstance(ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)))
+        meViewModel = ViewModelProvider(this,meFactory)[MeViewModel::class.java]
         binding = FragmentMeBinding.inflate(inflater, container, false)
         val root: View = binding.root
         return root
@@ -100,6 +110,8 @@ class MeFragment : Fragment() {
             val action = MeFragmentDirections.actionNavProfileToAboutUsFragment2()
             Navigation.findNavController(view).navigate(action)
         }
+
+        getCustomerDataById()
     }
 
 
@@ -172,5 +184,26 @@ class MeFragment : Fragment() {
             }
         }
     }
+
+
+    @SuppressLint("SetTextI18n")
+    private fun getCustomerDataById(){
+        lifecycleScope.launch {
+            meViewModel.getCustomerById(customerID.toLong())
+            meViewModel.customer.collect{
+                when(it){
+                    DataState.Loading -> Snackbar.make(requireView(), "loading customer data", 2000).show()
+                    is DataState.OnFailed -> Snackbar.make(requireView(), "failed to get customer data", 2000).show()
+                    is DataState.OnSuccess<*> -> {
+                        val data = it.data as SingleCustomerResponse
+                        binding.customerName.text = auth.currentUser?.displayName
+                        binding.customerEmail.text = data.customer.email
+                    }
+                }
+            }
+        }
+    }
+
+
 
 }
