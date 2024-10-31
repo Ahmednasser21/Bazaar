@@ -1,10 +1,8 @@
 package com.iti.itp.bazaar.productInfo.view
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.content.Context
 import android.content.SharedPreferences
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -31,6 +29,7 @@ import com.iti.itp.bazaar.dto.DraftOrder
 import com.iti.itp.bazaar.dto.DraftOrderRequest
 import com.iti.itp.bazaar.dto.LineItem
 import com.iti.itp.bazaar.dto.UpdateDraftOrderRequest
+import com.iti.itp.bazaar.handlers.FavoritesHandler
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.network.exchangeCurrencyApi.CurrencyRemoteDataSource
 import com.iti.itp.bazaar.network.exchangeCurrencyApi.ExchangeRetrofitObj
@@ -61,44 +60,24 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
     private lateinit var customerId: String
     lateinit var mySharedPrefrence: SharedPreferences
     lateinit var draftOrderRequest: DraftOrderRequest
+    private lateinit var favoritesHandler: FavoritesHandler
 
     lateinit var FavDraftOrderId: String
     var productTitle: String = ""
     lateinit var proudct: Products
-    var IS_Liked = false
-    var Currentcurrency: Float? = 1F
     private val ratingList = listOf(2.5f, 3.0f, 3.5f, 4.0f, 4.5f, 5.0f)
-    private val reviewList = listOf(
-        "Excellent product, highly recommend!",
-        "Good quality but could be improved.",
-        "Not bad, but not the best I've seen.",
-        "Amazing! Exceeded my expectations.",
-        "Wouldn't recommend, not worth the price."
-    )
     private var cartDraftOrderId: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
 
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-//        CurrencySharedPreferences = requireActivity().getSharedPreferences(
-//            "currencySharedPrefs",
-//            Context.MODE_PRIVATE
-//        )
         mySharedPrefrence = requireActivity().getSharedPreferences(
             MyConstants.MY_SHARED_PREFERANCE,
             Context.MODE_PRIVATE
         )
-//        Currentcurrency = CurrencySharedPreferences.getFloat("currency", 1F) ?: 1F
-//        Log.d("TAG", "onViewCreated: ek currency rate is :$Currentcurrency ")
-//        IsGuestMode = mySharedPrefrence.getString(MyConstants.IS_GUEST, "false") ?: "false"
         customerId = mySharedPrefrence.getString(MyConstants.CUSOMER_ID, "0").toString()
 
         binding = FragmentProuductnfoBinding.inflate(inflater, container, false)
@@ -126,7 +105,14 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
         )
         productInfoViewModel =
             ViewModelProvider(this, vmFActory).get(ProductInfoViewModel::class.java)
-// here i should recive args from any string with id : Long
+
+        // 1. Initialize the handler
+        favoritesHandler = FavoritesHandler(productInfoViewModel, mySharedPrefrence)
+
+// 2. Initialize the cache (optional, but recommended)
+        lifecycleScope.launch {
+            favoritesHandler.initialize()
+        }
 
         getProductDetailsById()
 
@@ -204,10 +190,7 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
                                                         ?: ProuductnfoFragmentArgs.fromBundle(
                                                             requireArguments()
                                                         ).productId.toString(),  // Use existing SKU or new one
-                                                    product_id = it.product_id
-                                                        ?: ProuductnfoFragmentArgs.fromBundle(
-                                                            requireArguments()
-                                                        ).productId,
+                                                    product_id = it.product_id,
                                                     title = it.title!!,
                                                     price = it.price,
                                                     quantity = it.quantity ?: 1
@@ -232,59 +215,35 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
             }
         }
 
-        //getting the specificFavDraftOrder
+
 
         getSpecificDraftOrderById(FavDraftOrderId.toLong())
 
         //handel btn add to favourite
         binding!!.ivAddProuductToFavorite.setOnClickListener {
-            val originalList = draftOrderRequest.draft_order.line_items.toMutableList()
-
-            // Check if the product is already in favorites
-            val x = originalList.any {//0
-                val string = it.sku?.split("##")
-                val id = string?.get(0)
-                id == proudct.id.toString()
-            }
-
-            if (x) {
-                Snackbar.make(requireView(), "This item is already in your favorite list", 2000)
-                    .show()
-                Log.i("TAG", "onViewCreated: ${proudct.id}")
-            } else {
-                originalList.add(
-                    LineItem(
-                        sku = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId.toString() + "##" + proudct.image?.src,
-                        id = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
-                        variant_title = "dgldsjglk",
-                        product_id = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
-                        title = proudct.title,
-                        price = proudct.variants[0].price,
-                        quantity = 1
+            favoritesHandler.addProductToFavorites(
+                product = proudct,
+                onAdded = {
+                    // Handle success (e.g., update UI)
+                    Snackbar.make(requireView(), "added to your favorite", 2000).show()
+                    binding!!.ivAddProuductToFavorite.setImageResource(R.drawable.filled_favorite)
+                },
+                onAlreadyExists = {
+                    favoritesHandler.removeFromFavorites(
+                        product = proudct,
+                        onRemoved = {
+                            // Handle successful removal
+                            Snackbar.make(requireView(), "deleted successfully", 2000).show()
+                            binding!!.ivAddProuductToFavorite.setImageResource(R.drawable.favorite)
+                        }
                     )
-                )
-
-                val draftOrderRequest = UpdateDraftOrderRequest(
-                    DraftOrder(
-                        originalList,
-                        applied_discount = null,
-                        customer = Customer(customerId.toLong()),
-                        use_customer_default_address = true,
-                    )
-                )
-
-                productInfoViewModel.updateDraftOrder(FavDraftOrderId.toLong(), draftOrderRequest)
-                binding!!.ivAddProuductToFavorite.setImageResource(R.drawable.filled_favorite)
-            }
+                }
+            )
         }
-
-
-
-
     }
 
-    private fun getProductDetails() {
 
+    private fun getProductDetails() {
         lifecycleScope.launch {
             productInfoViewModel.productDetailsStateFlow.collectLatest { result ->
                 when (result) {
@@ -303,7 +262,6 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
                         proudct = productsList.get(0)
                         setProudctDetailToUI(productsList)
                         productTitle = productsList.get(0).title
-                        //setUpTheAvailableSizesAndColors(productsList.get(0).options)
 
 
                     }
@@ -321,33 +279,11 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
         binding!!.tvProuductDesc.text = productsList[0].bodyHtml
         binding!!.tvBrand.text = productsList[0].vendor
 
-        // da el se3r w hyt8yar based on shared pref in setting
-        when (Currentcurrency) {
-            1F -> {
-                binding!!.tvProuductPrice.text = "${productsList.get(0).variants.get(0).price} EGP"
-            }
-
-            else -> {
-                val prics = productsList.get(0).variants.get(0).price.toDouble()
-                binding!!.tvProuductPrice.text =
-                    String.format("%.2f", (prics * Currentcurrency!!)) + " USD"
-//
-//                ProductInfoViewModel.getCurrencyRate("EGP", "USD")
-//                val prics = productsList.get(0).variants.get(0).price.toDouble()
-//                getCurrencyRate(prics)
-
-//               val newPrice = (prics * conversionRate!!)
-//               binding.tvProuductPrice.text = "${newPrice} USD"
-            }
-        }
-
-
         val randomRating = ratingList[Random.nextInt(ratingList.size)]
-        val randomReview = reviewList[Random.nextInt(reviewList.size)]
 
         // Set the rating and review to the UI
         binding!!.rbProuductRatingBar.rating = randomRating
-        binding?.let { it.ratingOfTen.text  = "(${it.rbProuductRatingBar.rating*2})"}
+        binding?.let { it.ratingOfTen.text = "(${it.rbProuductRatingBar.rating * 2})" }
         binding!!.rbProuductRatingBar.setIsIndicator(true) // to make the rating bar unchangable
         //binding!!.tvProuductReview.text = randomReview
         Log.d("TAG", "getProductDetails: url sora  ${productsList.get(0).images.get(0).src} ")
@@ -362,25 +298,6 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
         binding!!.isProuductImage.setImageList(imageSlideModels)
     }
 
-//    fun setUpTheAvailableSizesAndColors(optionList: List<Option>) {
-//        optionList.forEach {
-//            when (it.name) {
-//                "Color" -> {
-//                    val availableColorsList = it.values.map { AvailableColor(it) }
-//                    availableColorsAdapter.submitList(availableColorsList)
-//                }
-//
-//                "Size" -> {
-//                    val availableSizesList = it.values.map { AvailableSizes(it) }
-//                    availableSizesAdapter.submitList(availableSizesList)
-//
-//
-//                }
-//
-//                else -> {}
-//            }
-//        }
-//    }
 
     override fun OnClick(t: AvailableSizes) {
         binding?.tvSize?.text = t.size
@@ -408,77 +325,9 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
         }
     }
 
-    fun getCurrencyRate(price: Double) {
-
-        lifecycleScope.launch {
-            productInfoViewModel.currencyStateFlow.collectLatest { result ->
-                when (result) {
-                    DataState.Loading -> {
-                        Log.d("TAG", "getCurrencyRate: loading   ")
-                    }
-
-                    is DataState.OnFailed -> {
-                        Log.d("TAG", "getCurrencyRate: failure    ")
-                    }
-
-                    is DataState.OnSuccess<*> -> {
-
-//                        conversionRate = (result.data as ExchangeRateResponse).conversion_rate
-//                        Log.d("TAG", "getCurrencyRate: succes   $conversionRate   ")
-//                        binding!!.tvProuductPrice.text =
-//                            String.format("%.2f", (price * conversionRate!!)) + " USD"
-
-
-                    }
-                }
-
-            }
-        }
-    }
-
-
-    private fun draftOrderRequest(): DraftOrderRequest {
-        val draftOrderRequest = DraftOrderRequest(
-            draft_order = DraftOrder(
-                line_items = listOf(
-                    LineItem(
-                        sku = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId.toString(),
-                        name = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId.toString(),
-                        id = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
-                        product_id = ProuductnfoFragmentArgs.fromBundle(requireArguments()).productId,
-                        title = proudct.title, price = proudct.variants[0].price, quantity = 1
-                    )
-                ),
-                use_customer_default_address = true,
-                applied_discount = AppliedDiscount(
-                    description = null,
-                    value_type = null,
-                    value = null,
-                    amount = null,
-                    title = null
-                ),
-                customer = Customer(8220771418416)
-            )
-
-        )
-        return draftOrderRequest
-    }
-
-
-//    suspend fun priceRulesResult(){
-//        ProductInfoViewModel.priceRules.collect{state->
-//            when(state){
-//                is DataState.Loading ->{}
-//                is DataState.OnFailed ->{}
-//                is DataState.OnSuccess<*> ->{
-//                    val data = state.data as PriceRulesResponse
-//                }
-//            }
-//        }
-//    }
-
     fun getSpecificDraftOrderById(FavDraftOrderId: Long) {
         lifecycleScope.launch {
+            getProductDetails()
             productInfoViewModel.getSpecificDraftOrder(FavDraftOrderId)
             productInfoViewModel.specificDraftOrders.collectLatest { result ->
                 when (result) {
@@ -495,79 +344,20 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
 
 
                     is DataState.OnSuccess<*> -> {
-                        Log.d("TAG", "getSpecificDraftOrderById: prouductInfo success")
                         draftOrderRequest = result.data as DraftOrderRequest
-                        draftOrderRequest.draft_order.line_items.forEach {
-
-                            if (it.title == productTitle) {
-                                Log.d(
-                                    "TAG",
-                                    "getSpecificDraftOrderById: prouductInfo case if >> kda el product da mwgod fel draft order "
-                                )
-                                IS_Liked = true
-                            }
-                        }
-
-                        val originalList = draftOrderRequest.draft_order.line_items.toMutableList()
-
-                        // Check if the product is already in favorites
-                        val x = originalList.any {//0
-                            val string = it.sku?.split("##")
-                            val id = string?.get(0)
-                            id == proudct.id.toString()
-                        }
-
-                        if (x) {
-                            getProductDetails()
-                            lifecycleScope.launch(Dispatchers.IO){
-                                withContext(Dispatchers.Main){
-                                    binding!!.ivAddProuductToFavorite.setImageResource(R.drawable.filled_favorite)
-                                    binding!!.ivAddProuductToFavorite.setOnClickListener {
-                                        // Remove the item by filtering out the matching SKU
-                                        val updatedLineItems = draftOrderRequest.draft_order.line_items.filter { lineItem ->
-                                            val skuParts = lineItem.sku?.split("##")
-                                            skuParts?.firstOrNull() != proudct.id.toString()
-                                        }
-
-                                        val updateRequest = UpdateDraftOrderRequest(
-                                            DraftOrder(
-                                                line_items = updatedLineItems,
-                                                applied_discount = null,
-                                                customer = Customer(customerId.toLong()),
-                                                use_customer_default_address = true,
-                                            )
-                                        )
-
-                                        productInfoViewModel.updateDraftOrder(FavDraftOrderId, updateRequest)
-                                        binding!!.ivAddProuductToFavorite.setImageResource(R.drawable.favorite)
-
-                                        // Show feedback to user
-                                        Snackbar.make(
-                                            requireView(),
-                                            "Removed from favorites",
-                                            Snackbar.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                }
-                            }
-
+                        if (favoritesHandler.isProductInFavorites(draftOrderRequest,proudct.id.toString())){
+                            binding?.ivAddProuductToFavorite?.setImageResource(R.drawable.filled_favorite)
+                        }else{
+                            binding?.ivAddProuductToFavorite?.setImageResource(R.drawable.favorite)
 
                         }
-
-//                        if (IS_Liked) {
-//                            binding?.ivAddProuductToFavorite?.setColorFilter(Color.BLUE)
-//                        } else {
-//                            binding?.ivAddProuductToFavorite?.setColorFilter(Color.BLACK)
-//                        }
-
                     }
+
+
                 }
 
-
             }
-
         }
-
     }
 
     override fun onStart() {

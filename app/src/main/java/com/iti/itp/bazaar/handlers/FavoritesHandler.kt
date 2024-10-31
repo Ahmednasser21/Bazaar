@@ -94,7 +94,7 @@ class FavoritesHandler(
         }
     }
 
-    private fun isProductInFavorites(draftOrder: DraftOrderRequest, productId: String): Boolean {
+     fun isProductInFavorites(draftOrder: DraftOrderRequest, productId: String): Boolean {
         return draftOrder.draft_order.line_items.any { lineItem ->
             val skuParts = lineItem.sku?.split("##")
             skuParts?.firstOrNull() == productId

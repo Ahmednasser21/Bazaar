@@ -196,22 +196,27 @@ class ShoppingCartFragment : Fragment(), OnQuantityChangeListener {
             val couponCode = binding.couponsEditText.text.toString().trim()
 
             // Find matching price rule
-            matchingRule = priceRules.priceRules.find { it.title == couponCode }!!
+            matchingRule = priceRules.priceRules.find { it.title == couponCode }
 
-            // Store the discount percentage
-            appliedDiscountPercentage = abs(matchingRule?.value?.toDouble()?:0.0)
+            if (matchingRule != null) {
+                // Store the discount percentage
+                appliedDiscountPercentage = abs(matchingRule?.value?.toDouble() ?: 0.0)
 
-            // Recalculate total with discounted items
-            val discountedTotal = calculateDiscountedTotal()
+                // Recalculate total with discounted items
+                val discountedTotal = calculateDiscountedTotal()
 
-            binding.tvTotalPriceValue.text = currencyFormatter.format(discountedTotal)
-            binding.couponsEditText.isEnabled = false
-            binding.couponsImageButton.isEnabled = false
+                binding.tvTotalPriceValue.text = currencyFormatter.format(discountedTotal)
+                binding.couponsEditText.isEnabled = false
+                binding.couponsImageButton.isEnabled = false
 
-            // Refresh the RecyclerView to show discounted prices
-            adapter.setDiscount(appliedDiscountPercentage)
-            adapter.notifyDataSetChanged()
-
+                // Refresh the RecyclerView to show discounted prices
+                adapter.setDiscount(appliedDiscountPercentage)
+                adapter.notifyDataSetChanged()
+            } else {
+                // Show invalid coupon code message
+                Snackbar.make(requireView(), "Invalid coupon code", Snackbar.LENGTH_SHORT).show()
+                binding.couponsEditText.text?.clear()
+            }
         }
 
         if (firstDraftOrder.line_items.isEmpty() || firstDraftOrder.line_items.size == 1){
