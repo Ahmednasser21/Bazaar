@@ -138,7 +138,7 @@ class PaymentMethods : Fragment() {
                 try {
                     val jsonResponse = JSONObject(response)
                     customerId = jsonResponse.getString("id")
-                    Toast.makeText(requireContext(), "Customer ID: $customerId", Toast.LENGTH_SHORT).show()
+                    Snackbar.make(requireView(), "Loading",2000).show()
                     getEphemeralKey()
                 } catch (e: Exception) {
                     Log.e(TAG, "Error parsing customer response", e)
@@ -196,7 +196,6 @@ class PaymentMethods : Fragment() {
                 try {
                     val jsonResponse = JSONObject(response)
                     clientSecret = jsonResponse.getString("client_secret")
-                    Toast.makeText(requireContext(), "Client Secret: $clientSecret", Toast.LENGTH_SHORT).show()
                     paymentFlow()
                 } catch (e: Exception) {
                     Log.e(TAG, "Error parsing payment intent response", e)
