@@ -74,11 +74,6 @@ class SignUpFragment : Fragment() {
     )
     var customerRequest: CustomerRequest = CustomerRequest(newCustomer)
 
-    override fun onCreate(savedInstanceState: Bundle?)
-    {
-        super.onCreate(savedInstanceState)
-
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -169,9 +164,8 @@ class SignUpFragment : Fragment() {
         }
 
         binding.imgGoToLogin.setOnClickListener{
-
           val action =  SignUpFragmentDirections.actionSignUpFragmentToLoginFragment()
-            Navigation.findNavController(binding.root).navigate(action)
+            Navigation.findNavController(requireView()).navigate(action)
         }
 
 
@@ -251,10 +245,6 @@ class SignUpFragment : Fragment() {
 
 
 
-    }
-    fun navigateToLogin (){
-        val action = SignUpFragmentDirections.actionSignUpFragmentToLoginFragment()
-        Navigation.findNavController(binding.root).navigate(action)
     }
 
     fun ObserveOnPostingCustomer(customerRequest: CustomerRequest) {
