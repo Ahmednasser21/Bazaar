@@ -73,7 +73,7 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         mySharedPrefrence = requireActivity().getSharedPreferences(
             MyConstants.MY_SHARED_PREFERANCE,
             Context.MODE_PRIVATE
@@ -362,7 +362,7 @@ class ProuductnfoFragment : Fragment(), OnClickListner<AvailableSizes>, OnColorC
 
     override fun onStart() {
         super.onStart()
-        getProductDetails()
+        getProductDetailsById()
     }
 
     private fun draftOrderRequest(prduct: Products): DraftOrderRequest {
