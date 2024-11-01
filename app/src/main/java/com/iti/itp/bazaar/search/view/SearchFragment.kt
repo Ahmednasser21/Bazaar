@@ -264,6 +264,7 @@ class SearchFragment : Fragment(), OnFavouriteClickListener, OnProductClickListe
 //    }
 
     override fun onFavProductClick(product: Products) {
+
     }
 
 
