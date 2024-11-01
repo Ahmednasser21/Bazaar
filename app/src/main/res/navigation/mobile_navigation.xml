@@ -67,7 +67,7 @@
     </fragment>
     <fragment
         android:id="@+id/productInfoFragment"
-        android:name="com.iti.itp.bazaar.productInfo.view.ProuductnfoFragment"
+        android:name="com.iti.itp.bazaar.productInfo.view.ProductInfoFragment"
         android:label="@string/fragmentProuductInfo"
         tools:layout="@layout/fragment_prouductnfo">
         <argument
