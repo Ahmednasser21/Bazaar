@@ -142,11 +142,14 @@ class LoginFragment : Fragment() {
         authViewModel = ViewModelProvider(this, vmFactory).get(AuthViewModel::class.java)
 
         binding.tvGuestMode.setOnClickListener {
+            // Set default draft order IDs for guest mode
+            sharedPreferences.edit().apply {
+                putString(MyConstants.IS_GUEST, "true")
+                putString(MyConstants.CART_DRAFT_ORDER_ID, "0")
+                putString(MyConstants.FAV_DRAFT_ORDERS_ID, "0")
+            }.apply()
 
-            // this is to be use in all project to check if the user is in guest mode
-            sharedPreferences.edit().putString(MyConstants.IS_GUEST, "true").apply()
             startActivity(Intent(requireActivity(), MainActivity::class.java))
-
         }
 
         binding.btnLogIn.setOnClickListener {
