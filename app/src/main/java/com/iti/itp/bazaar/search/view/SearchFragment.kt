@@ -1,6 +1,7 @@
 package com.iti.itp.bazaar.search.view
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -8,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SearchView
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
@@ -15,6 +17,8 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.example.productinfoform_commerce.productInfo.viewModel.ProuductIfonViewModelFactory
 import com.example.productinfoform_commerce.productInfo.viewModel.ProductInfoViewModel
 import com.google.android.material.snackbar.Snackbar
+import com.iti.itp.bazaar.R
+import com.iti.itp.bazaar.auth.AuthActivity
 import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.databinding.FragmentSearchBinding
 import com.iti.itp.bazaar.dto.AppliedDiscount
@@ -57,6 +61,7 @@ class SearchFragment : Fragment(), OnFavouriteClickListener, OnProductClickListe
     private var FavoriteDraftOrderId: String? = null
     private var draftOrder: DraftOrderRequest? = null
     var draftOrderId: Long = 0
+    private lateinit var isGuestMode: String
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -81,6 +86,7 @@ class SearchFragment : Fragment(), OnFavouriteClickListener, OnProductClickListe
                 MyConstants.MY_SHARED_PREFERANCE,
                 Context.MODE_PRIVATE
             )
+        isGuestMode = sharedPrefs.getString(MyConstants.IS_GUEST, "false") ?: "false"
         draftOrderId =
             (this.sharedPrefs.getString(MyConstants.FAV_DRAFT_ORDERS_ID, "0") ?: "0").toLong()
 
@@ -199,21 +205,38 @@ class SearchFragment : Fragment(), OnFavouriteClickListener, OnProductClickListe
     }
 
     override fun onFavProductClick(product: Products) {
-        favoritesHandler.addProductToFavorites(
-            product = product,
-            onAdded = {
-                Snackbar.make(requireView(), "Added to favorites", Snackbar.LENGTH_SHORT).show()
-            },
-            onAlreadyExists = {
-                favoritesHandler.removeFromFavorites(
-                    product = product,
-                    onRemoved = {
-                        Snackbar.make(requireView(), "Removed from favorites", Snackbar.LENGTH_SHORT).show()
-                    }
-                )
-            }
-        )
+        if (isGuestMode == "true") {
+            Snackbar.make(
+                requireView(),
+                "Signup first to use this feature",
+                Snackbar.LENGTH_LONG
+            ).setAction("Signup") {
+                val intent = Intent(requireActivity(), AuthActivity::class.java)
+                intent.putExtra("navigateToFragment", "SignUpFragment")
+                startActivity(intent)
+            }.setActionTextColor(ContextCompat.getColor(requireContext(), R.color.primaryColor))
+                .show()
+        } else {
+            favoritesHandler.addProductToFavorites(
+                product = product,
+                onAdded = {
+                    Snackbar.make(requireView(), "Added to favorites", Snackbar.LENGTH_SHORT).show()
+                },
+                onAlreadyExists = {
+                    favoritesHandler.removeFromFavorites(
+                        product = product,
+                        onRemoved = {
+                            Snackbar.make(
+                                requireView(),
+                                "Removed from favorites",
+                                Snackbar.LENGTH_SHORT
+                            ).show()
+                        }
+                    )
+                }
+            )
 
+        }
     }
     suspend fun getSpecificDraftOrder() {
         productInfoViewModel.getSpecificDraftOrder(FavoriteDraftOrderId?.toLong() ?: 0)

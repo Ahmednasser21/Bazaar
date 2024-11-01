@@ -1,6 +1,7 @@
 package com.iti.itp.bazaar.mainActivity.ui.brand
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
@@ -9,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
@@ -18,6 +20,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.productinfoform_commerce.productInfo.viewModel.ProductInfoViewModel
 import com.example.productinfoform_commerce.productInfo.viewModel.ProuductIfonViewModelFactory
 import com.google.android.material.snackbar.Snackbar
+import com.iti.itp.bazaar.R
+import com.iti.itp.bazaar.auth.AuthActivity
 import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.databinding.FragmentBrandProductsBinding
 import com.iti.itp.bazaar.dto.DraftOrderRequest
@@ -51,6 +55,7 @@ class BrandProducts : Fragment(), OnProductClickListener, OnFavouriteClickListen
     private var customerId: String? = null
     private var favoriteDraftOrderId: String? = null
     private var draftOrder: DraftOrderRequest? = null
+    private lateinit var isGuestMode: String
 
 
     override fun onCreateView(
@@ -72,6 +77,7 @@ class BrandProducts : Fragment(), OnProductClickListener, OnFavouriteClickListen
         brandProductsViewModel =
             ViewModelProvider(this, factory)[BrandProductsViewModel::class.java]
         sharedPrefs = requireActivity().getSharedPreferences(MyConstants.MY_SHARED_PREFERANCE, Context.MODE_PRIVATE)
+        isGuestMode = sharedPrefs.getString(MyConstants.IS_GUEST, "false") ?: "false"
         binding = FragmentBrandProductsBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -137,21 +143,38 @@ class BrandProducts : Fragment(), OnProductClickListener, OnFavouriteClickListen
     }
 
     override fun onFavProductClick(product: Products) {
-        favoritesHandler.addProductToFavorites(
-            product = product,
-            onAdded = {
-                Snackbar.make(requireView(), "Added to favorites", Snackbar.LENGTH_SHORT).show()
-            },
-            onAlreadyExists = {
-                favoritesHandler.removeFromFavorites(
-                    product = product,
-                    onRemoved = {
-                        Snackbar.make(requireView(), "Removed from favorites", Snackbar.LENGTH_SHORT).show()
-                    }
-                )
-            }
-        )
+        if (isGuestMode == "true") {
+            Snackbar.make(
+                requireView(),
+                "Signup first to use this feature",
+                Snackbar.LENGTH_LONG
+            ).setAction("Signup") {
+                val intent = Intent(requireActivity(), AuthActivity::class.java)
+                intent.putExtra("navigateToFragment", "SignUpFragment")
+                startActivity(intent)
+            }.setActionTextColor(ContextCompat.getColor(requireContext(), R.color.primaryColor))
+                .show()
+        } else {
+            favoritesHandler.addProductToFavorites(
+                product = product,
+                onAdded = {
+                    Snackbar.make(requireView(), "Added to favorites", Snackbar.LENGTH_SHORT).show()
+                },
+                onAlreadyExists = {
+                    favoritesHandler.removeFromFavorites(
+                        product = product,
+                        onRemoved = {
+                            Snackbar.make(
+                                requireView(),
+                                "Removed from favorites",
+                                Snackbar.LENGTH_SHORT
+                            ).show()
+                        }
+                    )
+                }
+            )
 
+        }
     }
     suspend fun getSpecificDraftOrder() {
         productInfoViewModel.getSpecificDraftOrder(favoriteDraftOrderId?.toLong() ?: 0)

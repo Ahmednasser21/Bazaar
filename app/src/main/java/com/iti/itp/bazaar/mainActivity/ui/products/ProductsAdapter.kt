@@ -1,6 +1,7 @@
 package com.iti.itp.bazaar.mainActivity.ui.products
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Paint
 import android.os.Build
 import android.util.Log
@@ -8,10 +9,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.R
+import com.iti.itp.bazaar.auth.AuthActivity
 import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.databinding.ProductsItemBinding
 import com.iti.itp.bazaar.dto.LineItem
@@ -67,7 +72,6 @@ class ProductsAdapter(
     override fun onBindViewHolder(holder: CategoryProductViewHolder, position: Int) {
         val product = getItem(position)
 
-        // Setting initial favorite icon based on the product's favorite status
         if (favoriteProductIds.contains(product.id)) {
             holder.binding.imgFav.setImageResource(R.drawable.filled_favorite)
         } else {
@@ -152,12 +156,21 @@ class ProductsAdapter(
             }
 
             binding.imgFav.setOnClickListener {
-                if (favoriteProductIds.contains(productDTO.id)) {
-                    binding.imgFav.setImageResource(R.drawable.favorite)
-                    favoriteProductIds.remove(productDTO.id)
-                } else {
-                    binding.imgFav.setImageResource(R.drawable.filled_favorite)
-                    favoriteProductIds.add(productDTO.id)
+                val sharedPrefs =
+                    binding.root.context.getSharedPreferences(
+                        MyConstants.MY_SHARED_PREFERANCE,
+                        Context.MODE_PRIVATE
+                    )
+                val isGuestMode = sharedPrefs.getString(MyConstants.IS_GUEST, "false") ?: "false"
+                if (isGuestMode == "false") {
+
+                    if (favoriteProductIds.contains(productDTO.id)) {
+                        binding.imgFav.setImageResource(R.drawable.favorite)
+                        favoriteProductIds.remove(productDTO.id)
+                    } else {
+                        binding.imgFav.setImageResource(R.drawable.filled_favorite)
+                        favoriteProductIds.add(productDTO.id)
+                    }
                 }
                 onFavouriteClickListener.onFavProductClick(productDTO)
             }

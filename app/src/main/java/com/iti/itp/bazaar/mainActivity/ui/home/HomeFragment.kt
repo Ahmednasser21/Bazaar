@@ -3,6 +3,7 @@ package com.iti.itp.bazaar.mainActivity.ui.home
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
@@ -11,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.activity.addCallback
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -26,6 +28,7 @@ import com.example.productinfoform_commerce.productInfo.viewModel.ProuductIfonVi
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.R
+import com.iti.itp.bazaar.auth.AuthActivity
 import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.databinding.FragmentHomeBinding
 import com.iti.itp.bazaar.dto.DraftOrder
@@ -74,6 +77,7 @@ class HomeFragment : Fragment(), OnBrandClickListener, OnProductClickListener,
     private lateinit var productInfoViewModel: ProductInfoViewModel
     private lateinit var productInfoViewModelFactory: ProuductIfonViewModelFactory
     private lateinit var sharedPrefs:SharedPreferences
+    private lateinit var isGuestMode: String
     private var customerId:String? = null
     private var FavoriteDraftOrderId:String? = null
     var draftOrder:DraftOrderRequest? = null
@@ -115,6 +119,8 @@ class HomeFragment : Fragment(), OnBrandClickListener, OnProductClickListener,
         productInfoViewModel =
             ViewModelProvider(this, productInfoViewModelFactory).get(ProductInfoViewModel::class.java)
         sharedPrefs = requireActivity().getSharedPreferences(MyConstants.MY_SHARED_PREFERANCE, Context.MODE_PRIVATE)
+        isGuestMode = sharedPrefs.getString(MyConstants.IS_GUEST, "false") ?: "false"
+
         binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
         return root
@@ -295,24 +301,35 @@ class HomeFragment : Fragment(), OnBrandClickListener, OnProductClickListener,
     }
 
     override fun onFavProductClick(product: Products) {
-        favoritesHandler.addProductToFavorites(
-            product = product,
-            onAdded = {
-                // Handle success (e.g., update UI)
-                Snackbar.make(requireView(),"Added to favorites", 2000).show()
-            },
-            onAlreadyExists = {
-                // Handle already in favorites case
-                favoritesHandler.removeFromFavorites(
-                    product = product,
-                    onRemoved = {
-                        // Handle successful removal
-                        Snackbar.make(requireView(),"Removed from favorites", 2000).show()
-                    }
-                )
-            }
-        )
-
+        if (isGuestMode == "true"){
+        Snackbar.make(
+            requireView(),
+            "Signup first to use this feature",
+            Snackbar.LENGTH_LONG
+        ).setAction("Signup") {
+            val intent = Intent(requireActivity(), AuthActivity::class.java)
+            intent.putExtra("navigateToFragment", "SignUpFragment")
+            startActivity(intent)
+        }.setActionTextColor(ContextCompat.getColor(requireContext(), R.color.primaryColor)).show()
+        }else {
+            favoritesHandler.addProductToFavorites(
+                product = product,
+                onAdded = {
+                    // Handle success (e.g., update UI)
+                    Snackbar.make(requireView(), "Added to favorites", 2000).show()
+                },
+                onAlreadyExists = {
+                    // Handle already in favorites case
+                    favoritesHandler.removeFromFavorites(
+                        product = product,
+                        onRemoved = {
+                            // Handle successful removal
+                            Snackbar.make(requireView(), "Removed from favorites", 2000).show()
+                        }
+                    )
+                }
+            )
+        }
     }
 
     override fun onProductClick(id: Long) {

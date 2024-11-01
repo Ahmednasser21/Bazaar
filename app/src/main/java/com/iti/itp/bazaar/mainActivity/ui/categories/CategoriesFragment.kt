@@ -1,6 +1,7 @@
 package com.iti.itp.bazaar.mainActivity.ui.categories
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
@@ -24,6 +25,7 @@ import com.google.android.material.chip.ChipGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.R
+import com.iti.itp.bazaar.auth.AuthActivity
 import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.databinding.FragmentCategoriesBinding
 import com.iti.itp.bazaar.dto.DraftOrderRequest
@@ -75,6 +77,7 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteClickL
     private var customerId: String? = null
     private var FavoriteDraftOrderId: String? = null
     private var draftOrder: DraftOrderRequest? = null
+    private lateinit var isGuestMode: String
 
 
     override fun onCreateView(
@@ -105,6 +108,7 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteClickL
             ViewModelProvider(requireActivity(), searchFactory)[SearchViewModel::class.java]
         productsAdapter = ProductsAdapter(false, this, this)
         sharedPrefs = requireActivity().getSharedPreferences(MyConstants.MY_SHARED_PREFERANCE, Context.MODE_PRIVATE)
+        isGuestMode = sharedPrefs.getString(MyConstants.IS_GUEST, "false") ?: "false"
         binding = FragmentCategoriesBinding.inflate(inflater, container, false)
         val root: View = binding.root
         return root
@@ -356,21 +360,38 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteClickL
 
 
     override fun onFavProductClick(product: Products) {
-        favoritesHandler.addProductToFavorites(
-            product = product,
-            onAdded = {
-                Snackbar.make(requireView(), "Added to favorites", Snackbar.LENGTH_SHORT).show()
-            },
-            onAlreadyExists = {
-                favoritesHandler.removeFromFavorites(
-                    product = product,
-                    onRemoved = {
-                        Snackbar.make(requireView(), "Removed from favorites", Snackbar.LENGTH_SHORT).show()
-                    }
-                )
-            }
-        )
+        if (isGuestMode == "true") {
+            Snackbar.make(
+                requireView(),
+                "Signup first to use this feature",
+                Snackbar.LENGTH_LONG
+            ).setAction("Signup") {
+                val intent = Intent(requireActivity(), AuthActivity::class.java)
+                intent.putExtra("navigateToFragment", "SignUpFragment")
+                startActivity(intent)
+            }.setActionTextColor(ContextCompat.getColor(requireContext(), R.color.primaryColor))
+                .show()
+        } else {
+            favoritesHandler.addProductToFavorites(
+                product = product,
+                onAdded = {
+                    Snackbar.make(requireView(), "Added to favorites", Snackbar.LENGTH_SHORT).show()
+                },
+                onAlreadyExists = {
+                    favoritesHandler.removeFromFavorites(
+                        product = product,
+                        onRemoved = {
+                            Snackbar.make(
+                                requireView(),
+                                "Removed from favorites",
+                                Snackbar.LENGTH_SHORT
+                            ).show()
+                        }
+                    )
+                }
+            )
 
+        }
     }
     suspend fun getSpecificDraftOrder() {
         productInfoViewModel.getSpecificDraftOrder(FavoriteDraftOrderId?.toLong() ?: 0)
