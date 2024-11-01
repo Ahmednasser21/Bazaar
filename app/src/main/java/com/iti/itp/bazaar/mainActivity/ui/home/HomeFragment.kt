@@ -299,7 +299,7 @@ class HomeFragment : Fragment(), OnBrandClickListener, OnProductClickListener,
             product = product,
             onAdded = {
                 // Handle success (e.g., update UI)
-                Snackbar.make(requireView(),"added successfully", 2000).show()
+                Snackbar.make(requireView(),"Added to favorites", 2000).show()
             },
             onAlreadyExists = {
                 // Handle already in favorites case
@@ -307,7 +307,7 @@ class HomeFragment : Fragment(), OnBrandClickListener, OnProductClickListener,
                     product = product,
                     onRemoved = {
                         // Handle successful removal
-                        Snackbar.make(requireView(),"removed successfully", 2000).show()
+                        Snackbar.make(requireView(),"Removed from favorites", 2000).show()
                     }
                 )
             }

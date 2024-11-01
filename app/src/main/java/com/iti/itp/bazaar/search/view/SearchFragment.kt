@@ -62,7 +62,6 @@ class SearchFragment : Fragment(), OnFavouriteClickListener, OnProductClickListe
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         vmFactory =
             SearchViewModelFactory(Repository.getInstance(ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)))
         searchViewModel =
@@ -77,7 +76,6 @@ class SearchFragment : Fragment(), OnFavouriteClickListener, OnProductClickListe
         productInfoViewModel =
             ViewModelProvider(this, draftViewModelFactory).get(ProductInfoViewModel::class.java)
 
-        // sharedPref To Store FavDraftOrderId
         this.sharedPrefs =
             requireContext().getSharedPreferences(
                 MyConstants.MY_SHARED_PREFERANCE,

@@ -45,10 +45,6 @@ class FavoriteProductsFragment : Fragment(), OnFavProductCardClick, OnFavProduct
     lateinit var FavDraftOrder: DraftOrderRequest
     var favDraftOrderId: Long = 0
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -92,9 +88,15 @@ class FavoriteProductsFragment : Fragment(), OnFavProductCardClick, OnFavProduct
                 productInfoViewModel.getSpecificDraftOrder(favDraftOrderId)
                 productInfoViewModel.specificDraftOrders.collectLatest { result ->
                     when (result) {
-                        DataState.Loading -> {}
-                        is DataState.OnFailed -> {}
+                        DataState.Loading -> {
+                            binding.rvFavProducts.visibility = View.INVISIBLE
+                            binding.progressBar4.visibility = View.VISIBLE
+                        }
+                        is DataState.OnFailed -> {binding.progressBar4.visibility = View.GONE
+                            binding.rvFavProducts.visibility = View.VISIBLE}
                         is DataState.OnSuccess<*> -> {
+                            binding.progressBar4.visibility = View.GONE
+                            binding.rvFavProducts.visibility = View.VISIBLE
                             // i must make this list golbal to use it in the delete click to delete the targted lineItm from the list of lineItems in This List
                             FavDraftOrder = result.data as DraftOrderRequest
                             // print this list here ASAP
@@ -173,8 +175,12 @@ class FavoriteProductsFragment : Fragment(), OnFavProductCardClick, OnFavProduct
                             favDraftOrderId,
                             UpdateDraftOrderRequest(FavDraftOrder.draft_order)
                         )
+                        binding.progressBar4.visibility = View.VISIBLE
+                        binding.rvFavProducts.visibility = View.INVISIBLE
                         delay(1000) // to give time for changes ( delating and updating the list ) to take action
                         // to call the list again after its modified
+                        binding.progressBar4.visibility = View.GONE
+                        binding.rvFavProducts.visibility = View.VISIBLE
                         productInfoViewModel.getSpecificDraftOrder(favDraftOrderId)
                     } else {
 
@@ -184,8 +190,11 @@ class FavoriteProductsFragment : Fragment(), OnFavProductCardClick, OnFavProduct
                             favDraftOrderId,
                             UpdateDraftOrderRequest(FavDraftOrder.draft_order)
                         )
-
+                        binding.progressBar4.visibility = View.VISIBLE
+                        binding.rvFavProducts.visibility = View.INVISIBLE
                         delay(1000)
+                        binding.progressBar4.visibility = View.VISIBLE
+                        binding.rvFavProducts.visibility = View.INVISIBLE
                         productInfoViewModel.getSpecificDraftOrder(favDraftOrderId)
                     }
                 }
