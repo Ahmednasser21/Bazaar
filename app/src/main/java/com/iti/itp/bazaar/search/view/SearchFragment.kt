@@ -14,6 +14,7 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.productinfoform_commerce.productInfo.viewModel.ProuductIfonViewModelFactory
 import com.example.productinfoform_commerce.productInfo.viewModel.ProductInfoViewModel
+import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.databinding.FragmentSearchBinding
 import com.iti.itp.bazaar.dto.AppliedDiscount
@@ -21,6 +22,7 @@ import com.iti.itp.bazaar.dto.Customer
 import com.iti.itp.bazaar.dto.DraftOrder
 import com.iti.itp.bazaar.dto.DraftOrderRequest
 import com.iti.itp.bazaar.dto.LineItem
+import com.iti.itp.bazaar.handlers.FavoritesHandler
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.mainActivity.ui.products.OnFavouriteClickListener
 import com.iti.itp.bazaar.mainActivity.ui.products.OnProductClickListener
@@ -49,15 +51,17 @@ class SearchFragment : Fragment(), OnFavouriteClickListener, OnProductClickListe
     private lateinit var searchAdapter: ProductsAdapter
     private lateinit var productInfoViewModel: ProductInfoViewModel
     private lateinit var draftViewModelFactory: ProuductIfonViewModelFactory
-
-    private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var sharedPrefs: SharedPreferences
+    private lateinit var favoritesHandler: FavoritesHandler
+    private var customerId: String? = null
+    private var FavoriteDraftOrderId: String? = null
+    private var draftOrder: DraftOrderRequest? = null
     var draftOrderId: Long = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         vmFactory =
             SearchViewModelFactory(Repository.getInstance(ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)))
         searchViewModel =
@@ -72,14 +76,13 @@ class SearchFragment : Fragment(), OnFavouriteClickListener, OnProductClickListe
         productInfoViewModel =
             ViewModelProvider(this, draftViewModelFactory).get(ProductInfoViewModel::class.java)
 
-        // sharedPref To Store FavDraftOrderId
-        sharedPreferences =
+        this.sharedPrefs =
             requireContext().getSharedPreferences(
                 MyConstants.MY_SHARED_PREFERANCE,
                 Context.MODE_PRIVATE
             )
         draftOrderId =
-            (sharedPreferences.getString(MyConstants.FAV_DRAFT_ORDERS_ID, "0") ?: "0").toLong()
+            (this.sharedPrefs.getString(MyConstants.FAV_DRAFT_ORDERS_ID, "0") ?: "0").toLong()
 
         //////////////////////////////////////////////
         searchAdapter = ProductsAdapter(false, this, this)
@@ -97,6 +100,13 @@ class SearchFragment : Fragment(), OnFavouriteClickListener, OnProductClickListe
         binding.svSearchbar.setOnClickListener {
             binding.svSearchbar.isIconified = false
             binding.svSearchbar.requestFocusFromTouch ()
+        }
+        customerId = sharedPrefs.getString(MyConstants.CUSOMER_ID, "0")
+        FavoriteDraftOrderId = sharedPrefs.getString(MyConstants.FAV_DRAFT_ORDERS_ID, "0")
+        favoritesHandler = FavoritesHandler(productInfoViewModel, sharedPrefs)
+
+        lifecycleScope.launch {
+            favoritesHandler.initialize()
         }
         lifecycleScope.launch {
             searchViewModel.searchStateFlow.collectLatest { result ->
@@ -188,83 +198,34 @@ class SearchFragment : Fragment(), OnFavouriteClickListener, OnProductClickListe
         Navigation.findNavController(binding.root).navigate(action)
     }
 
-//    override fun onFavProductClick() {
-//        //        lifecycleScope.launch {
-////
-////            if (draftOrderId==0L )
-////            {
-////                ProductInfoViewModel.createOrder(draftOrderRequest(prduct))
-////                Log.d("TAG", "onFavClick: click favorite fragment")
-////                delay(2000) // tb be able to retrive my draftOrderId
-////                ProductInfoViewModel.getAllDraftOrders()
-////                ProductInfoViewModel.allDraftOrders.collectLatest { result->
-////                    when(result){
-////                        DataState.Loading -> {}
-////                        is DataState.OnFailed ->{}
-////                        is DataState.OnSuccess<*> ->{
-////                            val draftOrder = (result.data as ReceivedOrdersResponse)
-////                            val draftOrderId =draftOrder.draft_orders.get(draftOrder.draft_orders.size-1).id
-////                             sharedPreferences.edit().putString(MyConstants.FAV_DRAFT_ORDERS_ID,"$draftOrderId").apply()
-////                        }
-////                    }
-////
-////                }
-////
-////            }
-////            else {
-////
-////                ProductInfoViewModel.getSpecificDraftOrder(draftOrderId)
-////                ProductInfoViewModel.specificDraftOrders.collectLatest { result->
-////                    when (result){
-////                        DataState.Loading -> {}
-////                        is DataState.OnFailed ->{}
-////                        is DataState.OnSuccess<*> ->{
-////                            var OldDraftOrderReq = result.data as  DraftOrderRequest
-////                            var currentDraftOrderItems : MutableList<LineItem> = mutableListOf() // to store my previous liked products
-////                            OldDraftOrderReq.draft_order.line_items.forEach{
-////                                currentDraftOrderItems.add(it) // getting the old list of line_items
-////                            }
-////                            // now i want to add this list to my new liked item
-////                            currentDraftOrderItems.add(draftOrderRequest(prduct).draft_order.line_items.get(0))
-////                            var updatedDraftOrder = draftOrderRequest(prduct).draft_order
-////                            updatedDraftOrder.line_items =currentDraftOrderItems
-////                            ProductInfoViewModel.updateDraftOrder(draftOrderId,UpdateDraftOrderRequest(updatedDraftOrder) )
-////                        }
-////                    }
-////
-////
-////                }
-////
-////
-////            }
-////
-////            lifecycleScope.launch(Dispatchers.IO) {
-////                ProductInfoViewModel.createdOrder.collectLatest { result ->
-////                    when (result ){
-////                        DataState.Loading -> {}
-////                        is DataState.OnFailed -> {}
-////                        is DataState.OnSuccess<*> -> {
-////                            val x = result.data as ReceivedDraftOrder
-////
-////                            Log.d("TAG", "onFavClick: w id el draft odre is ->${x.line_items?.get(0)?.title} ")
-////
-////                        }
-////                    }
-////
-////
-////
-////                }
-////
-////            }
-////
-////
-////
-////        }
-//
-//    }
-
     override fun onFavProductClick(product: Products) {
+        favoritesHandler.addProductToFavorites(
+            product = product,
+            onAdded = {
+                Snackbar.make(requireView(), "Added to favorites", Snackbar.LENGTH_SHORT).show()
+            },
+            onAlreadyExists = {
+                favoritesHandler.removeFromFavorites(
+                    product = product,
+                    onRemoved = {
+                        Snackbar.make(requireView(), "Removed from favorites", Snackbar.LENGTH_SHORT).show()
+                    }
+                )
+            }
+        )
 
+    }
+    suspend fun getSpecificDraftOrder() {
+        productInfoViewModel.getSpecificDraftOrder(FavoriteDraftOrderId?.toLong() ?: 0)
+        productInfoViewModel.specificDraftOrders.collect {
+            when (it) {
+                DataState.Loading -> {}
+                is DataState.OnFailed -> {}
+                is DataState.OnSuccess<*> -> {
+                    draftOrder = it.data as DraftOrderRequest
+                }
+            }
+        }
     }
 
 

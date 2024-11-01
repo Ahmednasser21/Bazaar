@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -30,18 +29,15 @@ class ProductsAdapter(
     private val isSale: Boolean,
     private val onProductClickListener: OnProductClickListener,
     private val onFavouriteClickListener: OnFavouriteClickListener
-) : ListAdapter<Products, ProductsAdapter.CategoryProductViewHolder>(
-    ProductsDiffUtils()
-) {
+) : ListAdapter<Products, ProductsAdapter.CategoryProductViewHolder>(ProductsDiffUtils()) {
 
     private var lineItems: List<LineItem> = emptyList()
     private var isLineItemsLoaded = false
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
+    private val favoriteProductIds = mutableSetOf<Long>()
     private val TAG = "ProductsAdapter"
 
     companion object {
-        // Add this as a class property
-        private var isFavorite = false
         private val productRatings = mutableMapOf<Long, Float>()
         private val ratingList = listOf(1.8f, 1.4f, 2.3f, 3.1f, 3.4f, 4.2f, 4.7f, 4.9f)
         private val discountList = listOf(15.00, 20.00, 30.00, 4.99, 10.00, 35.00)
@@ -54,7 +50,8 @@ class ProductsAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryProductViewHolder {
-        val binding = ProductsItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding =
+            ProductsItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
 
         if (!isLineItemsLoaded) {
             coroutineScope.launch {
@@ -70,7 +67,12 @@ class ProductsAdapter(
     override fun onBindViewHolder(holder: CategoryProductViewHolder, position: Int) {
         val product = getItem(position)
 
-        holder.binding.imgFav.setImageResource(R.drawable.favorite)
+        // Setting initial favorite icon based on the product's favorite status
+        if (favoriteProductIds.contains(product.id)) {
+            holder.binding.imgFav.setImageResource(R.drawable.filled_favorite)
+        } else {
+            holder.binding.imgFav.setImageResource(R.drawable.favorite)
+        }
 
         checkProductInFavorites(product.id.toString(), holder.binding)
 
@@ -85,12 +87,10 @@ class ProductsAdapter(
     private fun checkProductInFavorites(productId: String, binding: ProductsItemBinding) {
         if (lineItems.isNotEmpty()) {
             lineItems.forEach { lineItem ->
-                val lineItemString = lineItem.sku?.split("##")
-                val sku = lineItemString?.getOrNull(0)?.trim()
-
+                val sku = lineItem.sku?.split("##")?.getOrNull(0)?.trim()
                 if (sku != null && productId.equals(sku, ignoreCase = true)) {
                     binding.imgFav.setImageResource(R.drawable.filled_favorite)
-                    isFavorite = true
+                    favoriteProductIds.add(productId.toLong())
                     return@forEach
                 }
             }
@@ -112,12 +112,13 @@ class ProductsAdapter(
                     ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
                 )
 
-                repo.getSpecificDraftOrder(favoriteDraftOrderId?.toLong() ?: 0).collect { response ->
-                    withContext(Dispatchers.Main) {
-                        lineItems = response.draft_order.line_items
-                        notifyDataSetChanged()
+                repo.getSpecificDraftOrder(favoriteDraftOrderId?.toLong() ?: 0)
+                    .collect { response ->
+                        withContext(Dispatchers.Main) {
+                            lineItems = response.draft_order.line_items
+                            notifyDataSetChanged()
+                        }
                     }
-                }
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error loading favorite draft orders", e)
@@ -125,9 +126,8 @@ class ProductsAdapter(
         }
     }
 
-    class CategoryProductViewHolder(val binding: ProductsItemBinding) :
+    inner class CategoryProductViewHolder(val binding: ProductsItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
-
 
         @RequiresApi(Build.VERSION_CODES.Q)
         fun bindView(
@@ -136,16 +136,13 @@ class ProductsAdapter(
             onProductClickListener: OnProductClickListener,
             onFavouriteClickListener: OnFavouriteClickListener
         ) {
-            Log.i(TAG, "bindView: ${productDTO.title}")
-
             binding.tvProductName.text = extractProductName(productDTO.title)
-
             Glide.with(binding.root.context)
                 .load(productDTO.image?.src)
                 .into(binding.imgProduct)
 
             binding.tvProductPrice.text = if (!productDTO.variants.isNullOrEmpty()) {
-                "${productDTO.variants[0].price}EGP"
+                "${productDTO.variants[0].price} EGP"
             } else {
                 ""
             }
@@ -154,18 +151,17 @@ class ProductsAdapter(
                 onProductClickListener.onProductClick(productDTO.id)
             }
 
-
-
             binding.imgFav.setOnClickListener {
-                onFavouriteClickListener.onFavProductClick(productDTO)
-                if (!isFavorite) {
-                    binding.imgFav.setImageResource(R.drawable.filled_favorite)
-                    isFavorite = true
-                } else {
+                if (favoriteProductIds.contains(productDTO.id)) {
                     binding.imgFav.setImageResource(R.drawable.favorite)
-                    isFavorite = false
+                    favoriteProductIds.remove(productDTO.id)
+                } else {
+                    binding.imgFav.setImageResource(R.drawable.filled_favorite)
+                    favoriteProductIds.add(productDTO.id)
                 }
+                onFavouriteClickListener.onFavProductClick(productDTO)
             }
+
             val rating = getRatingForProduct(productDTO.id)
             binding.productRatingBar.rating = rating
             binding.ratingOfTen.text = "(${rating * 2})"
@@ -185,7 +181,7 @@ class ProductsAdapter(
                 text = if (!productDTO.variants.isNullOrEmpty()) {
                     val basePrice = productDTO.variants[0].price.toDouble()
                     val discount = discountList[Random.nextInt(discountList.size)]
-                    "${basePrice + discount}EGP"
+                    "${basePrice + discount} EGP"
                 } else {
                     ""
                 }
@@ -198,18 +194,13 @@ class ProductsAdapter(
             binding.tvOldPrice.visibility = View.INVISIBLE
         }
 
-        companion object {
-            private const val TAG = "CategoryProductViewHolder"
-
-            fun extractProductName(fullName: String): String {
-                val delimiter = "|"
-                return fullName.split(delimiter).let { parts ->
-                    when {
-                        parts.size > 1 -> parts.subList(1, parts.size)
-                            .joinToString(delimiter)
-                            .trim()
-                        else -> fullName.trim()
-                    }
+        private fun extractProductName(fullName: String): String {
+            val delimiter = "|"
+            return fullName.split(delimiter).let { parts ->
+                if (parts.size > 1) {
+                    parts.subList(1, parts.size).joinToString(delimiter).trim()
+                } else {
+                    fullName.trim()
                 }
             }
         }

@@ -1,5 +1,7 @@
 package com.iti.itp.bazaar.mainActivity.ui.categories
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -15,20 +17,28 @@ import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.productinfoform_commerce.productInfo.viewModel.ProductInfoViewModel
+import com.example.productinfoform_commerce.productInfo.viewModel.ProuductIfonViewModelFactory
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.iti.itp.bazaar.R
+import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.databinding.FragmentCategoriesBinding
+import com.iti.itp.bazaar.dto.DraftOrderRequest
+import com.iti.itp.bazaar.handlers.FavoritesHandler
 import com.iti.itp.bazaar.mainActivity.ui.DataState
 import com.iti.itp.bazaar.mainActivity.ui.products.OnFavouriteClickListener
 import com.iti.itp.bazaar.mainActivity.ui.products.OnProductClickListener
 import com.iti.itp.bazaar.mainActivity.ui.products.ProductsAdapter
+import com.iti.itp.bazaar.network.exchangeCurrencyApi.CurrencyRemoteDataSource
+import com.iti.itp.bazaar.network.exchangeCurrencyApi.ExchangeRetrofitObj
 import com.iti.itp.bazaar.network.products.Products
 import com.iti.itp.bazaar.network.responses.ProductResponse
 import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
+import com.iti.itp.bazaar.repo.CurrencyRepository
 import com.iti.itp.bazaar.repo.Repository
 import com.iti.itp.bazaar.search.viewModel.SearchViewModel
 import com.iti.itp.bazaar.search.viewModel.SearchViewModelFactory
@@ -59,12 +69,25 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteClickL
     private var isFabOpen = false
     private var categoryID = 480514900272
     private var previousChip: Chip? = null
+    private lateinit var productInfoViewModel: ProductInfoViewModel
+    private lateinit var sharedPrefs: SharedPreferences
+    private lateinit var favoritesHandler: FavoritesHandler
+    private var customerId: String? = null
+    private var FavoriteDraftOrderId: String? = null
+    private var draftOrder: DraftOrderRequest? = null
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        val productInfoViewModelFactory = ProuductIfonViewModelFactory(
+            Repository.getInstance(
+                ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
+            ),
+            CurrencyRepository(CurrencyRemoteDataSource(ExchangeRetrofitObj.service))
+        )
         val categoriesFactory = CategoriesViewModelFactory(
             Repository.getInstance(
                 ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
@@ -75,12 +98,13 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteClickL
                 ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
             )
         )
+        productInfoViewModel = ViewModelProvider(this, productInfoViewModelFactory)[ProductInfoViewModel::class.java]
         categoriesViewModel =
             ViewModelProvider(requireActivity(), categoriesFactory)[CategoriesViewModel::class.java]
         searchViewModel =
             ViewModelProvider(requireActivity(), searchFactory)[SearchViewModel::class.java]
         productsAdapter = ProductsAdapter(false, this, this)
-
+        sharedPrefs = requireActivity().getSharedPreferences(MyConstants.MY_SHARED_PREFERANCE, Context.MODE_PRIVATE)
         binding = FragmentCategoriesBinding.inflate(inflater, container, false)
         val root: View = binding.root
         return root
@@ -90,9 +114,14 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteClickL
         super.onViewCreated(view, savedInstanceState)
 
         initialiseUI()
+        customerId = sharedPrefs.getString(MyConstants.CUSOMER_ID, "0")
+        FavoriteDraftOrderId = sharedPrefs.getString(MyConstants.FAV_DRAFT_ORDERS_ID, "0")
+        favoritesHandler = FavoritesHandler(productInfoViewModel, sharedPrefs)
         val args: CategoriesFragmentArgs by navArgs()
         val categoryName = args.categoryName
-
+        lifecycleScope.launch {
+            favoritesHandler.initialize()
+        }
         when (categoryName) {
             "Women" -> {
                 animateChip(womenChip, 480515457328)
@@ -327,6 +356,33 @@ class CategoriesFragment : Fragment(), OnProductClickListener, OnFavouriteClickL
 
 
     override fun onFavProductClick(product: Products) {
+        favoritesHandler.addProductToFavorites(
+            product = product,
+            onAdded = {
+                Snackbar.make(requireView(), "Added to favorites", Snackbar.LENGTH_SHORT).show()
+            },
+            onAlreadyExists = {
+                favoritesHandler.removeFromFavorites(
+                    product = product,
+                    onRemoved = {
+                        Snackbar.make(requireView(), "Removed from favorites", Snackbar.LENGTH_SHORT).show()
+                    }
+                )
+            }
+        )
+
+    }
+    suspend fun getSpecificDraftOrder() {
+        productInfoViewModel.getSpecificDraftOrder(FavoriteDraftOrderId?.toLong() ?: 0)
+        productInfoViewModel.specificDraftOrders.collect {
+            when (it) {
+                DataState.Loading -> {}
+                is DataState.OnFailed -> {}
+                is DataState.OnSuccess<*> -> {
+                    draftOrder = it.data as DraftOrderRequest
+                }
+            }
+        }
     }
 
 }
