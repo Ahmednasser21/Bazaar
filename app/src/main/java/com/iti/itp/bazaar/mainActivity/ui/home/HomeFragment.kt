@@ -100,7 +100,6 @@ class HomeFragment : Fragment(), OnBrandClickListener, OnProductClickListener,
                 ShopifyRemoteDataSource(ShopifyRetrofitObj.productService)
             )
         )
-
         categoriesViewModel =
             ViewModelProvider(this, categoriesFactory)[CategoriesViewModel::class.java]
         searchViewModel =
