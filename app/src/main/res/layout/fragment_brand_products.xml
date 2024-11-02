@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginVertical="2dp"
-    tools:context=".mainActivity.ui.brand.BrandProducts" >
+    tools:context=".mainActivity.brand.BrandProducts" >
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rec_brand_products"

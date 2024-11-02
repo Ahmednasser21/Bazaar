@@ -5,15 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseUser
-import com.iti.itp.bazaar.auth.firebase.FirebaseReposatory
 import com.iti.itp.bazaar.auth.firebase.IFirebaseReposatory
 import com.iti.itp.bazaar.dto.CustomerRequest
 import com.iti.itp.bazaar.dto.UpdateCustomerRequest
-import com.iti.itp.bazaar.dto.cutomerResponce.CustomerResponse
-import com.iti.itp.bazaar.mainActivity.ui.DataState
+import com.iti.itp.bazaar.mainActivity.DataState
 import com.iti.itp.bazaar.repo.Repository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
@@ -79,10 +76,10 @@ class AuthViewModel (private val repo : IFirebaseReposatory , private val reposi
 
         viewModelScope.launch(Dispatchers.IO) {
             repository.updateCustomerById(customerId,updateCustomerRequest).catch {
-                _updateCustomerByIdStateFlow.value =DataState.OnFailed(it)
+                _updateCustomerByIdStateFlow.value = DataState.OnFailed(it)
 
             }.collect {
-                _updateCustomerByIdStateFlow.value =DataState.OnSuccess (it)
+                _updateCustomerByIdStateFlow.value = DataState.OnSuccess (it)
             }
         }
     }

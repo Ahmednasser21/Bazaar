@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:backgroundTint="@color/backgroundColor"
     android:orientation="vertical"
-    tools:context=".search.view.SearchFragment">
+    tools:context=".mainActivity.search.view.SearchFragment">
 
 
     <com.airbnb.lottie.LottieAnimationView

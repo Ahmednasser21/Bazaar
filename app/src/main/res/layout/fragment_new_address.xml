@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="12dp"
-    tools:context=".settings.ui.newAddressFragment.view.NewAddressFragment">
+    tools:context=".mainActivity.newAddressFragment.view.NewAddressFragment">
 
 
     <EditText

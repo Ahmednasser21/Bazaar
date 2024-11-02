@@ -5,7 +5,7 @@
     android:id="@+id/constrainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".favoriteProducts.view.FavoriteProductsFragment" >
+    tools:context=".mainActivity.favoriteProducts.view.FavoriteProductsFragment" >
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/empty_fav_animation"

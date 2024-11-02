@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.productinfoform_commerce.productInfo.viewModel.ProductInfoViewModel
 import com.iti.itp.bazaar.auth.MyConstants
 import com.iti.itp.bazaar.dto.*
-import com.iti.itp.bazaar.mainActivity.ui.DataState
+import com.iti.itp.bazaar.mainActivity.DataState
 import com.iti.itp.bazaar.network.products.Products
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first

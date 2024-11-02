@@ -8,7 +8,7 @@
 
     <fragment
         android:id="@+id/nav_home"
-        android:name="com.iti.itp.bazaar.mainActivity.ui.home.HomeFragment"
+        android:name="com.iti.itp.bazaar.mainActivity.home.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home">
         <action
@@ -24,7 +24,7 @@
 
     <fragment
         android:id="@+id/nav_categories"
-        android:name="com.iti.itp.bazaar.mainActivity.ui.categories.CategoriesFragment"
+        android:name="com.iti.itp.bazaar.mainActivity.categories.CategoriesFragment"
         android:label="Categories"
         tools:layout="@layout/fragment_categories" >
         <action
@@ -37,7 +37,7 @@
 
     <fragment
         android:id="@+id/nav_profile"
-        android:name="com.iti.itp.bazaar.mainActivity.ui.profile.ProfileFragment"
+        android:name="com.iti.itp.bazaar.mainActivity.profile.ProfileFragment"
         android:label="@string/profile"
         tools:layout="@layout/fragment_me" >
         <action
@@ -55,7 +55,7 @@
     </fragment>
     <fragment
         android:id="@+id/nav_brand_products"
-        android:name="com.iti.itp.bazaar.mainActivity.ui.brand.BrandProducts"
+        android:name="com.iti.itp.bazaar.mainActivity.brand.BrandProducts"
         android:label="Brands"
         tools:layout="@layout/fragment_brand_products">
         <argument
@@ -67,7 +67,7 @@
     </fragment>
     <fragment
         android:id="@+id/productInfoFragment"
-        android:name="com.iti.itp.bazaar.productInfo.view.ProductInfoFragment"
+        android:name="com.iti.itp.bazaar.mainActivity.productInfo.view.ProductInfoFragment"
         android:label="@string/fragmentProuductInfo"
         tools:layout="@layout/fragment_prouductnfo">
         <argument
@@ -76,7 +76,7 @@
     </fragment>
     <fragment
         android:id="@+id/nav_search"
-        android:name="com.iti.itp.bazaar.search.view.SearchFragment"
+        android:name="com.iti.itp.bazaar.mainActivity.search.view.SearchFragment"
         android:label="@string/fragmentSearch"
         tools:layout="@layout/fragment_search" >
         <action
@@ -85,7 +85,7 @@
     </fragment>
     <fragment
         android:id="@+id/orderFragment"
-        android:name="com.iti.itp.bazaar.mainActivity.ui.order.OrderFragment"
+        android:name="com.iti.itp.bazaar.mainActivity.order.OrderFragment"
         android:label="My Orders"
         tools:layout="@layout/fragment_order" >
         <argument
@@ -94,7 +94,7 @@
     </fragment>
     <fragment
         android:id="@+id/nav_favourite"
-        android:name="com.iti.itp.bazaar.favoriteProducts.view.FavoriteProductsFragment"
+        android:name="com.iti.itp.bazaar.mainActivity.favoriteProducts.view.FavoriteProductsFragment"
         android:label="@string/favProducts"
         tools:layout="@layout/fragment_favorite_products" >
         <action
@@ -103,7 +103,7 @@
     </fragment>
     <fragment
         android:id="@+id/nav_cart"
-        android:name="com.iti.itp.bazaar.shoppingCartActivity.shoppingCartFragment.view.ShoppingCartFragment"
+        android:name="com.iti.itp.bazaar.mainActivity.shoppingCartFragment.view.ShoppingCartFragment"
         android:label="Shopping cart"
         tools:layout="@layout/fragment_shopping_cart" >
         <action
@@ -112,7 +112,7 @@
     </fragment>
     <fragment
         android:id="@+id/choose_address"
-        android:name="com.iti.itp.bazaar.shoppingCartActivity.ChooseAdressFragment.view.ChooseAddressFragment"
+        android:name="com.iti.itp.bazaar.mainActivity.ChooseAdressFragment.view.ChooseAddressFragment"
         android:label="Choose address"
         tools:layout="@layout/fragment_choose_address" >
         <action
@@ -127,7 +127,7 @@
     </fragment>
     <fragment
         android:id="@+id/paymentMethods2"
-        android:name="com.iti.itp.bazaar.shoppingCartActivity.paymentMethods.PaymentMethods"
+        android:name="com.iti.itp.bazaar.mainActivity.paymentMethods.PaymentMethods"
         android:label="Payment methods"
         tools:layout="@layout/fragment_payment_methods">
         <action
@@ -139,12 +139,12 @@
     </fragment>
     <fragment
         android:id="@+id/cashOnDeliveryFragment2"
-        android:name="com.iti.itp.bazaar.shoppingCartActivity.cashOnDeliveryFragment.view.CashOnDeliveryFragment"
+        android:name="com.iti.itp.bazaar.mainActivity.cashOnDeliveryFragment.view.CashOnDeliveryFragment"
         android:label="Cash on delivery"
         tools:layout="@layout/fragment_cash_on_delivery" />
     <fragment
         android:id="@+id/successOrderPage"
-        android:name="com.iti.itp.bazaar.SuccessOrderPage"
+        android:name="com.iti.itp.bazaar.mainActivity.SuccessOrderPage"
         android:label="Success!"
         tools:layout="@layout/fragment_success_order_page">
         <action
@@ -153,12 +153,12 @@
     </fragment>
     <fragment
         android:id="@+id/aboutUsFragment2"
-        android:name="com.iti.itp.bazaar.settings.ui.AboutUsFragment"
+        android:name="com.iti.itp.bazaar.mainActivity.about.AboutUsFragment"
         android:label="About Us"
         tools:layout="@layout/fragment_about_us" />
     <fragment
         android:id="@+id/addressFragment2"
-        android:name="com.iti.itp.bazaar.settings.ui.addressFragment.view.AddressFragment"
+        android:name="com.iti.itp.bazaar.mainActivity.addressFragment.view.AddressFragment"
         android:label="Addresses"
         tools:layout="@layout/fragment_address">
         <action
@@ -167,12 +167,12 @@
     </fragment>
     <fragment
         android:id="@+id/contactUsFragment2"
-        android:name="com.iti.itp.bazaar.settings.ui.ContactUsFragment"
+        android:name="com.iti.itp.bazaar.mainActivity.contact.ContactUsFragment"
         android:label="Contact Us"
         tools:layout="@layout/fragment_contact_us" />
     <fragment
         android:id="@+id/newAddressFragment"
-        android:name="com.iti.itp.bazaar.settings.ui.newAddressFragment.view.NewAddressFragment"
+        android:name="com.iti.itp.bazaar.mainActivity.newAddressFragment.view.NewAddressFragment"
         android:label="New Address"
         tools:layout="@layout/fragment_new_address" />
 </navigation>
