@@ -14,13 +14,13 @@ Bazaar is a modern e-commerce Android application that provides users with a sea
 - **Search & Discovery**:
   - Advanced search functionality
   - Filter by name of product
-  - 
+    
 - **Shopping Cart**:
   - Real-time cart management
   - Apply coupons and discounts
   - Multiple payment options
   - Order summary
-  - 
+    
 - **Favorites**:
   - Wishlist management
 
@@ -46,7 +46,7 @@ Bazaar is a modern e-commerce Android application that provides users with a sea
   - Retrofit for API communication
   - Kotlin Coroutines
   - Kotlin Flow
-  - 
+    
 - **UI Components**:
   - Material Design 3
   - Custom Views
