@@ -1,4 +1,4 @@
-package com.iti.itp.bazaar.mainActivity.ui.me
+package com.iti.itp.bazaar.mainActivity.ui.profile
 
 import android.annotation.SuppressLint
 import android.app.Dialog
@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.iti.itp.bazaar.R
@@ -34,20 +35,15 @@ import com.iti.itp.bazaar.network.shopify.ShopifyRemoteDataSource
 import com.iti.itp.bazaar.network.shopify.ShopifyRetrofitObj
 import com.iti.itp.bazaar.repo.CurrencyRepository
 import com.iti.itp.bazaar.repo.Repository
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-class MeFragment : Fragment() {
+class ProfileFragment : Fragment() {
     private lateinit var orderViewModel: OrderViewModel
     private lateinit var meViewModel: MeViewModel
     private lateinit var meFactory: MeViewModelFactory
-    private lateinit var currencySharePrefs: SharedPreferences
     private lateinit var binding: FragmentMeBinding
-
-    //private lateinit var moreOrders: TextView
-    lateinit var mAuth: FirebaseAuth
     private lateinit var userDataSharedPreferences: SharedPreferences
     private lateinit var customerID: String
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
@@ -92,15 +88,12 @@ class MeFragment : Fragment() {
         getAddressCount()
 
         binding.btnLogout.setOnClickListener {
-            FirebaseAuth.getInstance().signOut()
-            val intent = Intent(requireActivity(), AuthActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
+           showLogoutDialog()
         }
 
 
         binding.cardViewOrders.setOnClickListener {
-            val action = MeFragmentDirections.actionNavMeToOrderFragment(customerID)
+            val action = ProfileFragmentDirections.actionNavMeToOrderFragment(customerID)
             Navigation.findNavController(it).navigate(action)
         }
 
@@ -109,17 +102,17 @@ class MeFragment : Fragment() {
         }
 
         binding.cardViewContactUs.setOnClickListener {
-            val action = MeFragmentDirections.actionNavProfileToContactUsFragment2()
+            val action = ProfileFragmentDirections.actionNavProfileToContactUsFragment2()
             Navigation.findNavController(view).navigate(action)
         }
 
         binding.cardViewAddresses.setOnClickListener {
-            val action = MeFragmentDirections.actionNavProfileToAddressFragment2()
+            val action = ProfileFragmentDirections.actionNavProfileToAddressFragment2()
             Navigation.findNavController(view).navigate(action)
         }
 
         binding.cardViewAboutUs.setOnClickListener {
-            val action = MeFragmentDirections.actionNavProfileToAboutUsFragment2()
+            val action = ProfileFragmentDirections.actionNavProfileToAboutUsFragment2()
             Navigation.findNavController(view).navigate(action)
         }
 
@@ -137,17 +130,11 @@ class MeFragment : Fragment() {
         buttonOk.setOnClickListener {
             when (radioGroup.checkedRadioButtonId) {
                 R.id.radioButtonUSD -> {
-//                        lifecycleScope.launch(Dispatchers.IO) {
-//                            meViewModel.changeCurrency("EGP", "USD")
-//                            withContext(Dispatchers.Main){
-//                                observeCurrency()
-//                            }
-//                        }
                     binding.currencyValue.text = "USD"
                 }
 
                 R.id.radioButtonEGP -> {
-                    // currencySharedPreferences.edit().putFloat(MyConstants.CURRENCY, 1F).apply()
+
                     binding.currencyValue.text = "EGP"
                 }
             }
@@ -158,25 +145,6 @@ class MeFragment : Fragment() {
 
     }
 
-
-    private suspend fun observeCurrency() {
-        meViewModel.currency.collect { state ->
-            when (state) {
-                DataState.Loading -> showSnackbar("Loading")
-                is DataState.OnFailed -> showSnackbar("Failed to change the currency")
-                is DataState.OnSuccess<*> -> {
-                    val data = state.data as? ExchangeRateResponse
-                    //currencySharedPreferences.edit().putFloat("currency", data?.conversion_rate?.toFloat()?:1F).apply()
-                }
-            }
-
-        }
-    }
-
-
-    private fun showSnackbar(message: String) {
-        Snackbar.make(requireView(), message, Snackbar.LENGTH_SHORT).show()
-    }
     private fun getOrdersCount() {
         lifecycleScope.launch {
             orderViewModel.ordersStateFlow.collectLatest { result ->
@@ -234,6 +202,23 @@ class MeFragment : Fragment() {
                 }
             }
         }
+    }
+    private fun showLogoutDialog() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Logout")
+            .setMessage("Are you sure you want to logout?")
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setPositiveButton("Logout") { dialog, _ ->
+                FirebaseAuth.getInstance().signOut()
+                val intent = Intent(requireActivity(), AuthActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                }
+                startActivity(intent)
+                dialog.dismiss()
+            }
+            .show()
     }
 
 

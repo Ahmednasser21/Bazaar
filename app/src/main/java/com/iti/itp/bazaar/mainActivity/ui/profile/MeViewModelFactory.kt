@@ -1,4 +1,4 @@
-package com.iti.itp.bazaar.mainActivity.ui.me
+package com.iti.itp.bazaar.mainActivity.ui.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
